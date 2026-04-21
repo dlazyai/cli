@@ -6,6 +6,7 @@
 
 ## English
 
+Visit https://dlazy.com for more information.
 A powerful and easy-to-use Command-Line Interface (CLI) tool for the dLazy AI workflow. It allows you to directly invoke various state-of-the-art AI models (text-to-image, video generation, text-to-speech, etc.) right from your terminal.
 
 ### Quick Start
@@ -71,6 +72,7 @@ dlazy seedream-4.5 --prompt "A cyberpunk cat in a futuristic city"
 
 ## 中文
 
+访问 https://dlazy.com 获取更多信息.
 dLazy AI 工作流的官方命令行工具。让你能够在终端（Terminal）里直接调用当前最先进的各种大语言模型和生成式 AI（涵盖文生图、视频生成、声音克隆、语音合成等）。
 
 ### 快速开始
