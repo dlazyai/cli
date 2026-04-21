@@ -1,7 +1,7 @@
 ---
 name: dlazy-superres
 version: 1.0.0
-description: Image super-resolution tool: enhances image clarity and details, returning enhanced URL, suitable for low-res asset restoration and upscaling.
+description: Image super-resolution tool  enhances image clarity and details, returning enhanced URL, suitable for low-res asset restoration and upscaling.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy superres -h for help."}}
 ---
 

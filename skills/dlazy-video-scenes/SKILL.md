@@ -1,7 +1,7 @@
 ---
 name: dlazy-video-scenes
 version: 1.0.0
-description: Video analysis tool: uses ffmpeg to detect and split scenes, then performs scene-level video understanding and returns clip URLs with structured analysis.
+description: Video analysis tool  uses ffmpeg to detect and split scenes, then performs scene-level video understanding and returns clip URLs with structured analysis.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy video-analysis -h for help."}}
 ---
 
