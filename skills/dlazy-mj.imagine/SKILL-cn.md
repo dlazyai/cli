@@ -1,5 +1,5 @@
 ---
-name: dlazy-mj.imagine
+name: dlazy-mj-imagine
 version: 1.0.0
 description: 使用 Midjourney (MJ) 模型生成极具艺术感的图像，支持纯文生图。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy mj.imagine -h 查看帮助信息。"}}
