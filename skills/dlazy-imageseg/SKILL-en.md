@@ -1,7 +1,7 @@
 ---
 name: dlazy-imageseg
 version: 1.0.0
-description: Image matting tool: separates foreground from background and returns transparent background URL, suitable for product image processing, character cutout, and composition.
+description: "Image matting tool: separates foreground from background and returns transparent background URL, suitable for product image processing, character cutout, and composition."
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy imageseg -h for help."}}
 ---
 
