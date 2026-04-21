@@ -1,5 +1,5 @@
 ---
-name: dlazy-jimeng-omnihuman-1.5
+name: dlazy-jimeng-omnihuman-1-5
 version: 1.0.0
 description: 使用即梦 (Jimeng) OmniHuman 1.5 模型，通过人像图片和音频/文本生成逼真的数字人播报视频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy jimeng-omnihuman-1.5 -h 查看帮助信息。"}}

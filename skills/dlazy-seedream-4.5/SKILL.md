@@ -1,5 +1,5 @@
 ---
-name: dlazy-seedream-4.5
+name: dlazy-seedream-4-5
 version: 1.0.0
 description: Generate smooth, high-quality videos with Doubao Seedream 4.5. Supports text-to-video and image-to-video.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy seedream-4.5 -h to view help information."}}

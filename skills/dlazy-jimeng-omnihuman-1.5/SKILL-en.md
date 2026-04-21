@@ -1,5 +1,5 @@
 ---
-name: dlazy-jimeng-omnihuman-1.5
+name: dlazy-jimeng-omnihuman-1-5
 version: 1.0.0
 description: Generate realistic digital human broadcast videos from portrait images and audio/text using Jimeng OmniHuman 1.5.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy jimeng-omnihuman-1.5 -h to view help information."}}

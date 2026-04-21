@@ -1,5 +1,5 @@
 ---
-name: dlazy-suno.music
+name: dlazy-suno-music
 version: 1.0.0
 description: 使用 Suno AI 音乐生成大模型，根据歌词或风格描述自动创作包含人声和伴奏的完整歌曲。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy suno.music -h 查看帮助信息。"}}

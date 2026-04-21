@@ -1,5 +1,5 @@
 ---
-name: dlazy-veo-3.1-fast
+name: dlazy-veo-3-1-fast
 version: 1.0.0
 description: 使用 Google Veo 3.1 Fast 极速版模型，快速响应并生成短时长的文生视频或图生视频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy veo-3.1-fast -h 查看帮助信息。"}}

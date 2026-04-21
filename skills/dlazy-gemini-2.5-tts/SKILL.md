@@ -1,5 +1,5 @@
 ---
-name: dlazy-gemini-2.5-tts
+name: dlazy-gemini-2-5-tts
 version: 1.0.0
 description: Generate multilingual, highly natural audio using Gemini 2.5 text-to-speech.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy gemini-2.5-tts -h to view help information."}}

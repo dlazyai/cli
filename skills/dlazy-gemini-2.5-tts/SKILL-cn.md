@@ -1,5 +1,5 @@
 ---
-name: dlazy-gemini-2.5-tts
+name: dlazy-gemini-2-5-tts
 version: 1.0.0
 description: 使用 Gemini 2.5 强大的文本转语音能力，生成多语言、高自然度的音频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy gemini-2.5-tts -h 查看帮助信息。"}}
