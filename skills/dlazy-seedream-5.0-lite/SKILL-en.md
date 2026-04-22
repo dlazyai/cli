@@ -1,5 +1,5 @@
 ---
-name: dlazy-seedream-5-0-lite
+name: dlazy-seedream-5.0-lite
 version: 1.0.0
 description: Fast image generation with Doubao Seedream 5.0 Lite. Supports text-to-image and image-to-image.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy seedream-5.0-lite -h to view help information."}}

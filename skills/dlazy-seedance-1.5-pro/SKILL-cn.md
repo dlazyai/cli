@@ -1,5 +1,5 @@
 ---
-name: dlazy-seedance-1-5-pro
+name: dlazy-seedance-1.5-pro
 version: 1.0.0
 description: 使用豆包 Seedance 1.5 Pro 动作/舞蹈视频生成模型，将图片转化为动感的跳舞视频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy seedance-1.5-pro -h 查看帮助信息。"}}

@@ -1,5 +1,5 @@
 ---
-name: dlazy-veo-3-1
+name: dlazy-veo-3.1
 version: 1.0.0
 description: Generate high-quality cinematic effects videos with Google Veo 3.1.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy veo-3.1 -h to view help information."}}

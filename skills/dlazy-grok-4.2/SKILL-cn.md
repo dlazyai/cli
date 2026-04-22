@@ -1,5 +1,5 @@
 ---
-name: dlazy-grok-4-2
+name: dlazy-grok-4.2
 version: 1.0.0
 description: 使用 Grok 4.2 文本大模型，进行高效的文本生成、对话问答与逻辑推理。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy grok-4.2 -h 查看帮助信息。"}}

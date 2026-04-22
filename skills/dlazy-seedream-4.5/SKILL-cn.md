@@ -1,5 +1,5 @@
 ---
-name: dlazy-seedream-4-5
+name: dlazy-seedream-4.5
 version: 1.0.0
 description: 使用豆包 Seedream 4.5 模型生成流畅的高质量视频，支持文生视频与图生视频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy seedream-4.5 -h 查看帮助信息。"}}

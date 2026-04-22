@@ -1,5 +1,5 @@
 ---
-name: dlazy-seedream-5-0-lite
+name: dlazy-seedream-5.0-lite
 version: 1.0.0
 description: 使用豆包 Seedream 5.0 Lite 极速生成图像，支持文生图与图生图。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy seedream-5.0-lite -h 查看帮助信息。"}}

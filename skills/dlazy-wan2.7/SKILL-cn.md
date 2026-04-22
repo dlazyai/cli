@@ -1,5 +1,5 @@
 ---
-name: dlazy-wan2-7
+name: dlazy-wan2.7
 version: 1.0.0
 description: 通义万相 2.7 视频模型 —— 单一模型支持文生视频、图生视频、首尾帧视频及参考图生成视频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy wan2.7 -h 查看帮助信息。"}}

@@ -1,5 +1,5 @@
 ---
-name: dlazy-seedance-2-0
+name: dlazy-seedance-2.0
 version: 1.0.0
 description: ByteDance's latest video generation model. Supports multi-modal reference (images, video, audio) to generate videos, as well as first/last frame and text-to-video modes.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy seedance-2.0 -h for help."}}

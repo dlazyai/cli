@@ -1,5 +1,5 @@
 ---
-name: dlazy-mj-imagine
+name: dlazy-mj.imagine
 version: 1.0.0
 description: Generate artistic images using Midjourney (MJ) model. Supports text-to-image.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy mj.imagine -h to view help information."}}

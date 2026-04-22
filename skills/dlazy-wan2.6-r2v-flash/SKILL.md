@@ -1,5 +1,5 @@
 ---
-name: dlazy-wan2-6-r2v-flash
+name: dlazy-wan2.6-r2v-flash
 version: 1.0.0
 description: Quickly generate dynamic short videos from reference images using Wan 2.6 Flash.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy wan2.6-r2v-flash -h to view help information."}}

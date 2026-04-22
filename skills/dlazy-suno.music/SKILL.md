@@ -1,5 +1,5 @@
 ---
-name: dlazy-suno-music
+name: dlazy-suno.music
 version: 1.0.0
 description: Automatically create complete songs with vocals and accompaniment based on lyrics or style descriptions using Suno AI.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy suno.music -h to view help information."}}
@@ -74,7 +74,7 @@ dlazy suno.music --prompt 'prompt text'
 
 > **AGENT CRITICAL INSTRUCTION**: 
 > 1. If the execution result returns `code: "insufficient_balance"`, you MUST explicitly inform the user that their credits are insufficient and guide them to recharge: [https://dlazy.com/dashboard/organization/settings?tab=credits](https://dlazy.com/dashboard/organization/settings?tab=credits)
-> 2. If the execution result returns `code: "unauthorized"` or indicates missing API key, you MUST inform the user to get their API key from [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) and send it to you. Once they provide it, set it using `dlazy auth set <key>` and resume the task.
+> 2. If the execution result returns `code: "unauthorized"` or indicates missing API key, you MUST inform the user to get their API key from [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) and send it to you. Once they provide it, save it using `dlazy auth set <key>` and resume the task.
 
 ## Tips
 

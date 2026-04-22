@@ -1,5 +1,5 @@
 ---
-name: dlazy-grok-4-2
+name: dlazy-grok-4.2
 version: 1.0.0
 description: Efficient text generation, dialogue QA, and logical reasoning using Grok 4.2 text model.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy grok-4.2 -h to view help information."}}

@@ -1,5 +1,5 @@
 ---
-name: dlazy-wan2-6-r2v
+name: dlazy-wan2.6-r2v
 version: 1.0.0
 description: 使用 Wan 2.6 参考图生视频 (R2V) 模型，基于参考图片精准生成连续视频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy wan2.6-r2v -h 查看帮助信息。"}}

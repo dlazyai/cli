@@ -1,5 +1,5 @@
 ---
-name: dlazy-seedance-1-5-pro
+name: dlazy-seedance-1.5-pro
 version: 1.0.0
 description: Convert images into dynamic dance videos using Doubao Seedance 1.5 Pro.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy seedance-1.5-pro -h to view help information."}}
