@@ -11,7 +11,7 @@ program
 	.description(
 		"AI tool runner. Emits JSON envelopes on stdout; logs on stderr.",
 	)
-	.version("1.0.0")
+	.version("1.0.6")
 	.option("--api-key <key>", "API key (overrides DLAZY_API_KEY and config)")
 	.option("--base-url <url>", "API base URL (overrides DLAZY_BASE_URL)")
 	.option("--verbose", "Enable debug logging on stderr");

@@ -1,11 +1,27 @@
 ---
 name: logo-branding-system
-version: 1.0.0
+version: 1.0.2
 description: 用于构建从核心标志到完整品牌视觉系统的专业化流程，确保创意质量、执行一致性与可落地交付。
 triggers:
   - Logo & Branding 专业设计系统
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
+
+## 身份验证 (Authentication)
+
+所有请求都需要配置 dLazy API key。
+
+**CLI 配置**: 你可以通过以下命令设置你的 API key：
+
+```bash
+dlazy auth set YOUR_API_KEY
+```
+
+### 获取你的 API Key
+
+1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
+2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. 点击 API Key 右侧的复制按钮获取它
 
 # Logo & Branding 专业设计系统
 

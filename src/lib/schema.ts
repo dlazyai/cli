@@ -19,7 +19,7 @@ export type SchemaConditionGroup =
 	| { any: SchemaCondition[] };
 
 export type FieldMeta = {
-	type?: string;
+	mediaType?: string;
 	showWhen?: SchemaConditionGroup;
 	hideWhen?: SchemaConditionGroup;
 	hidden?: boolean;
@@ -151,8 +151,8 @@ export function describeField(
 		: schema;
 	const itemIsString = isStringLike(leafSchema);
 	const mediaType =
-		meta?.type && FILE_META_TYPES.has(meta.type) && itemIsString
-			? (meta.type as FieldMediaType)
+		meta?.mediaType && FILE_META_TYPES.has(meta.mediaType) && itemIsString
+			? (meta.mediaType as FieldMediaType)
 			: undefined;
 	const enumChoices = getEnumOptions(schema);
 	const defaultValue = getDefaultValue(schema);

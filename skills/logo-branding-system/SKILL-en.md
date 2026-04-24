@@ -1,126 +1,157 @@
 ---
 name: logo-branding-system
-version: 1.0.0
-description: Used to build a professional process from the core logo to a complete brand visual system, ensuring creative quality, execution consistency, and practical delivery.
+version: 1.0.2
+description: 用于构建从核心标志到完整品牌视觉系统的专业化流程，确保创意质量、执行一致性与可落地交付。
 triggers:
-  - Logo & Branding Professional Design System
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
+  - Logo & Branding 专业设计系统
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
-# Logo & Branding Professional Design System
+## 身份验证 (Authentication)
 
-Used to build a professional process from the core logo to a complete brand visual system, ensuring creative quality, execution consistency, and practical delivery.
+所有请求都需要配置 dLazy API key。
 
-## Core Principles
+**CLI 配置**: 你可以通过以下命令设置你的 API key：
 
-1. Step-by-Step Execution Strategy
-   - Adopt a progressive process; do not output massive content all at once.
-   - When a single plan exceeds 2 images, submit the execution plan first, wait for confirmation, then start generating.
-   - Upstream assets MUST be confirmed before advancing to downstream applications.
-2. Object Consistency
-   - The same brand elements MUST remain strictly consistent across all applications.
-   - When creating variants based on existing images, the goal is replication consistency, not reinterpretation.
-3. User Assets First
-   - User-provided reference images, logos, and materials have the highest priority.
-   - Strictly distinguish visual style from text content; brand names MUST follow user specifications.
+```bash
+dlazy auth set YOUR_API_KEY
+```
 
-## Execution Framework
+### 获取你的 API Key
 
-### Step 0: Task Planning (Mandatory)
+1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
+2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. 点击 API Key 右侧的复制按钮获取它
 
-Before starting any design output, establish a task plan containing at least:
+# Logo & Branding 专业设计系统
 
-- Collect requirements and boundaries
-- Design core Logo concept
-- Generate derivative applications and brand system
-- Stage confirmation and iterative correction
+用于构建从核心标志到完整品牌视觉系统的专业化流程，确保创意质量、执行一致性与可落地交付。
 
-Execution Rules:
-- Only one task can be `in_progress` at a time; others must be `pending`.
-- Update the plan status upon completing each stage.
-- If the user requests rework or provides new assets, add or rearrange tasks and re-enter the corresponding stage.
+## 核心原则
 
-### Step A: Collect Requirements
+1. 分步执行策略
+   - 采用渐进式流程，不一次性输出大量内容。
+   - 当单次计划超过 2 张图片时，先提交执行计划并等待确认，再开始生成。
+   - 上游资产必须先确认，再推进下游应用。
+2. 对象一致性
+   - 同一品牌元素在全部应用中保持严格一致。
+   - 基于既有图像做变体时，目标是复制一致性而非重新诠释。
+3. 用户资产优先
+   - 用户提供的参考图、标志、素材优先级最高。
+   - 严格区分视觉风格与文字内容，品牌名称以用户指定为准。
 
-You MUST confirm the following information:
-- Brand Name
-- Industry or Product Category
-- Design Component Scope (Logo only or including derivative applications)
+## 执行框架
 
-Design Component Definitions:
-- Logo: Core brand identity.
-- Derivative Applications: Practical scenarios based on the brand identity.
+### 步骤 0：任务规划（必须）
 
-### Step B: Establish Core Logo
+在开始任何输出前，先建立任务计划，至少包含：
 
-New logo design follows:
-- Single Focus: One central element, avoiding background or decorative interference.
-- Symbolic Abstraction: Refined to the most easily recognizable form.
-- Clear Silhouette: High-contrast silhouette, clear edges.
-- Default 1K resolution.
+- 收集需求与边界
+- 设计核心 Logo 概念
+- 生成衍生应用与品牌系统
+- 阶段确认与迭代修正
 
-Concept Output Rules:
-- Default to providing 4 different design directions for open-ended requests.
-- Present each concept individually; do NOT use collage grids.
-- Attach a 100-200 word design rationale for each concept.
-- You MUST wait for user confirmation before proceeding to the next step.
+执行规则：
 
-### Step C: Create Derivative Applications
+- 仅保留一个 `in_progress` 任务，其他任务标记为 `pending`。
+- 每完成一个阶段，更新计划状态。
+- 若用户提出返工或新增资产，新增或重排任务并重新进入对应阶段。
 
-Deliverable Directions:
-1. Logo Variants
-   - Structural variants: Lettermark, Wordmark, Pictorial mark, Combination mark.
-   - Layout or orientation variants.
-   - Color variants.
-   - Size and usage variants.
-2. Brand Patterns and Auxiliary Graphics
-   - Generate independent, reusable graphic assets.
-3. Physical Applications
-   - Business cards and stationery.
-   - Packaging and merchandise.
-   - Environmental signage and wayfinding systems.
-4. Social Media Assets
-   - Generate final images ready for direct posting.
-5. Brand Identity System
-   - Brand Core (Story, Pillars, Tone of Voice).
-   - Logo System.
-   - Color System.
-   - Typography System.
-   - Visual Language.
-   - Application Examples.
+### 步骤 A：收集需求
 
-Application Design Principles:
-- Place the logo delicately; avoid making it excessively large and centered.
-- Deconstruct brand elements into patterns, icons, and color blocks.
-- Use white space to unify the visual hierarchy.
-- Emphasize material and textural experiences.
+必须确认以下信息：
 
-## Stage Confirmation & Rollback Rules
+- 品牌名称
+- 行业或产品类别
+- 设计组件范围（仅 Logo 或含衍生应用）
 
-- Confirm at the end of each step before continuing to the next.
-- When the user requests adjustments to intermediate results, roll back to the corresponding upstream step to correct it first, then synchronously update downstream assets.
-- If the user provides new reference assets, immediately reset the consistency baseline and unify all subsequent outputs.
+设计组件定义：
 
-## Output Format
+- Logo：核心品牌标识
+- 衍生应用：基于品牌标识的落地场景
 
-- Requirement summary
-- Current stage deliverables
-- Next step plan and items pending confirmation
-- Current todo status (stage, completed items, pending confirmation items)
+### 步骤 B：建立核心标志
 
-## 🛠️ CRITICAL EXECUTION INSTRUCTIONS
+新标志设计遵循：
 
-**You are an intelligent Agent capable of executing terminal commands!**
+- 单一焦点：一个中心元素，避免背景或装饰干扰
+- 符号抽象：提炼为最易识别形式
+- 清晰轮廓：高对比度剪影，边缘明确
+- 默认 1K 分辨率
 
-**[STRICTLY PROHIBITED BEHAVIORS]**
-- PROHIBITED: Saving prompts to any file (e.g., txt, md).
-- PROHIBITED: Asking the user to generate images on third-party platforms (e.g., Midjourney).
-- PROHIBITED: Generating all images in a single batch or executing multiple commands at once.
+概念产出规则：
 
-**[MANDATORY INTERACTION & EXECUTION WORKFLOW]**
-You MUST execute **strictly step-by-step**, stopping at each step to wait for the user's reply:
+- 对开放性需求默认提供 4 个不同设计方向
+- 每个概念单独呈现，不使用拼图网格
+- 每个概念附 100-200 字设计理念说明
+- 必须等待用户确认后再进入下一步
 
-1. **Step 1: Proactively Gather Requirements**. When a user makes a request, DO NOT design or generate anything. Ask questions first (e.g., product features, target audience, number of images). **You MUST wait for the user's reply.**
-2. **Step 2: Output Draft & Request Confirmation**. Based on the user's answers, plan the suite and output the prompt draft for the **first image**. **Ask the user: "Do you confirm this prompt? Can we start generating the first image?" You MUST wait for the user to answer "confirm".**
-3. **Step 3: Execute Terminal Command (Single)**. After confirmation, you **MUST execute the command using the terminal** (e.g., `dlazy seedream-4.5 --prompt "..."`). Execute only ONE generation command at a time. **IMPORTANT: You MUST use synchronous commands. NEVER append `&` to the command, and NEVER use `&&`. You are running in Windows PowerShell!**
-4. **Step 4: Delivery & Loop**. Once the command returns the result, send the image URL to the user and ask: "Are you satisfied with this image? Can we proceed to generate the next one?". Continue to the next step only after receiving confirmation.
+### 步骤 C：创建衍生应用
+
+可交付方向：
+
+1. 标志变体
+   - 结构变体：字母标、文字标、图形标、组合标志
+   - 布局或方向变体
+   - 颜色变体
+   - 尺寸与用途变体
+2. 品牌图案与辅助图形
+   - 生成独立可复用的图形资产
+3. 实物应用
+   - 名片与文具
+   - 包装与周边产品
+   - 环境标识与导视系统
+4. 社交媒体资产
+   - 生成可直接发布的最终图像
+5. 品牌识别系统
+   - 品牌核心（故事、支柱、语调）
+   - 标志系统
+   - 色彩系统
+   - 字体系统
+   - 视觉语言
+   - 应用示例
+
+应用设计原则：
+
+- 标志精致放置，避免过大居中
+- 解构品牌元素为图案、图标、色块
+- 使用留白团队视觉层级
+- 强调材质与质感体验
+
+## 阶段确认与回滚规则
+
+- 每一步结束都先进行确认，再继续后续步骤。
+- 当用户对中间结果提出调整，先回到对应上游步骤修正，再同步更新下游资产。
+- 若用户提供新增参考资产，需立即重置一致性基准并统一后续输出。
+
+## 输出格式
+
+- 需求摘要
+- 当前阶段交付物
+- 下一步计划与待确认项
+- 当前 todo 状态（阶段、已完成项、待确认项）
+
+## 关键价值
+
+- 渐进式工作流，降低返工成本
+- 多方向概念探索，提升决策质量
+- 全链路一致性控制，强化品牌识别
+- 从 Logo 到品牌系统的一体化交付
+
+
+## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
+
+**你是可以执行终端命令的智能 Agent！**
+
+**【严格禁止行为】**
+- 严禁：将提示词保存到任何文件中（如 txt, md）。
+- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
+- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
+
+**【必须遵循的交互与执行流程】**
+你必须**严格分步**执行，并在每一步停下来等待用户回复：
+
+1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
+2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
+3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
+4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。

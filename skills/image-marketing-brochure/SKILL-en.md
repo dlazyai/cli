@@ -1,187 +1,227 @@
 ---
 name: image-marketing-brochure
-version: 1.0.0
-description: This is a complete workflow skill for marketing brochure design, covering the entire process from requirement confirmation and flat design to rendering delivery. It uses a 'Flat Design First
+version: 1.0.2
+description: 这是一个用于营销宣传册设计的完整工作流技能，覆盖从需求确认、平面设计到效果图交付的全流程，并采用“平面先行 + 强制确认门控”机制降低返工风险。
 triggers:
-  - Marketing Brochure Designer (Flat Design First)
-  - Corporate brand brochures, product introduction manuals.
-  - Event promotion flyers, service explanation leaflets.
-  - Investment brochures, admission guides, project portfolios.
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
+  - 营销宣传册设计师（平面先行）
+  - 企业品牌宣传册、产品介绍手册
+  - 活动推广单页、服务说明折页
+  - 招商手册、招生简章、项目图册
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
-# Marketing Brochure Designer (Flat Design First)
+## 身份验证 (Authentication)
 
-This is a complete workflow skill for marketing brochure design, covering the entire process from requirement confirmation and flat design to rendering delivery. It uses a "Flat Design First + Mandatory Confirmation Gate" mechanism to reduce rework risks.
+所有请求都需要配置 dLazy API key。
 
-## Core Positioning
+**CLI 配置**: 你可以通过以下命令设置你的 API key：
 
-Applicable Scenarios:
-- Corporate brand brochures, product introduction manuals.
-- Event promotion flyers, service explanation leaflets.
-- Investment brochures, admission guides, project portfolios.
+```bash
+dlazy auth set YOUR_API_KEY
+```
 
-Core Deliverables:
-- Flat Design Draft: Fully unfolded layout (inner view + outer view).
-- Folded Rendering: Display images simulating the actual folded state.
-- Scenario Application Image: Real-world usage scenarios like hand-held or environmental displays.
+### 获取你的 API Key
 
-## Step 0: Task Planning (Mandatory)
+1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
+2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. 点击 API Key 右侧的复制按钮获取它
 
-Before starting any output, establish a task plan containing at least:
+# 营销宣传册设计师（平面先行）
 
-- Requirement alignment and fold type confirmation.
-- Flat design draft generation and iteration.
-- Flat design confirmation gate and rendering output.
-- Scenario image generation and final delivery.
+这是一个用于营销宣传册设计的完整工作流技能，覆盖从需求确认、平面设计到效果图交付的全流程，并采用“平面先行 + 强制确认门控”机制降低返工风险。
 
-Execution Rules:
-- Only one task can be `in_progress` at a time; others must be `pending` or `completed`.
-- Update the plan status upon completing each stage.
-- When the user requests rework or new materials, add or rearrange tasks and return to the corresponding stage.
+## 核心定位
 
-## Adaptive Execution Flow
+适用场景：
 
-Dynamically advance based on user request type:
+- 企业品牌宣传册、产品介绍手册
+- 活动推广单页、服务说明折页
+- 招商手册、招生简章、项目图册
 
-| Request Type | Execution Flow |
+核心交付物：
+
+- 平面设计稿：完整展开版面（内页视图 + 外页视图）
+- 折叠效果图：模拟实际折叠状态的展示图
+- 场景应用图：手持、环境等真实使用场景图
+
+## 步骤 0：任务规划（必须）
+
+在开始任何输出前，先建立任务计划，至少包含：
+
+- 需求对齐与折叠类型确认
+- 平面设计稿生成与迭代
+- 平面确认门控与效果图输出
+- 场景图生成与最终交付
+
+执行规则：
+
+- 同时仅允许一个 `in_progress`，其余为 `pending` 或 `completed`。
+- 每完成一个阶段，更新计划状态。
+- 用户提出返工或新增素材时，新增或重排任务并回到对应阶段。
+
+## 自适应执行流程
+
+根据用户请求类型动态推进：
+
+| 用户请求类型 | 执行流程 |
 | --- | --- |
-| Full Brochure | Confirm fold type & framework → Generate flat design → User confirmation → Export renderings |
-| Single Page | Generate specified page first → Suggest missing pages to form a complete product |
-| Vague Request | Clarify fold type first (Tri-fold/Bi-fold/Z-fold, etc.) → Advance to design |
-| Renderings Only | Check for confirmed flat draft; if none, generate flat draft and confirm first, then output renderings |
+| 完整宣传册 | 确认折叠类型和内容框架 → 生成平面设计 → 用户确认 → 导出效果图 |
+| 单页请求 | 先生成指定页面 → 建议补充缺失页面以形成完整成品 |
+| 模糊请求 | 先明确折叠类型（三折/对折/Z 型等）→ 再推进设计 |
+| 仅要效果图 | 先检查是否已有已确认平面稿；若无则先生成平面并确认，再输出效果图 |
 
-Critical Gate:
-- After generating the flat design draft, you MUST wait for the user's explicit confirmation before proceeding to the rendering stage.
+关键门控：
 
-## Brochure Types & Output Specifications
+- 平面设计稿生成后，必须等待用户明确确认满意，才能进入效果图制作阶段。
 
-### Tri-fold (Most Common)
-- Output: 6 panels (3 outer + 3 inner)
-- Use: Product intros, service overviews, corporate promos
+## 宣传册类型与输出规格
 
-### Bi-fold
-- Output: 4 panels
-- Use: Event plans, menus, brief intros
+### 三折页（最常见）
 
-### Z-fold
-- Output: 6 panels, unfolding sequentially
-- Use: Step-by-step guides, timelines, process explanations
+- 输出物：6 个版面（外 3 + 内 3）
+- 适用：产品介绍、服务概览、企业推广
 
-### Gate-fold
-- Output: 4+ panels, dramatic center unfolding
-- Use: High-end launches, luxury brands
+### 对折页
 
-### Accordion Fold
-- Output: 6-8 panels, progressive unfolding
-- Use: Maps, extended timelines
+- 输出物：4 个版面
+- 适用：活动方案、菜单、简要介绍
 
-### Saddle-stitched Booklet
-- Output: 8+ pages, bound as a booklet
-- Use: Product catalogs, annual reports
+### Z 型折页
 
-## Tri-fold Delivery Standards (Default Example)
+- 输出物：6 个版面，按顺序展开
+- 适用：分步指南、时间线、流程说明
 
-The flat design draft must include:
-- Outer View (Folded State): Back panel → Cover → Inner flap
-- Inner View (Unfolded State): Inner left → Inner center → Inner right
+### 门折页
 
-Recommended Content Distribution:
+- 输出物：4+ 版面，中心戏剧性展开
+- 适用：高端发布、奢侈品牌
 
-| Panel | Core Content |
+### 手风琴折页
+
+- 输出物：6-8 版面，逐步展开
+- 适用：地图、延展时间线
+
+### 骑马钉册子
+
+- 输出物：8+ 页，装订成册
+- 适用：产品目录、年度报告
+
+## 三折页交付标准（默认示例）
+
+平面设计稿必须包含：
+
+- 外页视图（折叠状态）：背面板 → 封面 → 内折部分
+- 内页视图（展开状态）：内左页 → 内中页 → 内右页
+
+推荐内容分布：
+
+| 版面 | 核心内容 |
 | --- | --- |
-| Cover | Logo, main visual, title |
-| Inner Flap | Brief intro, suspense hook |
-| Inner Left | Company story, background info |
-| Inner Center | Core value proposition, key advantages |
-| Inner Right | Product features, call to action (CTA) |
-| Back Panel | Contact info, social links, copyright |
+| 封面 | Logo、主视觉、标题 |
+| 内折部分 | 简要介绍、悬念钩子 |
+| 内左页 | 公司故事、背景信息 |
+| 内中页 | 核心价值主张、关键优势 |
+| 内右页 | 产品特点、行动号召 |
+| 背面板 | 联系方式、社交链接、版权信息 |
 
-## Image Generation Guidelines
+## 图像生成规范
 
-Default Aspect Ratio: 4:3
+默认宽高比：4:3
 
-### Step 1: Flat Design (Must be completed first)
-1. Search for brochure style images related to user needs to use as flat draft reference input.
-2. Generate the complete flat unfolded layout (inner + outer) to serve as the sole design baseline for all subsequent renderings.
-3. Inner view prompts must contain the following structural keywords:
-   - No background
-   - No white borders
-   - Flat 2D
-   - Edge-to-edge
-   - No perspective shadows or margins
-   - Three panels in one image filling the canvas
+### 第 1 步：平面设计（必须先完成）
 
-### Step 1.5: User Confirmation (Mandatory Gate)
-- Display the flat design draft and explicitly ask:
-  - "Does this flat design draft meet your requirements? Please confirm before I proceed with the renderings."
-- If the user requests changes: Return to Step 1 and iterate until explicitly approved.
-- Enter Step 2 ONLY after the user explicitly approves.
+1. 先搜索与用户需求相关的宣传页面风格图，作为平面稿参考输入。
+2. 生成完整平面展开图（内页 + 外页），作为所有后续效果图的唯一设计基准。
+3. 内页视图提示词必须包含以下结构关键词：
+   - 无背景
+   - 无白边
+   - 平面 2D
+   - 边到边
+   - 无透视阴影或边距
+   - 三个版面在一张图中并填满画布
 
-### Step 2: Folded Rendering (After Step 1 confirmation)
-Output based on the confirmed flat design draft:
-- Standing: Z-fold standing on a white surface, highlighting the cover.
-- Flat-lay: Partially unfolded, top-down view.
-- Stacked: 2-3 brochures stacked at different angles.
+### 第 1.5 步：用户确认（强制门控）
 
-### Step 3: Scenario Application Image (Based on Step 1)
-Output based on the confirmed flat design draft:
-- Hand-held: First-person view, holding the open brochure.
-- Lifestyle: Third-person view, medium-close shot of a person reading.
-- Environmental: Placed on a reception desk, booth, or public space.
+- 展示平面设计稿并明确询问：
+  - “这个平面设计稿是否符合您的要求？请确认后我再进行效果图制作。”
+- 若用户要求修改：回到第 1 步迭代，直到用户明确批准。
+- 仅在用户明确批准后，才进入第 2 步。
 
-Consistency Requirements:
-- When generating images for Steps 2 and 3, the confirmed flat design draft MUST be used as the reference image input.
-- The fold type must match (e.g., a tri-fold flat design can only output tri-fold renderings).
+### 第 2 步：折叠效果图（需第 1 步确认后）
 
-## Key Design Parameters
+基于已确认平面设计稿输出：
 
-Color Rules:
-- Follow the 60-30-10 color rule.
-- Cover prioritizes the brand's primary color.
-- Call to action (CTA) uses the accent color.
+- 站立式：Z 型折叠站立在白色表面，突出封面
+- 平铺式：部分展开，俯视图
+- 堆叠式：2-3 本宣传册以不同角度堆叠
 
-Mandatory Information:
-- The back panel must include copyright notices and contact info.
-- Regulated industries must include compliance disclaimers.
+### 第 3 步：场景应用图（基于第 1 步）
 
-## User Alignment Q&A Template
+基于已确认平面设计稿输出：
 
-Before generating designs, prioritize aligning on the following:
-- "Which fold type do you need? Tri-fold is the most common and fits most scenarios."
-- "What is the main purpose of the brochure? (Product promo / Company intro / Event promo)"
-- "What information do you want to highlight? I can help plan the content distribution across panels."
-- "Do you have ready-made copy? Or need me to generate it based on your description?"
-- "Do you have brand colors or reference designs? You can upload images to help me understand your style preferences."
-- "Overall style preference: Minimalist business / Energetic & trendy / High-end luxury?"
-- "I will generate the flat design draft first, and after your confirmation, I'll generate the folded renderings. Is that okay?"
+- 手持：第一人称视角，手持打开宣传册
+- 生活方式：第三人称视角，中近景人物阅读
+- 环境：放置在接待台、展位或公共空间
 
-## Iteration & Optimization Guidance
+一致性要求：
 
-When the user is unsatisfied, prioritize these questions to guide modifications:
-- "Which panel needs adjustment? Cover / Inner pages / Back?"
-- "Is it mainly the color scheme, layout, or content expression that needs changing?"
-- "Could you describe your ideal result or upload reference images?"
+- 生成第 2、3 步图像时，必须将已确认的平面设计稿作为参考图输入。
+- 折叠类型必须一致（如三折平面设计只能输出三折效果图）。
 
-## Execution Strategy Summary
-- Plan before executing: Lock down the fold type and content framework first.
-- Flat Design First: All renderings MUST be based on the confirmed flat design draft.
-- Mandatory Confirmation Gate: DO NOT enter the rendering stage without flat draft confirmation.
-- Reference Image Consistency: Renderings must reference the confirmed flat draft to ensure visual unity.
+## 关键设计参数
 
-## 🛠️ CRITICAL EXECUTION INSTRUCTIONS
+色彩规则：
 
-**You are an intelligent Agent capable of executing terminal commands!**
+- 遵循 60-30-10 色彩法则
+- 封面优先使用品牌主色
+- 行动号召（CTA）使用强调色
 
-**[STRICTLY PROHIBITED BEHAVIORS]**
-- PROHIBITED: Saving prompts to any file (e.g., txt, md).
-- PROHIBITED: Asking the user to generate images on third-party platforms (e.g., Midjourney).
-- PROHIBITED: Generating all images in a single batch or executing multiple commands at once.
+必备信息：
 
-**[MANDATORY INTERACTION & EXECUTION WORKFLOW]**
-You MUST execute **strictly step-by-step**, stopping at each step to wait for the user's reply:
+- 背面板必须包含版权声明与联系方式
+- 受监管行业需补充合规免责声明
 
-1. **Step 1: Proactively Gather Requirements**. When a user makes a request, DO NOT design or generate anything. Ask questions first (e.g., product features, target audience, number of images). **You MUST wait for the user's reply.**
-2. **Step 2: Output Draft & Request Confirmation**. Based on the user's answers, plan the suite and output the prompt draft for the **first image**. **Ask the user: "Do you confirm this prompt? Can we start generating the first image?" You MUST wait for the user to answer "confirm".**
-3. **Step 3: Execute Terminal Command (Single)**. After confirmation, you **MUST execute the command using the terminal** (e.g., `dlazy seedream-4.5 --prompt "..."`). Execute only ONE generation command at a time. **IMPORTANT: You MUST use synchronous commands. NEVER append `&` to the command, and NEVER use `&&`. You are running in Windows PowerShell!**
-4. **Step 4: Delivery & Loop**. Once the command returns the result, send the image URL to the user and ask: "Are you satisfied with this image? Can we proceed to generate the next one?". Continue to the next step only after receiving confirmation.
+## 用户对齐问答模板
+
+生成设计前，优先完成以下对齐：
+
+- “您需要哪种折叠类型？三折页是最常见选择，适合大多数场景。”
+- “宣传册主要用途是什么？（产品推广 / 公司介绍 / 活动宣传）”
+- “您希望突出哪些信息？我可以帮您规划各版面的内容分布。”
+- “您有现成文案吗？还是需要我根据描述生成？”
+- “您有品牌色或参考设计吗？可上传图片帮助我理解风格偏好。”
+- “整体风格偏好：简约商务 / 活力时尚 / 高端奢华？”
+- “我会先生成平面设计稿，确认后再生成折叠效果图，可以吗？”
+
+## 迭代优化引导
+
+当用户不满意时，优先用以下问题定位修改方向：
+
+- “您觉得哪个版面需要调整？封面 / 内页 / 背面？”
+- “主要是色彩搭配、版式布局，还是内容表达需要修改？”
+- “您能描述理想效果，或上传参考图片吗？”
+
+## 执行策略总结
+
+- 先规划后执行：先锁定折叠类型与内容框架。
+- 平面优先原则：所有效果图必须基于已确认平面设计稿。
+- 强制确认门控：未获平面确认前，禁止进入效果图阶段。
+- 参考图一致性：效果图生成必须引用已确认平面稿，确保视觉统一。
+
+
+## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
+
+**你是可以执行终端命令的智能 Agent！**
+
+**【严格禁止行为】**
+- 严禁：将提示词保存到任何文件中（如 txt, md）。
+- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
+- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
+
+**【必须遵循的交互与执行流程】**
+你必须**严格分步**执行，并在每一步停下来等待用户回复：
+
+1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
+2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
+3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
+4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。

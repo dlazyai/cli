@@ -1,8 +1,8 @@
 ---
 name: dlazy-video-scenes
-version: 1.0.0
+version: 1.0.2
 description: Video analysis tool: uses ffmpeg to detect and split scenes, then performs scene-level video understanding and returns clip URLs with structured analysis.
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy video-analysis -h for help."}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy video-analysis -h for help."}}
 ---
 
 # dlazy-video-scenes
@@ -12,6 +12,22 @@ Scene split tool: uses ffmpeg to detect and split a video into scene clips, retu
 ## Trigger Keywords
 
 - video-scenes
+
+## Authentication
+
+All requests require the dLazy API key via CLI configuration.
+
+**CLI Configuration**: You can set your API key using the following command:
+
+```bash
+dlazy auth set YOUR_API_KEY
+```
+
+### Getting Your API Key
+
+1. Sign in or create an account at [dlazy.com](https://dlazy.com)
+2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. Click the copy button on the right side of API Key section to copy it
 
 ## Usage
 
@@ -62,7 +78,7 @@ dlazy video-scenes --prompt 'prompt content'
 
 > **AGENT CRITICAL INSTRUCTION**: 
 > 1. If the execution result returns `code: "insufficient_balance"`, you MUST explicitly inform the user that their credits are insufficient and guide them to recharge: [https://dlazy.com/dashboard/organization/settings?tab=credits](https://dlazy.com/dashboard/organization/settings?tab=credits)
-> 2. If the execution result returns `code: "unauthorized"` or indicates missing API key, you MUST inform the user to get their API key from [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) and send it to you. Once they provide it, save it using `dlazy auth set <key>` and resume the task.
+> 2. If the execution result returns `code: "unauthorized"` or indicates missing API key, you MUST inform the user to get their API key from [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) and save it using `dlazy auth set <key>` and resume the task.
 
 ## Tips
 

@@ -1,10 +1,31 @@
 ---
 name: image-storyboard
-version: 1.0.0
+version: 1.0.2
 description: 这是一个面向影视、广告、短视频、教育叙事场景的专业分镜故事板技能，遵循“先规划，后渲染”的严格流程。
 triggers:
   - 分镜故事板工作流导演
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+---
+
+## 身份验证 (Authentication)
+
+所有请求都需要配置 dLazy API key。
+
+**CLI 配置**: 你可以通过以下命令设置你的 API key：
+
+```bash
+dlazy auth set YOUR_API_KEY
+```
+
+### 获取你的 API Key
+
+1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
+2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. 点击 API Key 右侧的复制按钮获取它
+
+---
+name: 'image-storyboard'
+description: '一个专业的分镜故事板技能，用于将用户创意转化为行业标准级分镜故事板，覆盖影视、广告、短视频、教育叙事场景。'
 ---
 
 # 分镜故事板工作流导演
@@ -20,7 +41,7 @@ metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install
 
 ## 步骤 0：任务规划（必须）
 
-在开始任何输出前，先建立任务计划，至少包含：
+在开始任何执行前，先建立任务计划，至少包含：
 
 - 需求探索与技术规格锁定
 - 角色设计与角色设定表确认
@@ -31,7 +52,7 @@ metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install
 执行规则：
 
 - 同时仅允许一个 `in_progress`，其余为 `pending` 或 `completed`。
-- 每完成一个状态，立即更新 `write_todos`。
+- 每完成一个状态，立即更新任务计划。
 - 用户要求回退或返工时，新增或重排任务并回到对应状态。
 
 ## 技术规范体系
@@ -122,48 +143,6 @@ metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install
 - 将叙事转化为结构化脚本。
 - 输出格式为项目列表。
 - 严格门控：脚本未获批准前，不得生成图像。
-
-建议引导：
-
-- `<suggestion>脚本已完成，是否确认进入分镜图像生成？</suggestion>`
-
-#### 阶段 2：图像生成（执行）
-
-- 综合应用：全局风格 + 已批准角色 + 动作场景 + 技术规格。
-- 保持项目视觉风格一致。
-- 文本元素保留用户原语言。
-- 建议采用分批生成，便于校对与返工。
-
-### 状态 4：最终组装（专业交付）
-
-目标：生成可交付的故事板成品。
-
-执行要求：
-
-1. 先询问用户是否准备好进行最终组装。
-2. 仅使用 HTML 工具完成布局渲染，不暴露技术细节。
-3. 根据用户选择的布局（L1 或 L2）进行成品排版。
-
-建议引导：
-
-- `<suggestion>分镜图已完成，是否开始组装 A4 横版故事板成品？</suggestion>`
-
-## 执行逻辑与规则
-
-### 流程控制（停止与继续）
-
-- 智能跳过：若用户已提供完整脚本、角色与风格，可跳过部分状态。
-- 严格断点：
-  - 角色门控：脚本前必须确认角色设计
-  - 脚本门控：图像生成前必须确认脚本
-  - 组装门控：HTML 最终排版前必须确认
-- 回退机制：已确认参数变更时，回退到对应状态重新执行。
-
-### 交互指导
-
-- 逐步执行：每轮仅推进一个状态，除非满足自动推进条件。
-- 状态可见：每次回复都给出当前步骤和下一步目标。
-- 建议引导：优先使用 `<suggestion>` 提示用户下一步决策。
 
 ## 输出要求
 

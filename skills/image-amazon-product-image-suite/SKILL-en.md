@@ -1,122 +1,182 @@
 ---
 name: image-amazon-product-image-suite
-version: 1.0.0
-description: This is a professional product image generation skill designed specifically for the Amazon e-commerce platform. It ensures that the output complies with Amazon's image guidelines while optim
+version: 1.0.2
+description: 这是一个专为亚马逊电商平台设计的专业产品图片生成技能，确保输出符合亚马逊图片规范，同时兼顾点击率与转化率目标。
 triggers:
-  - Amazon Product Image Suite
-  - Main and secondary image design for Amazon detail pages.
-  - Creation of product infographics, lifestyle scenes, and detail images.
-  - A+ Brand Content page module design.
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
+  - 亚马逊产品套图
+  - 亚马逊详情页主图与副图设计
+  - 产品信息图、生活场景图、细节图制作
+  - A+ Brand Content 页面模块设计
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
-# Amazon Product Image Suite
+## 身份验证 (Authentication)
 
-This is a professional product image generation skill designed specifically for the Amazon e-commerce platform. It ensures that the output complies with Amazon's image guidelines while optimizing for click-through and conversion rates.
+所有请求都需要配置 dLazy API key。
 
-## Core Deliverables
+**CLI 配置**: 你可以通过以下命令设置你的 API key：
 
-This skill covers the complete visual system of an Amazon product page:
+```bash
+dlazy auth set YOUR_API_KEY
+```
 
-- Main Image (1 image): Pure white background product image, complying with Amazon's mandatory guidelines.
-- Secondary Images (6 images): Infographics, multiple angles, lifestyle scenes, detail close-ups, etc.
-- A+ Content (8 images): Brand story, selling points, usage instructions, and other modules.
+### 获取你的 API Key
 
-## Applicable Scenarios
+1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
+2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. 点击 API Key 右侧的复制按钮获取它
 
-- Main and secondary image design for Amazon detail pages.
-- Creation of product infographics, lifestyle scenes, and detail images.
-- A+ Brand Content page module design.
+# 亚马逊产品套图
 
-## Step 0: Task Planning (Mandatory)
+这是一个专为亚马逊电商平台设计的专业产品图片生成技能，确保输出符合亚马逊图片规范，同时兼顾点击率与转化率目标。
 
-Before starting any output, establish a task plan containing at least:
+## 核心交付物
 
-- Confirm output scope and number of images.
-- Generate and confirm the main image visual baseline.
-- Generate secondary images and converge on style consistency.
-- Generate A+ modules and complete the full suite delivery.
+该技能覆盖亚马逊产品页面完整视觉体系：
 
-Execution Rules:
-- Only one task can be `in_progress` at a time; others must be `pending` or `completed`.
-- Update the plan status upon completing each stage.
-- When the user requests rework, style changes, or new materials, add or rearrange tasks and return to the corresponding stage.
+- 主图（1张）：纯白背景产品图，符合亚马逊强制规范
+- 副图（6张）：信息图、多角度、生活场景、细节特写等
+- A+页面（8张）：品牌故事、卖点展示、使用说明等模块
 
-## Adaptive Execution Flow
+## 适用场景
 
-Automatically select the delivery path based on user needs:
+- 亚马逊详情页主图与副图设计
+- 产品信息图、生活场景图、细节图制作
+- A+ Brand Content 页面模块设计
 
-- Full Suite: Main Image (1) + Secondary (6) + A+ (8) = 12-17 images.
-- Product Images Only: Main Image (1) + Secondary (6) = 7 images.
-- A+ Content Only: A+ Modules = 8 images.
-- Unclear Requirements: Generate the main image first, then suggest secondary and A+ plans.
+## 步骤 0：任务规划（必须）
 
-Generation Sequence Principles:
-1. Confirm image plan and quantity.
-2. Generate the main image first (establish visual baseline).
-3. Generate secondary images based on the main image (maintain consistency).
-4. Generate A+ content (if needed).
+在开始任何输出前，先建立任务计划，至少包含：
 
-## Image Specifications
+- 确认输出范围与图片数量
+- 生成并确认主图视觉基准
+- 生成副图并收敛风格一致性
+- 生成 A+ 模块并完成整套交付
 
-### General Requirements
-- Minimum size: 1000px × 1000px
-- Standard ratio: 1:1 (Main and Secondary images)
-- Mobile text: No smaller than 30pt
+执行规则：
 
-### Main Image Mandatory Guidelines
-Must have:
-- Pure white background: RGB(255,255,255)
-- Product occupies at least 85% of the frame
-- Realistic product photo texture
-- Product fully centered, evenly lit
+- 同时仅允许一个 `in_progress`，其余任务标记为 `pending` 或 `completed`。
+- 每完成一个阶段，更新计划状态。
+- 用户要求返工、改款或新增素材时，新增或重排任务并回到对应阶段。
 
-Prohibited:
-- Text, logos, watermarks
-- Decorative graphics, misleading accessories
-- Mannequins for clothing
+## 自适应执行流程
 
-## Secondary Image Types & Purposes
+根据用户需求自动选择交付路径：
 
-| Type | Purpose | Design Key Points |
+- 完整套图：主图（1）+ 副图（6）+ A+（8）= 12-17 张
+- 仅产品图：主图（1）+ 副图（6）= 7 张
+- 仅 A+ 页面：A+ 模块 = 8 张
+- 需求不明确：先生成主图，再建议副图与 A+ 方案
+
+生成顺序原则：
+
+1. 确认图片方案和数量
+2. 先生成主图（建立视觉基准）
+3. 基于主图生成副图（保持一致性）
+4. 生成 A+ 内容（如需要）
+
+## 图片规格要求
+
+### 通用要求
+
+- 最小尺寸：1000px × 1000px
+- 标准比例：1:1（主图与副图）
+- 移动端文字：不小于 30pt
+
+### 主图强制规范
+
+必须满足：
+
+- 纯白背景：RGB(255,255,255)
+- 产品占画面至少 85%
+- 真实产品照片质感
+- 产品完整居中、光线均匀
+
+禁止出现：
+
+- 文字、Logo、水印
+- 装饰图形、误导性配件
+- 服装类的人台模特
+
+## 副图类型与用途
+
+| 类型 | 用途 | 设计要点 |
 | --- | --- | --- |
-| Infographic | Highlight selling points, feature comparison | 4-6 selling points, callout lines pointing to features, icons to enhance visuals |
-| Multi-angle | Show product from different perspectives | Consistent lighting, clean background, usually 2 images |
-| Detail Close-up | Show material and craftsmanship | Macro composition, emphasizing texture |
-| Lifestyle | Show real-world usage scenarios | Target users, real environment, usually 2 images |
-| Variant Display | Show color or style options | All variants uniformly arranged and scaled |
-| What's in the Box | Show package contents | Accessories complete and clearly identifiable |
-| Size Reference | Show real size | Use common objects for scale reference |
+| 信息图 | 突出卖点、功能对比 | 4-6 个卖点，标注线指向功能，图标增强视觉 |
+| 多角度 | 展示产品不同视角 | 光线一致、背景干净，通常 2 张 |
+| 细节特写 | 展示材质与工艺 | 微距构图，强调质感 |
+| 生活场景 | 展示真实使用场景 | 目标用户、真实环境，通常 2 张 |
+| 变体展示 | 展示颜色或款式选项 | 全部变体统一排列与尺度 |
+| 包装内容 | 展示包装内含物 | 配件完整且清晰可辨 |
+| 尺寸参考 | 展示真实大小 | 用常见物品作比例参照 |
 
-## A+ Page Module Structure (8 Modules)
+## A+ 页面模块结构（8 模块）
 
-1. Hero Banner (21:9): Brand image
-2. Pain Points/Scenarios (3:2): Evoke empathy
-3. Selling Points/Feature Matrix (3:2): Core advantages
-4. Key Ingredients/Technology (3:2): Tech endorsement
-5. Efficacy Data/Comparison (3:2): Data proof
-6. How to Use (3:2): Operational guidance
-7. Multi-variant/Family Photo (3:2): Product line display
-8. Brand Endorsement/Qualifications (21:9): Build trust
+1. 英雄横幅（21:9）：品牌形象
+2. 痛点/场景（3:2）：引发共鸣
+3. 卖点/功能矩阵（3:2）：核心优势
+4. 关键成分/技术（3:2）：技术背书
+5. 功效数据/对比（3:2）：数据证明
+6. 使用方法（3:2）：操作指导
+7. 多变体/家族照（3:2）：产品线展示
+8. 品牌背书/资质（21:9）：信任建立
 
-A+ Design Key Points:
-- Embedded text recommended > 30pt (readable after platform compression).
-- Keep key information out of the outer 5% area (to handle mobile cropping).
-- Maintain narrative continuity between modules, avoiding information jumps.
+A+ 设计要点：
 
-## 🛠️ CRITICAL EXECUTION INSTRUCTIONS
+- 嵌入文字建议大于 30pt（平台压缩后仍可读）
+- 关键信息避免位于外围 5% 区域（应对移动端裁切）
+- 模块间保持叙事连续，避免信息跳跃
 
-**You are an intelligent Agent capable of executing terminal commands!**
+## 转化率参考策略
 
-**[STRICTLY PROHIBITED BEHAVIORS]**
-- PROHIBITED: Saving prompts to any file (e.g., txt, md).
-- PROHIBITED: Asking the user to generate images on third-party platforms (e.g., Midjourney).
-- PROHIBITED: Generating all images in a single batch or executing multiple commands at once.
+- 生活场景图：常见提升约 +18%
+- 信息图：常见提升约 +8%
+- 细节特写：常见提升约 +6%
+- 7 张图对比 4 张图：常见提升约 +32%
+- 优化图片组合：互动率最高可提升约 +30%
 
-**[MANDATORY INTERACTION & EXECUTION WORKFLOW]**
-You MUST execute **strictly step-by-step**, stopping at each step to wait for the user's reply:
+以上数据用于优先级参考，不作为固定承诺。
 
-1. **Step 1: Proactively Gather Requirements**. When a user makes a request, DO NOT design or generate anything. Ask questions first (e.g., product features, target audience, number of images). **You MUST wait for the user's reply.**
-2. **Step 2: Output Draft & Request Confirmation**. Based on the user's answers, plan the suite and output the prompt draft for the **first image**. **Ask the user: "Do you confirm this prompt? Can we start generating the first image?" You MUST wait for the user to answer "confirm".**
-3. **Step 3: Execute Terminal Command (Single)**. After confirmation, you **MUST execute the command using the terminal** (e.g., `dlazy seedream-4.5 --prompt "..."`). Execute only ONE generation command at a time. **IMPORTANT: You MUST use synchronous commands. NEVER append `&` to the command, and NEVER use `&&`. You are running in Windows PowerShell!**
-4. **Step 4: Delivery & Loop**. Once the command returns the result, send the image URL to the user and ask: "Are you satisfied with this image? Can we proceed to generate the next one?". Continue to the next step only after receiving confirmation.
+## 多图一致性规则
+
+- 主图优先：先产出主图再展开后续图片
+- 引用主图：副图与 A+ 生成均以主图为视觉锚点
+- 外观一致：颜色、材质、结构细节保持一致
+- 风格一致：背景语言、配色、字体、图标风格统一
+
+## 执行计划
+
+当用户调用该技能时，按以下顺序推进：
+
+1. 确认输出范围：完整套图 / 仅产品图 / 仅 A+
+2. 收集产品信息：产品图或描述、核心卖点、目标用户
+3. 生成主图：建立视觉与材质基准
+4. 逐步生成副图：按目标选择图型并逐张交付
+- 5. 生成 A+ 页面：按 8 模块团队品牌叙事
+6. 迭代优化：根据反馈调整构图、文案层级与信息密度
+
+## 输出格式
+
+- 当前阶段与目标产物
+- 图片清单（已完成 / 待生成）
+- 主图一致性检查结论
+- 下一步待确认项
+- 当前 todo 状态（阶段、已完成项、待处理项）
+
+
+## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
+
+**你是可以执行终端命令的智能 Agent！**
+
+**【严格禁止行为】**
+- 严禁：将提示词保存到任何文件中（如 txt, md）。
+- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
+- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
+
+**【必须遵循的交互与执行流程】**
+你必须**严格分步**执行，并在每一步停下来等待用户回复：
+
+1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
+2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
+3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
+4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。

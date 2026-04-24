@@ -1,8 +1,8 @@
 ---
 name: dlazy-generate
-version: 1.0.0
+version: 1.0.4
 description: 综合生成技能。能够根据用户意图自动选择合适的 dlazy CLI 模型来生成图片、视频或音频。
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当调用此技能时，请自动选择对应的 dlazy 子命令执行。"}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当调用此技能时，请自动选择对应的 dlazy 子命令执行。"}}
 ---
 
 # dlazy-generate
@@ -14,6 +14,22 @@ metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install
 - 生成
 - 创建图片、视频、音频
 - 多模态生成
+
+## 身份验证 (Authentication)
+
+所有请求都需要配置 dLazy API key。
+
+**CLI 配置**: 你可以通过以下命令设置你的 API key：
+
+```bash
+dlazy auth set YOUR_API_KEY
+```
+
+### 获取你的 API Key
+
+1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
+2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. 点击 API Key 右侧的复制按钮获取它
 
 ## Usage / 使用方法
 
@@ -43,7 +59,6 @@ metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install
 - `dlazy gemini-2.5-tts`, `dlazy doubao-tts`, `dlazy keling-tts`: 文本转语音 (TTS)。
 - `dlazy suno.music`: 音乐生成。
 - `dlazy keling-sfx`: 音效生成。
-- `dlazy vidu-audio-clone`, `dlazy kling-audio-clone`: 声音克隆。
 
 > **智能体关键指令**: 
 1. 确定用户请求的媒体类型（图片、视频或音频）。
@@ -64,7 +79,7 @@ metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install
 
 > **智能体关键指令**: 
 > 1. 如果执行结果返回 \`code: "insufficient_balance"\` 且提示余额不足（Insufficient balance），您必须明确告知用户当前积分不足，并引导用户点击以下链接前往充值：[https://dlazy.com/dashboard/organization/settings?tab=credits](https://dlazy.com/dashboard/organization/settings?tab=credits)
-> 2. 如果执行结果返回 \`code: "unauthorized"\` 或提示缺少 API Key，您必须明确告知用户前往 [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) 获取 API Key 并发送给您。当用户提供后，使用 \`dlazy auth set <key>\` 保存，然后继续执行任务。
+> 2. 如果执行结果返回 \`code: "unauthorized"\` 或提示缺少 API Key，您必须明确告知用户前往 [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) 获取 API Key 并使用 \`dlazy auth set <key>\` 保存，然后继续执行任务。
 
 ## Tips
 

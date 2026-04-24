@@ -1,11 +1,27 @@
 ---
 name: image-social-media
-version: 1.0.0
+version: 1.0.2
 description: 这是一个面向多平台社交媒体内容创作的结构化技能，覆盖 Instagram、TikTok、YouTube、LinkedIn、小红书等平台。目标是让输出在技术规格、视觉语言与互动策略上同时满足平台原生要求。
 triggers:
   - 社交媒体设计师（多平台优化）
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.5"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
+
+## 身份验证 (Authentication)
+
+所有请求都需要配置 dLazy API key。
+
+**CLI 配置**: 你可以通过以下命令设置你的 API key：
+
+```bash
+dlazy auth set YOUR_API_KEY
+```
+
+### 获取你的 API Key
+
+1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
+2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. 点击 API Key 右侧的复制按钮获取它
 
 # 社交媒体设计师（多平台优化）
 
