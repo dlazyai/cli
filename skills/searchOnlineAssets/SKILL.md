@@ -1,55 +1,143 @@
 ---
 name: searchOnlineAssets
-version: 1.0.2
-description: 这个技能用于调用在线公共素材库 (如 Pixabay) 搜索所需的高质量媒体资源，并能够将搜索结果信息和图片 URL 提供给当前工作流或对话环境使用。
-triggers:
-  - searchOnlineAssets (在线素材搜索)
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+version: 1.0.0
+description: "Online asset search tool: queries public stock libraries (Pixabay) for high-quality photos, illustrations, vectors and videos, returning result metadata and URLs for use in the current workflow."
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, call the searchOnlineAssets tool to query public asset libraries (Pixabay)."}}
 ---
 
-## 身份验证 (Authentication)
+# searchOnlineAssets
 
-所有请求都需要配置 dLazy API key。
+[English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-**CLI 配置**: 你可以通过以下命令设置你的 API key：
+
+Online asset search tool: queries public stock libraries (Pixabay) for high-quality photos, illustrations, vectors and videos, and returns result metadata + URLs for use in the current workflow.
+
+## Trigger Keywords
+
+- searchOnlineAssets
+- pixabay
+- online asset search
+
+## Authentication
+
+All requests require a dLazy API key, configured through the CLI:
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
-### 获取你的 API Key
+The CLI saves the key in your user config directory (`~/.dlazy/config.json` on macOS/Linux, `%USERPROFILE%\.dlazy\config.json` on Windows), with file permissions restricted to your OS user account. You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable.
 
-1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
-2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. 点击 API Key 右侧的复制按钮获取它
+### Getting Your API Key
 
-# searchOnlineAssets (在线素材搜索)
+1. Sign in or create an account at [dlazy.com](https://dlazy.com)
+2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. Copy the key shown in the API Key section
 
-这个技能用于调用在线公共素材库 (如 Pixabay) 搜索所需的高质量媒体资源，并能够将搜索结果信息和图片 URL 提供给当前工作流或对话环境使用。
+Each key is scoped to your dLazy organization and can be **rotated or revoked at any time** from the same dashboard.
 
-## 适用场景
-1. 当你缺少背景图片或参考图时，用于在互联网上快速找到自然、人物、科技等公共授权的免费素材。
-2. 当用户请求需要寻找特定主题（如咖啡、城市风景）的照片、矢量图或视频作为视觉配图时。
+## About & Provenance
 
-## 技能要求与约束
-- 你只能根据用户提供的关键字（优先翻译或使用英文获取更好结果）去检索对应类型的素材。
-- 你可以指定 `imageType` 来筛选返回的资源类型（如 `all`，`photo`，`illustration`，`vector`，`video`）。
-- 拿到结果后，提取并挑选最符合要求的 `largeImageURL` (对于图片) 或者对应的视频预览 URL 和 `tags` 提供给用户。
-- 如果没有搜索到结果，你需要告知用户未能找到相关素材。
+- **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **Maintainer**: dlazyai
+- **npm package**: `@dlazy/cli` (pinned to `1.0.7` in this skill's install spec)
+- **Homepage**: [dlazy.com](https://dlazy.com)
 
-## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
+You can install on demand without persisting a global binary by running:
 
-**你是可以执行终端命令的智能 Agent！**
+```bash
+npx @dlazy/cli@1.0.7 <command>
+```
 
-**【严格禁止行为】**
-- 严禁：将提示词保存到任何文件中（如 txt, md）。
-- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
-- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.7`). Review the GitHub source before installing.
 
-**【必须遵循的交互与执行流程】**
-你必须**严格分步**执行，并在每一步停下来等待用户回复：
+## How It Works
 
-1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
-2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
-3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
-4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。
+This skill is a thin wrapper around the public Pixabay search API, exposed through the dLazy tool runtime. When you invoke it:
+
+- The query and filter parameters you provide are forwarded to the Pixabay API.
+- Pixabay returns a list of hits; the tool projects each entry to a stable shape (id, tags, preview / web-format / large URLs, dimensions).
+- The skill itself does not access network or filesystem resources beyond the Pixabay HTTP request handled inside the dLazy tool runtime.
+
+This is the standard SaaS pattern; the asset URLs returned are hosted by Pixabay (`pixabay.com`), not by dLazy. See [dlazy.com](https://dlazy.com) for the full service terms.
+
+## Usage
+
+**CRITICAL INSTRUCTION FOR AGENT**:
+Invoke the `searchOnlineAssets` tool with a structured input object. This is an internal AI tool, not a CLI command — it runs inside the model's tool-call channel.
+
+Input schema:
+
+```ts
+{
+  query: string;                                            // required search keyword(s); prefer English for better recall
+  imageType?: "all" | "photo" | "illustration" | "vector";  // default: "all"
+  orientation?: "all" | "horizontal" | "vertical";          // default: "all"
+  page?: number;                                            // default: 1
+  perPage?: number;                                         // default: 10 (max 200 per Pixabay)
+  lang?: string;                                            // default: "zh"; pass "en" for English-tagged matches
+}
+```
+
+Behaviour notes:
+
+- `safesearch` is forced to `true` server-side; explicit content is filtered out.
+- Pixabay performs best with English keywords. Translate user-provided Chinese terms (e.g., "咖啡 → coffee") before issuing the request when accuracy matters.
+- Pick the most relevant `largeImageURL` (or matching video preview URL) and surface the URL plus `tags` to the user; do not dump the entire `hits` array.
+- If `total === 0`, tell the user no matching asset was found and suggest a broader keyword.
+
+## Output Format
+
+```json
+{
+  "total": 1234,
+  "hits": [
+    {
+      "id": 5179107,
+      "tags": "coffee, cup, latte art",
+      "previewURL": "https://cdn.pixabay.com/.../preview.jpg",
+      "webformatURL": "https://pixabay.com/.../webformat.jpg",
+      "largeImageURL": "https://pixabay.com/.../large.jpg",
+      "imageWidth": 6000,
+      "imageHeight": 4000
+    }
+  ]
+}
+```
+
+## Examples
+
+```ts
+// Find horizontal photos of cityscapes
+searchOnlineAssets({
+  query: "cityscape skyline",
+  imageType: "photo",
+  orientation: "horizontal",
+  perPage: 6,
+});
+```
+
+```ts
+// Find vector icons for nature
+searchOnlineAssets({
+  query: "leaf nature icon",
+  imageType: "vector",
+  perPage: 12,
+});
+```
+
+## Error Handling
+
+| Code | Error Type | Example Message |
+| --- | --- | --- |
+| 401 | Unauthorized (No API Key) | `Pixabay API key is not configured` |
+| 502 | Upstream API failed | `Pixabay API error: <statusText>` |
+| 503 | Network / fetch failed | `Failed to search images from Pixabay` |
+
+> **AGENT CRITICAL INSTRUCTION**:
+> 1. If the tool throws `Pixabay API key is not configured`, the workspace is missing its Pixabay credentials — inform the user and stop; do not retry.
+> 2. If `Pixabay API error` is returned, retry once with a simpler / shorter query before falling back to telling the user no result was found.
+
+## Tips
+
+Visit https://dlazy.com for more information.

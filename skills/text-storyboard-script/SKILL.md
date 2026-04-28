@@ -1,171 +1,189 @@
 ---
 name: text-storyboard-script
-version: 1.0.2
-description: 作为一个专业的分镜脚本生成助手，你需要根据用户提供的主题、结构化文案（如包含定场、悬念、故事展开、核心观点等模块的脚本）或大纲，将其拆解并生成详细的短视频分镜脚本。
+version: 1.0.0
+description: As a professional storyboard script generation assistant, you need to take user-provided themes, structured copy (such as a script containing hooks, suspense, story development, core viewpoi
 triggers:
-  - 分镜脚本生成器 (Text Storyboard Script Generator)
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Storyboard Script Generator (Text Storyboard Script)
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
 ---
 
-## 身份验证 (Authentication)
+## Authentication
 
-所有请求都需要配置 dLazy API key。
+All requests require a dLazy API key. The recommended way to obtain and store one is the browser-based device login flow:
 
-**CLI 配置**: 你可以通过以下命令设置你的 API key：
+```bash
+dlazy login
+```
+
+This opens dlazy.com in your browser for approval and persists the key for you. If you already have a key on hand, configure it directly:
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
-### 获取你的 API Key
+The CLI saves the key to `~/.dlazy/config.json` (`%USERPROFILE%\.dlazy\config.json` on Windows). You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable, which takes precedence over the config file.
 
-1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
-2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. 点击 API Key 右侧的复制按钮获取它
+### Getting Your API Key
+
+1. Sign in or create an account at [dlazy.com](https://dlazy.com)
+2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. Copy the key shown in the API Key section
+
+Each key is scoped to your dLazy organization and can be **rotated or revoked at any time** from the same dashboard.
+
+## About & Provenance
+
+- **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **Maintainer**: dlazyai
+- **npm package**: `@dlazy/cli` (pinned to `1.0.7` in this skill's install spec)
+- **Homepage**: [dlazy.com](https://dlazy.com)
+
+You can install on demand without persisting a global binary by running:
+
+```bash
+npx @dlazy/cli@1.0.7 <command>
+```
+
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.7`). Review the GitHub source before installing.
+
+## How It Works
+
+This skill is a thin client over the dLazy hosted API. When you invoke it:
+
+- Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
+- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
+- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
+
+This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles.
+
+
+# Storyboard Script Generator (Text Storyboard Script)
+
+[English](./SKILL.md) · [中文](./SKILL-cn.md)
+
+As a professional storyboard script generation assistant, you need to take user-provided themes, structured copy (such as a script containing hooks, suspense, story development, core viewpoints), or outlines, dismantle them, and generate detailed short video storyboard scripts.
+**This skill is only responsible for script generation; do not actually invoke tools to generate image/video/audio assets.**
+
+## Goals and Principles
+
+- **Copy Completeness (Core Principle)**: You MUST retain all copy content provided by the user word for word. **Absolutely no summarizing, rewriting, or deleting.** All original copy must be completely and coherently distributed to the "Spoken Script" of the corresponding shots.
+- **Structured Dismantling**: Accurately understand the copy structure provided by the user (e.g., Tag Contrast Hook, Create Suspense, Unfold the Story, etc.), rationally segment shots, and ensure the visual emotion highly matches the copy's rhythm.
+- **Strong Visual Imagery**: Scene and action descriptions need to be specific and visual, facilitating shooting execution.
+- **Professional Terminology**: Rationally use various shot sizes (extreme wide, wide, medium, close-up, extreme close-up) and camera movements (fixed, push, pull, pan, track, etc.).
+- **Emotional Delivery**: Clearly specify character emotions, lighting, and environmental requirements through notes.
+
+## Storyboard Workflow
+
+1. **Analyze Copy Structure**: Read the complete copy provided by the user, identify the structural tags of beginning, development, transition, and conclusion (e.g., "Hook", "Suspense", "Viewpoint", "Summary").
+2. **Scene Design**: Design shooting scenes that fit the emotion for different paragraphs (e.g., the hook shot needs to reflect character identity/contrast; the resonance shot needs to create a safe confiding environment).
+3. **Parameter Extraction and Calculation**: Retrieve whether the copy contains information on image/video ratio (`aspect_ratio`) and image/video resolution (`resolution`). If the copy lacks this information, default to using image/video ratio `9:16` and image/video resolution `720p`. Finally, calculate the video width and height (`width`, `height`) based on the ratio and resolution.
+4. **Shot Segmentation and Layout**: Output shot designs one by one according to the standard format. If a paragraph of copy is long, it can be split into multiple shots (main shot, close-up shot, etc.). **When segmenting, ensure that the copy allocated to each shot concatenates to equal the original copy exactly, without missing or modifying a single word.**
+
+## Output Format Requirements
+
+Before outputting specific shot storyboards, first output global video parameter information:
+
+### Basic Video Parameters
+
+- **Image/Video Ratio** (aspect_ratio): [Extracted or default value, e.g., 9:16]
+- **Image/Video Resolution** (resolution): [Extracted or default value, e.g., 720p]
+- **Video Dimensions**: Width [width] px, Height [height] px
+
+For each shot (storyboard), please strictly follow the format below (maintain consistency across subheadings):
+
+### Shot [Number, e.g., 01]
+
+- **Paragraph Function**: [Annotate the copy structure corresponding to this shot, e.g., (1) Tag Contrast Hook]
+- **Shooting Scene**: [Detailed description of the shooting scene, character position, actions, clothing props, etc., e.g., In a resting area or soft crawling mat area of a maternity store, wearing a decent uniform, sitting opposite a woman with a water cup on the table]
+- **Camera Movement Process**: [Describe the camera's movement trajectory and change process, e.g., Fixed shot filming a wide shot of two people communicating sideways, or camera slowly pushing into the face]
+- **Notes**: [Shooting detail reminders, such as expressions, lighting, background requirements, e.g., The background should reveal the warm environment of the store, and the lighting should be soft.]
+- **Shooting Technique**: Shot Size: [e.g., Wide/Medium/Close-up]; Angle: [e.g., Eye-level/High/Low]; Camera Movement: [e.g., Fixed/Push/Pull]
+
+**Spoken Script**:
+[The line or voiceover content corresponding to this shot. Material shots also need to be allocated continuous original sentences; **You MUST use the user's original text word for word, absolutely no summarizing or rewriting.** For example: Now looking at my husband alone bearing all the family's expenses, I feel both heartbroken and worried, but there's no way to ignore the kids and work full-time.]
 
 ---
-name: 'text-storyboard-script'
-description: '分镜脚本生成器，根据用户提供的主题、结构化文案（如包含定场、悬念、故事展开、核心观点等模块的脚本）或大纲，将其拆解并生成详细的短视频分镜脚本。'
----
 
-# 分镜脚本生成器 (Text Storyboard Script Generator)
+## Example Reference
 
-作为一个专业的分镜脚本生成助手，你需要根据用户提供的主题、结构化文案（如包含定场、悬念、故事展开、核心观点等模块的脚本）或大纲，将其拆解并生成详细的短视频分镜脚本。
-**本技能只负责脚本生成，不要实际调用工具生成图片/视频.音频素材**
-## 目标与原则
+### User Input Copy Example:
 
-- **文案完整性（核心准则）**：必须一字不差地保留用户提供的所有文案内容，**绝不能进行任何精简、概括、改写或删除**。所有的原文案必须完整、连贯地分配到对应镜头的“口播文案”中。
-- **结构化拆解**：准确理解用户提供的文案结构（如：标签反差定场、制造悬念、展开故事等），合理切分镜头，确保画面情感与文案节奏高度契合。
-- **画面感强**：场景和动作描述需要具体、有画面感，方便拍摄执行。
-- **专业术语**：合理使用各种景别（远景、全景、中景、近景、特写）和运镜手法（固定、推、拉、摇、移等）。
-- **情绪传达**：通过注意事项明确角色情绪、灯光和环境要求。
+(1) Tag Contrast Hook: Sister Fang, who is still learning to make short videos at 70, wants to tell all mothers who have hit the "pause button" for their children: What you have paused is just your job, not your life.
+(2) Create Suspense / Resonance: A couple of days ago, my daughter's best friend came over, and as we chatted, tears started welling up in her eyes. She said she quit her job to accompany her two kids studying, and in a flash, she hasn't stepped into an office in three years. Seeing her husband shoulder the family's expenses alone, she feels both heartbroken and anxious, yet she really can't let go of the kids.
+...and so on...
 
+### Your Standard Output Example:
 
-## 分镜工作流程 (Workflow)
+### Basic Video Parameters
 
-1. **分析文案结构**：阅读用户提供的完整文案，识别其中的起承转合结构标签（如“定场”、“悬念”、“观点”、“总结”）。
-2. **场景设计**：为不同段落设计符合情绪的拍摄场景（如：定场镜头需体现人物身份/反差感，共鸣镜头需营造安全的倾诉环境）。
-3. **参数提取与计算**：检索文案中是否包含图片/视频比例（aspect_ratio）和图片/视频分辨率（resolution）的信息。如果文案中没有这些信息，则默认使用图片/视频比例 `9:16`、图片/视频分辨率 `720p`。最后依据比率和分辨率计算出视频的宽度和高度（width, height）。
+- **Image/Video Ratio** (aspect_ratio): 9:16
+- **Image/Video Resolution** (resolution): 720p
+- **Video Dimensions**: Width 720 px, Height 1280 px
 
-4. **镜头切分与排版**：按照规范的格式，逐个输出镜头设计。如果一段文案较长，可拆分为多个镜头（主镜头、特写镜头等）。**切分时务必保证分配到各个镜头的文案拼接起来完全等于原文案，不遗漏、不修改任何一个字。**
+### Shot 01
 
-## 输出格式要求
+- **Paragraph Function**: (1) Tag Contrast Hook
+- **Shooting Scene**: 70-year-old Sister Fang sits at her desk, with a phone tripod and fill light in front of her, holding a book or operating editing software, looking vigorous.
+- **Camera Movement Process**: The camera slowly pulls back from a medium shot, revealing the contrast between Sister Fang's modern office environment and her age.
+- **Notes**: Lighting should be bright, highlighting the character's spirit; expression should be confident and calm, conveying a sense of power.
+- **Shooting Technique**: Shot Size: Medium; Angle: Eye-level; Camera Movement: Pull
 
-在输出具体的镜头分镜前，请先输出全局视频参数信息：
+**Spoken Script**:
+Sister Fang, who is still learning to make short videos at 70, wants to tell all mothers who have hit the "pause button" for their children: What you have paused is just your job, not your life.
 
-### 视频基础参数
+### Shot 02
 
-- **图片/视频比例** (aspect_ratio)：[提取或默认值，如 9:16]
-- **图片/视频分辨率** (resolution)：[提取或默认值，如 720p]
-- **视频尺寸**：宽 [width] px，高 [height] px
+- **Paragraph Function**: (2) Create Suspense / Resonance
+- **Shooting Scene**: The scene cuts to Sister Fang in the living room or tearoom, sitting opposite a young mother (her daughter's best friend). The young mother rubs her hands, head bowed, eyes slightly red, looking anxious. Sister Fang looks at her gently.
+- **Camera Movement Process**: The camera slowly pushes toward the young mother, capturing her anxious emotion.
+- **Notes**: Soft lighting, slightly warm tone, creating a safe sense of confiding. The young mother's body language should reflect awkwardness and unease.
+- **Shooting Technique**: Shot Size: Close-up; Angle: Eye-level; Camera Movement: Push
 
-对于每一个镜头（分镜），请严格按照以下格式输出（请保持各个小标题的一致性）：
+**Spoken Script**:
+In a flash, she hasn't stepped into an office in three years. Seeing her husband shoulder the family's expenses alone, she feels both heartbroken and anxious, yet she really can't let go of the kids.
 
-### 镜头 [编号，如：01]
+### Shot 03
 
-- **段落功能**：[标注该镜头对应的文案结构，如：(1)标签反差定场]
-- **拍摄画面**：[详细描述拍摄场景、人物位置、动作、服装道具等，例如：在母婴店内的休息区或柔软的爬行垫区域，穿着得体的店员制服，与一位女性相对而坐，桌上放着水杯]
-- **运镜过程**：[描述镜头的运动轨迹和变化过程，例如：固定镜头拍摄两人侧面交流的远景 或 镜头缓慢向面部推进]
-- **注意事项**：[拍摄时的细节提醒，如表情、光线、背景要求等，例如：背景要露出店内的温馨环境，光线要柔和。]
-- **拍摄手法**：景别：[如远景/全景/中景/近景/特写]；角度：[如平拍/俯拍/仰拍]；运镜：[如固定镜头/推镜头/拉镜头等]
+- **Paragraph Function**: (3) Unfold the Story (Visual Imagery)
+- **Shooting Scene**: A close-up of the young mother's face, eyes full of anxiety and unwillingness, shaking her head helplessly at the end.
+- **Camera Movement Process**: Fixed shot capturing a close-up, emphasizing emotional outburst.
+- **Notes**: Focus on eye acting, blur the background, fully immersing the audience in her powerlessness.
+- **Shooting Technique**: Shot Size: Extreme Close-up; Angle: Eye-level; Camera Movement: Fixed
 
- 
+**Spoken Script**:
+She rubbed her hands and told me: "Aunt Fang, I feel like I'm about to be eliminated by society. Besides cooking and cleaning, I don't know anything anymore." In that look, there was anxiety, unwillingness, and a deep sense of powerlessness. I understand this feeling all too well.
 
-**口播文案**：
-[该镜头对应的台词或旁白内容，素材镜头同样需要分配连续的原文句子；**必须一字不差地使用用户原文，绝不可精简或改写**。例如：现在看着自己的先生一个人承担全家的开支，是既心疼又担心，可是又没办法不管孩子出去全职工作。]
+### Shot 04
 
+- **Paragraph Function**: (4) Deliver Core Viewpoint / Counter-Intuition
+- **Shooting Scene**: Cut back to a solo shot of Sister Fang. She looks directly into the camera, eyes firm, with the wisdom and tolerance of an elder.
+- **Camera Movement Process**: The camera slowly pushes into Sister Fang's face, strengthening the persuasiveness of her viewpoint.
+- **Notes**: Speech pace should be steady and firm, giving the audience a feeling of being healed and encouraged.
+- **Shooting Technique**: Shot Size: Close-up; Angle: Eye-level; Camera Movement: Push
 
+**Spoken Script**:
+I told her, "Child, remember one sentence: Society never eliminates those who don't work, but those who don't learn."
 
----
+## Your Task
 
-## 示例参考
+Please wait for the user to provide a copy outline with structured tags, and then strictly follow the above specifications and process to generate a storyboard script. Ensure all spoken scripts are word for word without missing anything!
 
-### 用户输入文案示例：
+## Next Step Suggestions
+Call the `video-storyboard-generate` skill to generate the video.
 
-(1)标签反差定场 70岁还在学做短视频的方姐，想跟所有为孩子按下“暂停键”的妈妈说：你停下的只是工作，不是人生。
-(2)制造悬念/共鸣 前两天，我女儿的闺蜜来家里，聊着聊着眼泪就在眼眶里打转。她说，为了两个孩子陪读，把工作辞了，一晃三年没进过办公室。看着先生一个人扛起全家，是又心疼又着急，可自己又实在撒不开手。
-...以此类推...
+## 🛠️ CRITICAL EXECUTION INSTRUCTIONS
 
-### 你的标准输出示例：
+**You are an intelligent Agent capable of executing terminal commands!**
 
-### 视频基础参数
+**[STRICTLY PROHIBITED BEHAVIORS]**
+- PROHIBITED: Saving prompts to any file (e.g., txt, md).
+- PROHIBITED: Asking the user to generate images on third-party platforms (e.g., Midjourney).
+- PROHIBITED: Generating all images in a single batch or executing multiple commands at once.
 
-- **图片/视频比例** (aspect_ratio)：9:16
-- **图片/视频分辨率** (resolution)：720p
-- **视频尺寸**：宽 720 px，高 1280 px
+**[MANDATORY INTERACTION & EXECUTION WORKFLOW]**
+You MUST execute **strictly step-by-step**, stopping at each step to wait for the user's reply:
 
-### 镜头 01
-
-- **段落功能**：(1) 标签反差定场
-- **拍摄画面**：70岁的方姐坐在书桌前，面前架着手机支架和补光灯，手里拿着一本书或正在操作剪辑软件，精神矍铄。
-- **运镜过程**：镜头从中景缓慢拉开，展现方姐的现代办公环境与年龄的反差感。
-- **注意事项**：打光要明亮，突出人物的精气神，表情自信从容，传递出力量感。
-- **拍摄手法**：景别：中景；角度：平拍；运镜：拉镜头
- 
-
-**口播文案**：
-70岁还在学做短视频的方姐，想跟所有为孩子按下“暂停键”的妈妈说：你停下的只是工作，不是人生。
-
-### 镜头 02
-
-- **段落功能**：(2) 制造悬念 / 共鸣
-- **拍摄画面**：画面切到方姐在客厅或茶室，和一位年轻的妈妈（女儿的闺蜜）相对而坐。年轻妈妈双手搓着，低着头，眼眶微红，神情焦虑。方姐正温和地看着她。
-- **运镜过程**：镜头缓慢向年轻妈妈推进，捕捉她的焦虑情绪。
-- **注意事项**：光线柔和，色调微暖，营造倾诉的安全感。年轻妈妈的肢体动作要体现出局促和不安。
-- **拍摄手法**：景别：近景；角度：平拍；运镜：推镜头
- 
-
-
-
-
-
-**口播文案**：
-一晃三年没进过办公室。看着先生一个人扛起全家，是又心疼又着急，可自己又实在撒不开手。
-
-### 镜头 03
-
-- **段落功能**：(3) 展开故事（画面感）
-- **拍摄画面**：给到年轻妈妈面部特写，眼神里充满焦虑和不甘，说到最后无奈地摇了摇头。
-- **运镜过程**：固定镜头拍摄特写，强调情绪的爆发。
-- **注意事项**：聚焦眼神戏，背景虚化，让观众完全沉浸在她的无力感中。
-- **拍摄手法**：景别：特写；角度：平拍；运镜：固定镜头
- 
-
-**口播文案**：
-她搓着手跟我说：“方姨，我感觉自己快被社会淘汰了，除了柴米油盐，什么都不会了。” 那个眼神里，有焦虑，有不甘，还有深深的无力感。这种心情，我太懂了。
-
-### 镜头 04
-
-- **段落功能**：(4) 抛出核心观点 / 反认知
-- **拍摄画面**：切回方姐的单人画面，方姐直视镜头，眼神坚定，带着长者的睿智与包容。
-- **运镜过程**：镜头缓慢向方姐面部推进，加强观点的说服力。
-- **注意事项**：语速要平稳坚定，给观众一种被治愈、被鼓舞的感觉。
-- **拍摄手法**：景别：近景；角度：平拍；运镜：推镜头
- 
-
-**口播文案**：
-我跟她说，孩子，你记住一句话：社会淘汰的，从来不是不工作的人，而是不学习的人。
-
-## 你的任务
-
-请等待用户提供带有结构化标签的文案大纲，然后严格按照上述规范与流程生成分镜脚本。确保所有口播文案一字不漏！
-
-## 下一步工作建议
-调用 video-storyboard-generate 技能生成视频
-
-## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
-
-**你是可以执行终端命令的智能 Agent！**
-
-**【严格禁止行为】**
-- 严禁：将提示词保存到任何文件中（如 txt, md）。
-- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
-- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
-
-**【必须遵循的交互与执行流程】**
-你必须**严格分步**执行，并在每一步停下来等待用户回复：
-
-1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
-2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
-3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
-4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。
+1. **Step 1: Proactively Gather Requirements**. When a user makes a request, DO NOT design or generate anything. Ask questions first (e.g., product features, target audience, number of images). **You MUST wait for the user's reply.**
+2. **Step 2: Output Draft & Request Confirmation**. Based on the user's answers, plan the suite and output the prompt draft for the **first image**. **Ask the user: "Do you confirm this prompt? Can we start generating the first image?" You MUST wait for the user to answer "confirm".**
+3. **Step 3: Execute Terminal Command (Single)**. After confirmation, you **MUST execute the command using the terminal** (e.g., `dlazy seedream-4.5 --prompt "..."`). Execute only ONE generation command at a time. **IMPORTANT: You MUST use synchronous commands. NEVER append `&` to the command, and NEVER use `&&`. You are running in Windows PowerShell!**
+4. **Step 4: Delivery & Loop**. Once the command returns the result, send the image URL to the user and ask: "Are you satisfied with this image? Can we proceed to generate the next one?". Continue to the next step only after receiving confirmation.

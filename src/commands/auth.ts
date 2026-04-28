@@ -1,20 +1,16 @@
 import type { Command } from "commander";
 import { failure, log, success } from "../lib/envelope";
-import {
-	isHeadless,
-	loadConfig,
-	saveConfig,
-	waitForApiKeyAuth,
-} from "../utils/config";
+import { t } from "../messages";
+import { loadConfig, saveConfig, waitForApiKeyAuth } from "../utils/config";
 
 export function registerAuthCommands(program: Command) {
-	const authCmd = program
-		.command("auth")
-		.description("Manage authentication configuration");
+	const msgs = t();
+
+	const authCmd = program.command("auth").description(msgs.auth.description);
 
 	authCmd
 		.command("set <apiKey>")
-		.description("Set your DLAZY_API_KEY manually")
+		.description(msgs.auth.setDescription)
 		.action((apiKey: string) => {
 			const config = loadConfig();
 			config.DLAZY_API_KEY = apiKey.trim();
@@ -24,7 +20,7 @@ export function registerAuthCommands(program: Command) {
 
 	authCmd
 		.command("get")
-		.description("Get the currently configured DLAZY_API_KEY")
+		.description(msgs.auth.getDescription)
 		.action(() => {
 			const envKey = process.env.DLAZY_API_KEY;
 			if (envKey) {
@@ -37,29 +33,42 @@ export function registerAuthCommands(program: Command) {
 					apiKey: config.DLAZY_API_KEY,
 				});
 			}
-			return failure("not_configured", "API key is not set");
+			return failure("not_configured", t().auth.notConfigured);
 		});
 
 	program
 		.command("login")
-		.description("Log in via browser (interactive only)")
-		.option("--local", "Use localhost:3000 for local testing")
+		.description(msgs.auth.loginDescription)
+		.option("--local", msgs.auth.localOption)
 		.action(async (options) => {
-			if (isHeadless()) {
-				return failure(
-					"headless_environment",
-					"Browser login requires an interactive terminal. Use `dlazy auth set <key>` or set DLAZY_API_KEY.",
-				);
-			}
 			try {
 				const fetchedKey = await waitForApiKeyAuth({ local: options.local });
 				const config = loadConfig();
 				config.DLAZY_API_KEY = fetchedKey;
 				saveConfig(config);
-				log("login successful; api key saved to config");
+				log(t().auth.loginSuccess);
 				success("raw", { saved: true });
 			} catch (err) {
 				return failure("login_failed", (err as Error).message);
 			}
+		});
+
+	program
+		.command("logout")
+		.description(msgs.auth.logoutDescription)
+		.action(() => {
+			const config = loadConfig();
+			const had = "DLAZY_API_KEY" in config;
+			if (had) {
+				delete config.DLAZY_API_KEY;
+				saveConfig(config);
+				log(t().auth.logoutSuccess);
+			} else {
+				log(t().auth.logoutNothing);
+			}
+			if (process.env.DLAZY_API_KEY) {
+				log(t().auth.logoutEnvWarning);
+			}
+			success("raw", { removed: had });
 		});
 }

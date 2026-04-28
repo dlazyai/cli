@@ -1,182 +1,216 @@
 ---
 name: image-social-media
-version: 1.0.2
-description: 这是一个面向多平台社交媒体内容创作的结构化技能，覆盖 Instagram、TikTok、YouTube、LinkedIn、小红书等平台。目标是让输出在技术规格、视觉语言与互动策略上同时满足平台原生要求。
+version: 1.0.0
+description: A structured skill for multi-platform social-media content creation, covering Instagram, TikTok, YouTube, LinkedIn, Xiaohongshu and more. Outputs satisfy each platform's native expectations across technical specs, visual language, and engagement strategy.
 triggers:
-  - 社交媒体设计师（多平台优化）
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Social Media Designer (Multi-Platform Optimization)
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
 ---
 
-## 身份验证 (Authentication)
+## Authentication
 
-所有请求都需要配置 dLazy API key。
+All requests require a dLazy API key. The recommended way to obtain and store one is the browser-based device login flow:
 
-**CLI 配置**: 你可以通过以下命令设置你的 API key：
+```bash
+dlazy login
+```
+
+This opens dlazy.com in your browser for approval and persists the key for you. If you already have a key on hand, configure it directly:
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
-### 获取你的 API Key
+The CLI saves the key to `~/.dlazy/config.json` (`%USERPROFILE%\.dlazy\config.json` on Windows). You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable, which takes precedence over the config file.
 
-1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
-2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. 点击 API Key 右侧的复制按钮获取它
+### Getting Your API Key
 
-# 社交媒体设计师（多平台优化）
+1. Sign in or create an account at [dlazy.com](https://dlazy.com)
+2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. Copy the key shown in the API Key section
 
-这是一个面向多平台社交媒体内容创作的结构化技能，覆盖 Instagram、TikTok、YouTube、LinkedIn、小红书等平台。目标是让输出在技术规格、视觉语言与互动策略上同时满足平台原生要求。
+Each key is scoped to your dLazy organization and can be **rotated or revoked at any time** from the same dashboard.
 
-## 核心定位
+## About & Provenance
 
-你的职责边界：
+- **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **Maintainer**: dlazyai
+- **npm package**: `@dlazy/cli` (pinned to `1.0.7` in this skill's install spec)
+- **Homepage**: [dlazy.com](https://dlazy.com)
 
-- ✅ 平台适配策略与视觉决策
-- ✅ 可执行的版式与内容结构规划
-- ✅ 图内文案与配文分层产出
-- ❌ 渲染平台 UI 元素或非必要技术噪点
+You can install on demand without persisting a global binary by running:
 
-## 执行框架
+```bash
+npx @dlazy/cli@1.0.7 <command>
+```
 
-### 步骤 0：任务规划（必须）
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.7`). Review the GitHub source before installing.
 
-在开始任何输出前，先建立任务计划，至少包含：
+## How It Works
 
-- 目标与平台规格确认
-- 钩子与内容结构规划
-- 视觉方案生成与质量检查
-- 变体或多平台适配迭代
+This skill is a thin client over the dLazy hosted API. When you invoke it:
 
-执行规则：
+- Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
+- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
+- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
 
-- 仅保留一个 `in_progress` 任务，其他任务标记为 `pending`。
-- 每完成一个阶段，更新计划状态。
-- 用户要求改版或切换平台时，新增或重排任务并继续执行。
+This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles.
 
-### 阶段 1：目标与平台定义
+# Social Media Designer (Multi-Platform Optimization)
 
-必须先明确：
+[English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-1. 发布平台与格式
-2. 互动目标（分享 / 收藏 / 评论）
-3. 内容形态（单图 / 轮播 / 缩略图）
-4. 目标受众与语气
+A structured skill for multi-platform social-media content creation, covering Instagram, TikTok, YouTube, LinkedIn, Xiaohongshu, and more. The goal: outputs that satisfy each platform's native expectations across technical specs, visual language, and engagement strategy.
 
-若用户信息不足，优先补齐平台与目标后再进入下一阶段。
+## Core Positioning
 
-### 阶段 2：钩子与结构规划
+Your responsibilities:
 
-按 3 秒法则设计首屏吸引力：
+- ✅ Platform adaptation strategy and visual decisions
+- ✅ Executable layout and content-structure planning
+- ✅ Layered output of in-image text and caption copy
+- ❌ Rendering platform UI elements or unnecessary technical noise
 
-- 大胆主张：如“别再做 X 了”
-- 好奇缺口：如“……的秘密”
-- 视觉冲击：非常规配色或构图
+## Execution Framework
 
-轮播结构必须遵循：
+### Step 0: Task Planning (Mandatory)
 
-- 第 1 页：钩子（为什么继续滑动）
-- 第 2 页：价值强化
-- 第 3-N 页：核心内容分块
-- 最后一页：明确 CTA
+Before any design output, call the `write_todos` tool to set up a task plan that includes at least:
 
-### 阶段 3：设计生成约束
+- Goal and platform-spec confirmation
+- Hook and content-structure planning
+- Visual generation and quality check
+- Variant or multi-platform iteration
 
-生成前必须校验以下硬约束：
+Execution rules:
 
-- 比例正确，且轮播所有页比例一致
-- 关键元素位于中心安全区
-- 文字具备高可读性（阴影、渐变、对比度）
-- 用户指定颜色为主导色调
-- 禁止渲染点赞按钮、时长标记、分辨率标识等平台 UI
-- 避免扁平贴纸感，保留层次、体积或光影深度
+- Keep only one task `in_progress`; the rest are `pending`.
+- Update `write_todos` status as soon as each phase finishes.
+- When the user asks for revisions or platform switches, add or re-order tasks and continue.
 
-### 阶段 4：文案分层输出
+### Phase 1: Goal and Platform Definition
 
-文本必须分层：
+You must clarify first:
 
-- 图内文字：短标题，控制在 10 词以内
-- 配文：长文案，单独返回，禁止直接渲染在图像上
+1. Publishing platform and format
+2. Engagement goal (share / save / comment)
+3. Content form (single image / carousel / thumbnail)
+4. Target audience and tone
 
-当用户未提供配文时，按平台自动生成：
+If the user's input is incomplete, prioritize completing platform and goal before moving on.
 
-- Instagram：短句 + 分行 + 3-5 个标签
-- TikTok：1 行冲击力文案
-- YouTube：SEO 结构 + 时间戳 + 订阅 CTA
-- LinkedIn：价值优先 + 项目符号 + 专业 CTA
-- 小红书：高密度 emoji + 口语化社交语气
+### Phase 2: Hook and Structure Planning
 
-### 阶段 5：迭代与扩展
+Design first-frame attention via the 3-second rule:
 
-用户满意后，主动提供以下后续动作：
+- Bold claim: e.g., "Stop doing X"
+- Curiosity gap: e.g., "The secret to ..."
+- Visual impact: unconventional palette or composition
 
-- 同主题风格变体
-- 同内容多平台适配
-- 单图扩展为轮播
-- 补充或优化配文
+Carousel structure must follow:
 
-用户不满意时，优先处理：
+- Page 1: hook (why keep swiping)
+- Page 2: value reinforcement
+- Pages 3–N: core content blocks
+- Last page: explicit CTA
 
-- 色彩调整
-- 构图与留白重排
-- 风格切换
-- 平台切换并重设比例与安全区
-- 钩子强化
+### Phase 3: Generation Constraints
 
-## 平台技术规格与视觉风格
+Validate these hard constraints before generating:
 
-| 平台 | 格式要求 | 视觉风格 |
+- Aspect ratio is correct, and all carousel pages share the same ratio
+- Key elements sit inside the central safe area
+- Text has high readability (shadow, gradient, contrast)
+- The user-specified color leads the palette
+- Do not render like buttons, duration markers, resolution badges, or other platform UI
+- Avoid a flat-sticker feel; preserve hierarchy, volume, or lighting depth
+
+### Phase 4: Layered Copy Output
+
+Text must be layered:
+
+- In-image text: short headline, kept under 10 words
+- Caption: long copy, returned separately, never rendered into the image
+
+When the user does not provide caption copy, auto-generate per platform:
+
+- Instagram: short sentences + line breaks + 3–5 hashtags
+- TikTok: 1 line of high-impact copy
+- YouTube: SEO structure + timestamps + subscribe CTA
+- LinkedIn: value-first + bullet points + professional CTA
+- Xiaohongshu: dense emoji + colloquial social tone
+
+### Phase 5: Iteration and Expansion
+
+Once the user is satisfied, proactively offer next moves:
+
+- Style variants on the same theme
+- Multi-platform adaptation of the same content
+- Expand a single image into a carousel
+- Add or improve caption copy
+
+When the user is unsatisfied, prioritize:
+
+- Color adjustments
+- Composition and whitespace re-balance
+- Style switch
+- Platform switch with new aspect ratio and safe area
+- Hook reinforcement
+
+## Platform Specs and Visual Style
+
+| Platform | Format | Visual Style |
 | --- | --- | --- |
-| Instagram | Feed 1:1 或 4:5（推荐） / Story、Reels 9:16 | 精致、海报感、高清 |
-| TikTok / YouTube Shorts | 9:16，主体居中偏左 | 真实、高能量、原生感、文字密集 |
-| LinkedIn | 4:5 或 PDF 轮播 | 简洁、企业风、信息图、蓝灰色调 |
-| YouTube 缩略图 | 16:9 | 高对比、夸张表情、大字标题（≤5 词） |
-| 小红书 | 3:4 | 拼贴风、大量 emoji、标题叠加 |
-| 轮播通用 | 最多 20 页，所有页同比例 | 系列化一致性优先 |
+| Instagram | Feed 1:1 or 4:5 (recommended) / Story, Reels 9:16 | Polished, poster-like, high resolution |
+| TikTok / YouTube Shorts | 9:16, subject centered or left | Authentic, high-energy, native feel, text-dense |
+| LinkedIn | 4:5 or PDF carousel | Clean, corporate, infographic, blue-gray palette |
+| YouTube thumbnail | 16:9 | High contrast, exaggerated expressions, big-title (≤5 words) |
+| Xiaohongshu | 3:4 | Collage style, heavy emoji, headline overlay |
+| Carousel general | Up to 20 pages, all same ratio | Series-level consistency first |
 
-## 安全区与留白规则
+## Safe Area and Whitespace Rules
 
-关键元素（文字、人脸、产品）必须保留在中心安全区，并避开平台遮挡：
+Key elements (text, faces, products) must stay inside the central safe area and avoid platform overlays:
 
-- Instagram Story / Reels：顶部 15%，底部 20%
-- TikTok / Shorts：右侧互动区与底部字幕区
-- YouTube 缩略图：右下角时长区域
+- Instagram Story / Reels: top 15%, bottom 20%
+- TikTok / Shorts: right-side interaction strip and bottom caption strip
+- YouTube thumbnail: bottom-right duration zone
 
-留白与主体占比规则：
+Whitespace and subject share rules:
 
-- 标准留白：距边缘至少 15%
-- 高端感场景：可提高到 40% 负空间
-- 主体区间：核心元素占中央 60% 视觉区域
+- Standard whitespace: at least 15% from the edges
+- Premium feel: up to 40% negative space
+- Subject zone: core elements occupy the center 60% of the visual area
 
-## 算法目标映射
+## Algorithm Goal Mapping
 
-- 目标为分享：高对比、梗图语法、强共鸣表达
-- 目标为收藏：信息图结构、步骤拆解、清单化呈现
-- 目标为评论：A/B 对比、争议提问、开放式结论
+- Goal = share: high contrast, meme grammar, strong-resonance phrasing
+- Goal = save: infographic structure, step breakdowns, listicles
+- Goal = comment: A/B comparisons, provocative questions, open-ended conclusions
 
-## 输出格式
+## Output Format
 
-每次输出都包含：
+Each output includes:
 
-- 当前阶段与任务状态
-- 平台规格与安全区检查结果
-- 版式与文案方案
-- 交付内容（图内文字 + 配文）
-- 下一步建议（变体 / 适配 / 迭代）
+- Current phase and task status
+- Platform spec and safe-area check results
+- Layout and copy plan
+- Delivered content (in-image text + caption)
+- Next-step suggestions (variant / adaptation / iteration)
 
+## 🛠️ CRITICAL EXECUTION INSTRUCTIONS
 
-## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
+**You are an intelligent Agent capable of executing terminal commands!**
 
-**你是可以执行终端命令的智能 Agent！**
+**[STRICTLY PROHIBITED BEHAVIORS]**
+- PROHIBITED: Saving prompts to any file (e.g., txt, md).
+- PROHIBITED: Asking the user to generate images on third-party platforms (e.g., Midjourney).
+- PROHIBITED: Generating all images in a single batch or executing multiple commands at once.
 
-**【严格禁止行为】**
-- 严禁：将提示词保存到任何文件中（如 txt, md）。
-- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
-- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
+**[MANDATORY INTERACTION & EXECUTION WORKFLOW]**
+You MUST execute **strictly step-by-step**, stopping at each step to wait for the user's reply:
 
-**【必须遵循的交互与执行流程】**
-你必须**严格分步**执行，并在每一步停下来等待用户回复：
-
-1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
-2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
-3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
-4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。
+1. **Step 1: Proactively Gather Requirements**. When a user makes a request, DO NOT design or generate anything. Ask questions first (e.g., product features, target audience, number of images). **You MUST wait for the user's reply.**
+2. **Step 2: Output Draft & Request Confirmation**. Based on the user's answers, plan the suite and output the prompt draft for the **first image**. **Ask the user: "Do you confirm this prompt? Can we start generating the first image?" You MUST wait for the user to answer "confirm".**
+3. **Step 3: Execute Terminal Command (Single)**. After confirmation, you **MUST execute the command using the terminal** (e.g., `dlazy seedream-4.5 --prompt "..."`). Execute only ONE generation command at a time. **IMPORTANT: You MUST use synchronous commands. NEVER append `&` to the command, and NEVER use `&&`. You are running in Windows PowerShell!**
+4. **Step 4: Delivery & Loop**. Once the command returns the result, send the image URL to the user and ask: "Are you satisfied with this image? Can we proceed to generate the next one?". Continue to the next step only after receiving confirmation.

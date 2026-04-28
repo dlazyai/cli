@@ -1,32 +1,61 @@
 ---
 name: image-amazon-product-image-suite
-version: 1.0.2
+version: 1.0.0
 description: 这是一个专为亚马逊电商平台设计的专业产品图片生成技能，确保输出符合亚马逊图片规范，同时兼顾点击率与转化率目标。
 triggers:
   - 亚马逊产品套图
   - 亚马逊详情页主图与副图设计
   - 产品信息图、生活场景图、细节图制作
   - A+ Brand Content 页面模块设计
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
 ## 身份验证 (Authentication)
 
-所有请求都需要配置 dLazy API key。
-
-**CLI 配置**: 你可以通过以下命令设置你的 API key：
+所有请求都需要 dLazy API key，通过 CLI 配置：
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
+CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/config.json`，Windows 上为 `%USERPROFILE%\.dlazy\config.json`），文件权限仅限当前操作系统用户访问。你也可以用 `DLAZY_API_KEY` 环境变量按次传入。
+
 ### 获取你的 API Key
 
 1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
 2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. 点击 API Key 右侧的复制按钮获取它
+3. 复制 API Key 区域显示的密钥
+
+每个 key 都属于你自己的 dLazy 组织，可在同一控制面板**随时轮换或吊销**。
+
+## 关于与来源 (Provenance)
+
+- **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **维护者**: dlazyai
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.7` 版本）
+- **官网**: [dlazy.com](https://dlazy.com)
+
+如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
+
+```bash
+npx @dlazy/cli@1.0.7 <command>
+```
+
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.7`。安装前建议先到 GitHub 仓库审阅源码。
+
+## 工作原理 (How It Works)
+
+此技能是 dLazy 托管 API 的轻量封装。调用时：
+
+- 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`oss.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `oss.dlazy.com` 托管。
+
+这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。
 
 # 亚马逊产品套图
+
+[English](./SKILL.md) · [中文](./SKILL-cn.md)
 
 这是一个专为亚马逊电商平台设计的专业产品图片生成技能，确保输出符合亚马逊图片规范，同时兼顾点击率与转化率目标。
 

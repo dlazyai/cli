@@ -1,6 +1,11 @@
 import { z } from "zod";
 
+// ---------------------------------------------------------------------------
+// Public types
+// ---------------------------------------------------------------------------
+
 export type FieldMediaType = "image" | "video" | "audio";
+
 export const FILE_META_TYPES: ReadonlySet<string> = new Set<FieldMediaType>([
 	"image",
 	"video",
@@ -15,14 +20,17 @@ export type SchemaCondition = {
 
 export type SchemaConditionGroup =
 	| SchemaCondition
-	| { all: SchemaCondition[] }
-	| { any: SchemaCondition[] };
+	| { all: SchemaConditionGroup[] }
+	| { any: SchemaConditionGroup[] }
+	| { not: SchemaConditionGroup };
 
-export type FieldMeta = {
-	mediaType?: string;
-	showWhen?: SchemaConditionGroup;
-	hideWhen?: SchemaConditionGroup;
-	hidden?: boolean;
+export type DynamicEnumOption = { id: string; name: string };
+
+export type DynamicEnumGroups = Record<string, readonly DynamicEnumOption[]>;
+
+export type DynamicEnumInfo = {
+	dependsOn: string;
+	groups: DynamicEnumGroups;
 };
 
 export type FieldDescriptor = {
@@ -35,8 +43,13 @@ export type FieldDescriptor = {
 	defaultValue?: unknown;
 	maxItems?: number;
 	showWhen?: SchemaConditionGroup;
-	hideWhen?: SchemaConditionGroup;
+	dynamicEnum?: DynamicEnumInfo;
 };
+
+// ---------------------------------------------------------------------------
+// JSON Schema is the single source of truth. Everything below derives field
+// metadata by walking the JSON Schema produced by Zod v4's `z.toJSONSchema`.
+// ---------------------------------------------------------------------------
 
 const JSON_SCHEMA_TYPES: ReadonlySet<string> = new Set([
 	"string",
@@ -48,167 +61,224 @@ const JSON_SCHEMA_TYPES: ReadonlySet<string> = new Set([
 	"null",
 ]);
 
-export function unwrap(schema: unknown): z.ZodTypeAny {
-	let curr: any = schema;
-	while (
-		curr instanceof z.ZodOptional ||
-		curr instanceof z.ZodNullable ||
-		curr instanceof z.ZodDefault
-	) {
-		curr = curr.unwrap();
+type JsonSchemaNode = Record<string, unknown> & {
+	type?: string | string[];
+	properties?: Record<string, JsonSchemaNode>;
+	items?: JsonSchemaNode | JsonSchemaNode[];
+	required?: string[];
+	enum?: unknown[];
+	default?: unknown;
+	description?: string;
+	maxItems?: number;
+	$ref?: string;
+	$defs?: Record<string, JsonSchemaNode>;
+	definitions?: Record<string, JsonSchemaNode>;
+	anyOf?: JsonSchemaNode[];
+	oneOf?: JsonSchemaNode[];
+	allOf?: JsonSchemaNode[];
+};
+
+export function toJsonSchema(schema: z.ZodType): unknown {
+	const out = z.toJSONSchema(schema as any) as JsonSchemaNode;
+	return sanitizeJsonSchema(out);
+}
+
+function sanitizeJsonSchema(node: unknown): unknown {
+	if (!node || typeof node !== "object") return node;
+	const n = node as JsonSchemaNode;
+	if (typeof n.type === "string" && !JSON_SCHEMA_TYPES.has(n.type)) {
+		(n as Record<string, unknown>)["x-ai-type"] = n.type;
+		delete n.type;
 	}
-	return curr as z.ZodTypeAny;
-}
-
-export function getShape(schema: unknown): Record<string, z.ZodTypeAny> {
-	if (!schema) return {};
-	const s = schema as any;
-	if (s.shape) {
-		return typeof s.shape === "function" ? s.shape() : s.shape;
-	}
-	if (s._def?.shape) {
-		return typeof s._def.shape === "function" ? s._def.shape() : s._def.shape;
-	}
-	if (s._def?.schema) return getShape(s._def.schema);
-	return {};
-}
-
-export function getMeta(schema: unknown): FieldMeta | undefined {
-	const s = schema as any;
-	return (s?.meta?.() ?? undefined) as FieldMeta | undefined;
-}
-
-export function isOptional(schema: unknown): boolean {
-	return (
-		schema instanceof z.ZodOptional ||
-		schema instanceof z.ZodDefault ||
-		schema instanceof z.ZodNullable
-	);
-}
-
-export function getDefaultValue(schema: unknown): unknown {
-	let curr: any = schema;
-	while (curr) {
-		if (curr instanceof z.ZodDefault) {
-			const def = curr.def?.defaultValue ?? curr._def?.defaultValue;
-			return typeof def === "function" ? def() : def;
+	if (n.properties) {
+		for (const k of Object.keys(n.properties)) {
+			sanitizeJsonSchema(n.properties[k]);
 		}
-		if (curr instanceof z.ZodOptional || curr instanceof z.ZodNullable) {
-			curr = curr.unwrap?.() ?? curr._def?.innerType;
-			continue;
+	}
+	if (n.items) {
+		if (Array.isArray(n.items)) n.items.forEach(sanitizeJsonSchema);
+		else sanitizeJsonSchema(n.items);
+	}
+	for (const k of ["anyOf", "oneOf", "allOf"] as const) {
+		const arr = n[k];
+		if (Array.isArray(arr)) arr.forEach(sanitizeJsonSchema);
+	}
+	return n;
+}
+
+function resolveRef(
+	root: JsonSchemaNode,
+	ref: string,
+): JsonSchemaNode | undefined {
+	// Handles "#/$defs/Foo" and "#/definitions/Foo"
+	if (!ref.startsWith("#/")) return undefined;
+	const parts = ref.slice(2).split("/");
+	let cur: unknown = root;
+	for (const p of parts) {
+		if (!cur || typeof cur !== "object") return undefined;
+		cur = (cur as Record<string, unknown>)[p];
+	}
+	return cur as JsonSchemaNode | undefined;
+}
+
+function deref(
+	node: JsonSchemaNode,
+	root: JsonSchemaNode,
+	seen = new Set<string>(),
+): JsonSchemaNode {
+	if (!node.$ref) return node;
+	if (seen.has(node.$ref)) return node;
+	seen.add(node.$ref);
+	const target = resolveRef(root, node.$ref);
+	if (!target) return node;
+	return deref({ ...target, ...node, $ref: undefined }, root, seen);
+}
+
+function pickObjectNode(
+	node: JsonSchemaNode,
+	root: JsonSchemaNode,
+): JsonSchemaNode | undefined {
+	const n = deref(node, root);
+	if (n.properties) return n;
+	// Some schemas wrap the object in an allOf/anyOf (e.g. with superRefine meta).
+	for (const k of ["allOf", "anyOf", "oneOf"] as const) {
+		const arr = n[k];
+		if (!Array.isArray(arr)) continue;
+		for (const child of arr) {
+			const found = pickObjectNode(child, root);
+			if (found) return found;
 		}
-		return undefined;
 	}
 	return undefined;
 }
 
-export function getEnumOptions(schema: unknown): string[] | undefined {
-	const base = unwrap(schema) as any;
-	if (base instanceof z.ZodEnum) {
-		const opts = base.options;
-		if (Array.isArray(opts)) return opts.map(String);
+function parseDynamicEnum(raw: unknown): DynamicEnumInfo | undefined {
+	if (!raw || typeof raw !== "object") return undefined;
+	const r = raw as { dependsOn?: unknown; groups?: unknown };
+	if (typeof r.dependsOn !== "string") return undefined;
+	if (!r.groups || typeof r.groups !== "object") return undefined;
+	const groups: Record<string, readonly DynamicEnumOption[]> = {};
+	for (const [k, v] of Object.entries(r.groups as Record<string, unknown>)) {
+		if (!Array.isArray(v)) continue;
+		const opts = v.filter(
+			(o): o is DynamicEnumOption =>
+				!!o &&
+				typeof o === "object" &&
+				typeof (o as { id?: unknown }).id === "string" &&
+				typeof (o as { name?: unknown }).name === "string",
+		);
+		groups[k] = opts;
 	}
-	return undefined;
+	return { dependsOn: r.dependsOn, groups };
 }
 
-function getArrayMaxItems(schema: unknown): number | undefined {
-	const base = unwrap(schema) as any;
-	if (!(base instanceof z.ZodArray)) return undefined;
-	const checks = base._def?.checks || base.def?.checks;
-	if (!Array.isArray(checks)) return undefined;
-	for (const c of checks as any[]) {
-		if (c?.kind === "max" && typeof c.value === "number") return c.value;
-		if (c?._zod?.def?.check === "max_length") return c._zod.def.maximum;
-	}
-	return undefined;
-}
-
-function isStringLike(schema: unknown): boolean {
-	const base = unwrap(schema) as any;
-	if (!base) return false;
-	// Zod 4 splits string formats into distinct classes: ZodString, ZodURL, ZodEmail,
-	// ZodUUID, etc. Match by def.type which is the underlying JS String constructor
-	// for all of them, with an instanceof fallback for ZodString proper.
-	if (base instanceof z.ZodString) return true;
-	const defType = base._def?.type ?? base.def?.type;
-	if (defType === String) return true;
-	if (typeof defType === "string" && defType === "string") return true;
-	return false;
-}
-
-export function describeField(
+function describeFieldFromJson(
 	key: string,
-	schema: z.ZodTypeAny,
+	rawNode: JsonSchemaNode,
+	required: boolean,
+	root: JsonSchemaNode,
 ): FieldDescriptor {
-	const meta = getMeta(schema);
-	const base = unwrap(schema) as any;
-	const isArray = base instanceof z.ZodArray;
-	// mediaType only applies when the leaf value is a string (URL / path / data URI).
-	// Some schemas tag array-of-objects fields with type:"video" purely for UI
-	// grouping — skip those so we don't try to base64-encode object payloads.
-	const leafSchema: unknown = isArray
-		? (base.element ?? base._def?.element)
-		: schema;
-	const itemIsString = isStringLike(leafSchema);
+	const node = deref(rawNode, root);
+	const isArray = node.type === "array";
+	const leaf: JsonSchemaNode | undefined = isArray
+		? (Array.isArray(node.items) ? node.items[0] : node.items) &&
+			deref(
+				(Array.isArray(node.items)
+					? node.items[0]
+					: node.items) as JsonSchemaNode,
+				root,
+			)
+		: node;
+
+	const leafType = leaf?.type;
+	const isStringLeaf = leafType === "string";
+
+	// Meta `{mediaType}` is attached to the field schema itself (which for
+	// arrays is the outer node, not the items leaf). Only treat it as a file
+	// input when the actual value is a string (url/path/data URI).
+	const mediaTypeRaw =
+		(node as Record<string, unknown>).mediaType ??
+		(leaf as Record<string, unknown> | undefined)?.mediaType;
 	const mediaType =
-		meta?.mediaType && FILE_META_TYPES.has(meta.mediaType) && itemIsString
-			? (meta.mediaType as FieldMediaType)
+		typeof mediaTypeRaw === "string" &&
+		FILE_META_TYPES.has(mediaTypeRaw) &&
+		isStringLeaf
+			? (mediaTypeRaw as FieldMediaType)
 			: undefined;
-	const enumChoices = getEnumOptions(schema);
-	const defaultValue = getDefaultValue(schema);
+
+	const enumChoices = Array.isArray(node.enum)
+		? node.enum.map((v) => String(v))
+		: undefined;
+
+	const dynamicEnum = parseDynamicEnum(
+		(node as Record<string, unknown>)["x-dynamicEnum"],
+	);
+	const combinedChoices =
+		enumChoices ??
+		(dynamicEnum
+			? [
+					...new Set(
+						Object.values(dynamicEnum.groups).flatMap((opts) =>
+							opts.map((o) => o.id),
+						),
+					),
+				]
+			: undefined);
+
+	// A field with a default is effectively optional from the user's POV:
+	// commander may auto-inject the default, and the server accepts omission.
+	const hasDefault = Object.hasOwn(node, "default");
+	const effectiveRequired = required && !hasDefault;
+
+	const showWhen = (node as Record<string, unknown>).showWhen as
+		| SchemaConditionGroup
+		| undefined;
+
 	return {
 		key,
-		required: !isOptional(schema),
+		required: effectiveRequired,
 		isArray,
 		mediaType,
 		description:
-			(schema as any)?.description || (schema as any)?._def?.description || key,
-		enumChoices,
-		defaultValue,
-		maxItems: getArrayMaxItems(schema),
-		showWhen: meta?.showWhen,
-		hideWhen: meta?.hideWhen,
+			typeof node.description === "string" && node.description.length > 0
+				? node.description
+				: key,
+		enumChoices: combinedChoices,
+		defaultValue: hasDefault ? node.default : undefined,
+		maxItems:
+			typeof node.maxItems === "number" && isArray ? node.maxItems : undefined,
+		showWhen,
+		dynamicEnum,
 	};
 }
 
 export function describeSchema(schema: unknown): FieldDescriptor[] {
-	const shape = getShape(schema);
-	return Object.entries(shape).map(([key, field]) => describeField(key, field));
-}
-
-export function toJsonSchema(schema: z.ZodType): unknown {
-	const out = z.toJSONSchema(schema as any) as any;
-	return sanitizeJsonSchema(out);
-}
-
-function sanitizeJsonSchema(node: any): any {
-	if (!node || typeof node !== "object") return node;
-	if (typeof node.type === "string" && !JSON_SCHEMA_TYPES.has(node.type)) {
-		node["x-ai-type"] = node.type;
-		delete node.type;
-	}
-	if (node.properties) {
-		for (const k of Object.keys(node.properties)) {
-			sanitizeJsonSchema(node.properties[k]);
-		}
-	}
-	if (node.items) sanitizeJsonSchema(node.items);
-	for (const k of ["anyOf", "oneOf", "allOf"]) {
-		if (Array.isArray(node[k])) node[k].forEach(sanitizeJsonSchema);
-	}
-	return node;
+	if (!schema) return [];
+	const root = toJsonSchema(schema as z.ZodType) as JsonSchemaNode;
+	const objectNode = pickObjectNode(root, root);
+	if (!objectNode?.properties) return [];
+	const required = new Set<string>(
+		Array.isArray(objectNode.required) ? objectNode.required : [],
+	);
+	return Object.entries(objectNode.properties).map(([key, node]) =>
+		describeFieldFromJson(key, node, required.has(key), root),
+	);
 }
 
 /**
- * Infer the result kind declared by an output schema.
+ * Infer the result kind declared by an output schema, by looking at the
+ * generated JSON Schema's top-level property names.
  * Matches ToolTaskResult union (urls | text | shapes) in lib/types.ts.
  */
 export function inferOutputKind(
 	schema: unknown,
 ): "urls" | "text" | "shapes" | "raw" {
-	const shape = getShape(schema);
-	if ("urls" in shape) return "urls";
-	if ("shapes" in shape) return "shapes";
-	if ("text" in shape) return "text";
+	if (!schema) return "raw";
+	const root = toJsonSchema(schema as z.ZodType) as JsonSchemaNode;
+	const objectNode = pickObjectNode(root, root);
+	const keys = Object.keys(objectNode?.properties ?? {});
+	if (keys.includes("urls")) return "urls";
+	if (keys.includes("shapes")) return "shapes";
+	if (keys.includes("text")) return "text";
 	return "raw";
 }

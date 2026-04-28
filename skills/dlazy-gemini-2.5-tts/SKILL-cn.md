@@ -2,10 +2,13 @@
 name: dlazy-gemini-2.5-tts
 version: 1.0.3
 description: 使用 Gemini 2.5 强大的文本转语音能力，生成多语言、高自然度的音频。
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy gemini-2.5-tts -h 查看帮助信息。"}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy gemini-2.5-tts -h 查看帮助信息。"}}
 ---
 
 # dlazy-gemini-2.5-tts
+
+[English](./SKILL.md) · [中文](./SKILL-cn.md)
+
 
 使用 Gemini 2.5 强大的文本转语音能力，生成多语言、高自然度的音频。
 
@@ -17,19 +20,46 @@ metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install
 
 ## 身份验证 (Authentication)
 
-所有请求都需要配置 dLazy API key。
-
-**CLI 配置**: 你可以通过以下命令设置你的 API key：
+所有请求都需要 dLazy API key，通过 CLI 配置：
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
+CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/config.json`，Windows 上为 `%USERPROFILE%\.dlazy\config.json`），文件权限仅限当前操作系统用户访问。你也可以用 `DLAZY_API_KEY` 环境变量按次传入。
+
 ### 获取你的 API Key
 
 1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
 2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. 点击 API Key 右侧的复制按钮获取它
+3. 复制 API Key 区域显示的密钥
+
+每个 key 都属于你自己的 dLazy 组织，可在同一控制面板**随时轮换或吊销**。
+
+## 关于与来源 (Provenance)
+
+- **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **维护者**: dlazyai
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.7` 版本）
+- **官网**: [dlazy.com](https://dlazy.com)
+
+如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
+
+```bash
+npx @dlazy/cli@1.0.7 <command>
+```
+
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.7`。安装前建议先到 GitHub 仓库审阅源码。
+
+## 工作原理
+
+此技能是 dLazy 托管 API 的轻量封装。调用时：
+
+- 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`oss.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `oss.dlazy.com` 托管。
+
+这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。完整服务条款请参见 [dlazy.com](https://dlazy.com)。
 
 ## 使用方法
 
@@ -42,7 +72,8 @@ dlazy gemini-2.5-tts -h
 Options:
   --prompt <prompt>                    Prompt
   --voice_language <voice_language>    Voice Language [default: cmn] (choices: "cmn", "en")
-  --voiceName <voiceName>              Voice Name [default: Kore]
+  --voiceName <voiceName>              Voice Name Options depend on "voice_language". when voice_language="cmn": Zephyr (Zephyr - 明亮), Puck (Puck - 欢快), Charon (Charon - 信息丰富), Kore (Kore - 坚定), Fenrir (Fenrir - 兴奋), Leda (Leda - 青春), Orus (Orus - 公正), Aoede (Aoede - 清爽), Callirrhoe (Callirrhoe - 轻松), Autonoe (Autonoe - 明亮), Enceladus (Enceladus - 气声), Iapetus (Iapetus - 清晰), Umbriel (Umbriel - 轻松愉快), Algieba (Algieba - 平滑), Despina (Despina - 平滑), Erinome (Erinome - 清晰), Algenib (Algenib - 沙哑), Rasalgethi (Rasalgethi - 信息丰富), Laomedeia (Laomedeia - 欢快), Achernar (Achernar - 柔和), Alnilam (Alnilam - 坚定), Schedar (Schedar - 均匀), Gacrux (Gacrux - 成熟), Pulcherrima (Pulcherrima - 转折), Achird (Achird - 友好), Zubenelgenubi (Zubenelgenubi - 随意), Vindemiatrix (Vindemiatrix - 温和), Sadachbia (Sadachbia - 活泼), Sadaltager (Sadaltager - 知识渊博), Sulafat (Sulafat - 偏高); when voice_language="en": Zephyr (Zephyr - Bright), Puck (Puck - Cheerful), Charon (Charon - Informative), Kore (Kore - Firm), Fenrir (Fenrir - Excitable), Leda (Leda - Youthful), Orus (Orus - Just), Aoede (Aoede - Breezy), Callirrhoe (Callirrhoe - Relaxed), Autonoe (Autonoe - Bright), Enceladus (Enceladus - Breath), Iapetus (Iapetus - Clear), Umbriel (Umbriel - Light), Algieba (Algieba - Smooth), Despina (Despina - Smooth), Erinome (Erinome - Clear), Algenib (Algenib - Gravelly), Rasalgethi (Rasalgethi - Informative), Laomedeia (Laomedeia - Cheerful), Achernar (Achernar - Soft), Alnilam (Alnilam - Firm), Schedar (Schedar - Even), Gacrux (Gacrux - Mature), Pulcherrima (Pulcherrima - Turning), Achird (Achird - Friendly), Zubenelgenubi (Zubenelgenubi - Casual), Vindemiatrix (Vindemiatrix - Gentle), Sadachbia (Sadachbia - Lively), Sadaltager (Sadaltager - Scholarly), Sulafat (Sulafat - High) [default: Kore] (choices: "Zephyr", "Puck", "Charon", "Kore", "Fenrir", "Leda", "Orus", "Aoede", "Callirrhoe", "Autonoe", "Enceladus", "Iapetus", "Umbriel", "Algieba", "Despina", "Erinome", "Algenib", "Rasalgethi", "Laomedeia", "Achernar", "Alnilam", "Schedar", "Gacrux", "Pulcherrima", "Achird", "Zubenelgenubi", "Vindemiatrix", "Sadachbia", "Sadaltager", "Sulafat")
+  --promptRefs <promptRefs...>         promptRefs [default: ]
   --input <spec>                       JSON payload: inline string, @file, or - (stdin)
   --dry-run                            Print payload + cost estimate without calling API
   --no-wait                            Return generateId immediately for async tasks
@@ -63,6 +94,10 @@ Options:
   }
 }
 ```
+
+
+
+
 
 ## 命令示例
 
@@ -87,7 +122,7 @@ dlazy gemini-2.5-tts --prompt '提示词内容'
 
 > **智能体关键指令**: 
 > 1. 如果执行结果返回 `code: "insufficient_balance"` 且提示余额不足（Insufficient balance），您必须明确告知用户当前积分不足，并引导用户点击以下链接前往充值：[https://dlazy.com/dashboard/organization/settings?tab=credits](https://dlazy.com/dashboard/organization/settings?tab=credits)
-> 2. 如果执行结果返回 `code: "unauthorized"` 或提示缺少 API Key，您必须明确告知用户前往 [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) 获取 API Key 并使用 `dlazy auth set <key>` 设置后，然后继续执行任务。
+> 2. 如果执行结果返回 `code: "unauthorized"` 或提示缺少 API Key，您必须明确告知用户前往 [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) 获取 API Key 并使用 `dlazy auth set <key>` 保存，然后继续执行任务。
 
 ## Tips
 

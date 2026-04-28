@@ -4,6 +4,7 @@ export type OkEnvelope = {
 	ok: true;
 	kind: OkKind;
 	data: unknown;
+	display?: string;
 };
 
 export type ErrEnvelope = {
@@ -38,12 +39,27 @@ export function heartbeat(ch = ".") {
 }
 
 export function emit(env: Envelope): never {
-	process.stdout.write(`${JSON.stringify(env)}\n`);
+	if (env.ok && env.display) {
+		// Lazy-load to avoid circular dep between envelope <-> messages.
+		const { t } = require("../messages") as typeof import("../messages");
+		const m = t().api;
+		process.stderr.write(`\n${m.displayBannerStart}\n`);
+		process.stderr.write(`${env.display}\n`);
+		process.stderr.write(`${m.displayBannerEnd}\n`);
+		process.stderr.write(`${m.displayHint}\n\n`);
+	}
+	// Strip `display` — it's a stderr-only hint, not part of the machine-readable payload.
+	const payload: Envelope = env.ok
+		? { ok: env.ok, kind: env.kind, data: env.data }
+		: env;
+	process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
 	process.exit(env.ok ? 0 : 1);
 }
 
-export function success(kind: OkKind, data: unknown): never {
-	return emit({ ok: true, kind, data });
+export function success(kind: OkKind, data: unknown, display?: string): never {
+	const env: OkEnvelope = { ok: true, kind, data };
+	if (display) env.display = display;
+	return emit(env);
 }
 
 export function failure(
@@ -53,7 +69,7 @@ export function failure(
 	exitCode: 1 | 2 = 1,
 ): never {
 	process.stdout.write(
-		`${JSON.stringify({ ok: false, code, message, details })}\n`,
+		`${JSON.stringify({ ok: false, code, message, details }, null, 2)}\n`,
 	);
 	process.exit(exitCode);
 }

@@ -2,10 +2,12 @@
 name: dlazy-generate
 version: 1.0.4
 description: 综合生成技能。能够根据用户意图自动选择合适的 dlazy CLI 模型来生成图片、视频或音频。
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当调用此技能时，请自动选择对应的 dlazy 子命令执行。"}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，请自动选择对应的 dlazy 子命令执行。"}}
 ---
 
 # dlazy-generate
+
+[English](./SKILL.md) · [中文](./SKILL-cn.md)
 
 综合生成技能。能够根据用户意图自动选择合适的 dlazy CLI 模型来生成图片、视频或音频。
 
@@ -17,19 +19,48 @@ metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install
 
 ## 身份验证 (Authentication)
 
-所有请求都需要配置 dLazy API key。
-
-**CLI 配置**: 你可以通过以下命令设置你的 API key：
+所有请求都需要 dLazy API key，通过 CLI 配置：
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
+CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/config.json`，Windows 上为 `%USERPROFILE%\.dlazy\config.json`），文件权限仅限当前操作系统用户访问。你也可以用 `DLAZY_API_KEY` 环境变量按次传入。
+
 ### 获取你的 API Key
 
 1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
 2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. 点击 API Key 右侧的复制按钮获取它
+3. 复制 API Key 区域显示的密钥
+
+每个 key 都属于你自己的 dLazy 组织，可在同一控制面板**随时轮换或吊销**。
+
+
+
+## 关于与来源 (Provenance)
+
+- **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **维护者**: dlazyai
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.7` 版本）
+- **官网**: [dlazy.com](https://dlazy.com)
+
+如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
+
+```bash
+npx @dlazy/cli@1.0.7 <command>
+```
+
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.7`。安装前建议先到 GitHub 仓库审阅源码。
+
+## 工作原理 (How It Works)
+
+此技能是 dLazy 托管 API 的轻量封装。调用时：
+
+- 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`oss.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `oss.dlazy.com` 托管。
+
+这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。完整服务条款请参见 [dlazy.com](https://dlazy.com)。
 
 ## Usage / 使用方法
 
@@ -65,6 +96,7 @@ dlazy auth set YOUR_API_KEY
 2. 从上述列表中选择最合适的模型。
 3. 运行 \`dlazy <model_name> -h\` 查看该特定模型所需的参数。
 4. 执行命令（例如 \`dlazy seedream-4.5 --prompt "..."\`）。
+
 
 ## 错误处理
 

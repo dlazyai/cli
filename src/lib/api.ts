@@ -1,7 +1,17 @@
 import type { z } from "zod";
+import { t } from "../messages";
 import { sleep } from "../utils/utils";
-import { debug, failure, heartbeat, log, success } from "./envelope";
+import {
+	debug,
+	failure,
+	heartbeat,
+	log,
+	type OkKind,
+	success,
+} from "./envelope";
 import { inferOutputKind } from "./schema";
+
+export type MediaHint = "image" | "video" | "audio" | "text" | "tool" | "auto";
 
 export type RunOptions = {
 	apiKey: string;
@@ -11,6 +21,7 @@ export type RunOptions = {
 	organizationId?: string;
 	projectId?: string;
 	outputSchema?: z.ZodType;
+	mediaType?: MediaHint;
 	wait: boolean;
 	timeoutMs: number;
 	pollIntervalMs?: number;
@@ -67,19 +78,82 @@ function isTextOutput(output: unknown): output is { text: string } {
 	);
 }
 
-function emitResult(result: unknown, outputSchema?: z.ZodType): never {
+function detectMediaFromUrl(
+	url: string,
+): "image" | "video" | "audio" | undefined {
+	const m = url.toLowerCase().match(/\.([a-z0-9]+)(?:[?#]|$)/);
+	if (!m) return undefined;
+	const ext = m[1];
+	if (["jpg", "jpeg", "png", "webp", "gif", "svg", "bmp", "avif"].includes(ext))
+		return "image";
+	if (["mp4", "mov", "webm", "mkv", "m4v"].includes(ext)) return "video";
+	if (["mp3", "wav", "ogg", "m4a", "flac", "aac"].includes(ext)) return "audio";
+	return undefined;
+}
+
+function renderUrlsPlain(urls: string[]): string {
+	return urls.join("\n");
+}
+
+function renderDisplay(
+	kind: OkKind,
+	data: unknown,
+	mediaType?: MediaHint,
+): string | undefined {
+	if (kind === "urls") {
+		const urls = (data as { urls?: unknown }).urls;
+		if (!Array.isArray(urls) || urls.length === 0) return undefined;
+		const strUrls = urls.filter((u): u is string => typeof u === "string");
+		if (strUrls.length === 0) return undefined;
+		return renderUrlsPlain(strUrls);
+	}
+	if (kind === "text") {
+		const text = (data as { text?: unknown }).text;
+		return typeof text === "string" && text.length > 0 ? text : undefined;
+	}
+	if (kind === "shapes") {
+		const shapes = (data as { shapes?: unknown }).shapes;
+		if (!Array.isArray(shapes)) return undefined;
+		return t().api.shapesGenerated(shapes.length);
+	}
+	if (kind === "generateId") {
+		const d = data as { generateId?: string; status?: string };
+		if (!d?.generateId) return undefined;
+		return t().api.taskSubmittedDisplay(d.generateId, d.status ?? "pending");
+	}
+	return undefined;
+}
+
+function emitResult(
+	result: unknown,
+	outputSchema?: z.ZodType,
+	mediaType?: MediaHint,
+): never {
+	log(t().api.generationCompleted);
 	const schemaKind = outputSchema ? inferOutputKind(outputSchema) : "raw";
 	if (outputSchema) {
 		const parsed = outputSchema.safeParse(result);
 		if (parsed.success) {
-			return success(schemaKind, parsed.data);
+			return success(
+				schemaKind,
+				parsed.data,
+				renderDisplay(schemaKind, parsed.data, mediaType),
+			);
 		}
 		debug("outputSchema parse failed", parsed.error.issues);
 	}
-	if (isUrlsOutput(result)) return success("urls", { urls: result.urls });
-	if (isShapesOutput(result))
-		return success("shapes", { shapes: result.shapes });
-	if (isTextOutput(result)) return success("text", { text: result.text });
+	if (isUrlsOutput(result)) {
+		const data = { urls: result.urls };
+		return success("urls", data, renderDisplay("urls", data, mediaType));
+	}
+	if (isShapesOutput(result)) {
+		const data = { shapes: result.shapes };
+		return success("shapes", data, renderDisplay("shapes", data, mediaType));
+	}
+	if (isTextOutput(result)) {
+		const data = { text: result.text };
+		return success("text", data, renderDisplay("text", data, mediaType));
+	}
 	return success("raw", result);
 }
 
@@ -94,7 +168,7 @@ export async function apiPostRun(opts: RunOptions): Promise<never> {
 	if (opts.organizationId) body.organizationId = opts.organizationId;
 	if (opts.projectId) body.projectId = opts.projectId;
 
-	log(`invoking ${opts.modelId}`);
+	log(t().api.invoking(opts.modelId));
 	debug("payload", body);
 
 	let response: Response;
@@ -123,11 +197,7 @@ export async function apiPostRun(opts: RunOptions): Promise<never> {
 			code = "invalid_request";
 			if (text.toLowerCase().includes("balance")) code = "insufficient_balance";
 		}
-		return failure(
-			code,
-			`request failed with status ${response.status}`,
-			details,
-		);
+		return failure(code, t().api.requestFailed(response.status), details);
 	}
 
 	const json = (await response.json()) as PostResponse;
@@ -135,12 +205,17 @@ export async function apiPostRun(opts: RunOptions): Promise<never> {
 
 	if (isGenerateIdOutput(output)) {
 		if (!opts.wait) {
-			return success("generateId", {
+			const data = {
 				generateId: output.generateId,
 				status: output.status ?? "pending",
-			});
+			};
+			return success(
+				"generateId",
+				data,
+				renderDisplay("generateId", data, opts.mediaType),
+			);
 		}
-		log(`task submitted; polling ${output.generateId}`);
+		log(t().api.taskSubmitted(output.generateId));
 		return await pollUntilDone({
 			generateId: output.generateId,
 			endpoint,
@@ -148,10 +223,11 @@ export async function apiPostRun(opts: RunOptions): Promise<never> {
 			timeoutMs: opts.timeoutMs,
 			pollIntervalMs: opts.pollIntervalMs ?? 3000,
 			outputSchema: opts.outputSchema,
+			mediaType: opts.mediaType,
 		});
 	}
 
-	emitResult(output, opts.outputSchema);
+	emitResult(output, opts.outputSchema, opts.mediaType);
 }
 
 export async function apiStatus(opts: {
@@ -162,6 +238,7 @@ export async function apiStatus(opts: {
 	timeoutMs: number;
 	pollIntervalMs?: number;
 	outputSchema?: z.ZodType;
+	mediaType?: MediaHint;
 }): Promise<never> {
 	const endpoint = opts.baseUrl.replace(/\/$/, "");
 	const headers = buildHeaders(opts.apiKey);
@@ -174,6 +251,7 @@ export async function apiStatus(opts: {
 			timeoutMs: opts.timeoutMs,
 			pollIntervalMs: opts.pollIntervalMs ?? 3000,
 			outputSchema: opts.outputSchema,
+			mediaType: opts.mediaType,
 		});
 	}
 
@@ -184,7 +262,7 @@ export async function apiStatus(opts: {
 		},
 	);
 	if (!resp.ok) {
-		return failure("http_error", `status fetch failed (${resp.status})`);
+		return failure("http_error", t().api.statusFetchFailed(resp.status));
 	}
 	const data = (await resp.json()) as PollResponse;
 	return success("raw", data);
@@ -197,6 +275,7 @@ async function pollUntilDone(opts: {
 	timeoutMs: number;
 	pollIntervalMs: number;
 	outputSchema?: z.ZodType;
+	mediaType?: MediaHint;
 }): Promise<never> {
 	const pollUrl = `${opts.endpoint}?generateId=${encodeURIComponent(opts.generateId)}`;
 	const deadline = Date.now() + opts.timeoutMs;
@@ -210,13 +289,13 @@ async function pollUntilDone(opts: {
 			return failure("network_error", (err as Error).message);
 		}
 		if (!resp.ok) {
-			return failure("http_error", `poll failed (${resp.status})`);
+			return failure("http_error", t().api.pollFailed(resp.status));
 		}
 		const data = (await resp.json()) as PollResponse;
 		const status = data.status;
 
 		if (status === "completed") {
-			emitResult(data.result, opts.outputSchema);
+			emitResult(data.result, opts.outputSchema, opts.mediaType);
 		}
 		if (status === "failed") {
 			return failure("task_failed", data.error ?? "task failed", {
@@ -229,7 +308,7 @@ async function pollUntilDone(opts: {
 
 	return failure(
 		"timeout",
-		`task did not complete within ${Math.round(opts.timeoutMs / 1000)}s`,
+		t().api.taskDidNotComplete(Math.round(opts.timeoutMs / 1000)),
 		{ generateId: opts.generateId },
 	);
 }

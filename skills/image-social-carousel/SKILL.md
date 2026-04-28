@@ -1,175 +1,209 @@
 ---
 name: image-social-carousel
-version: 1.0.2
-description: 这是一个专门用于设计社交媒体轮播图的结构化工作流技能。核心方法是先确定设计意图，再执行生成，采用“一次确认 + 封面优先”的两阶段流程。
+version: 1.0.0
+description: A structured workflow skill dedicated to social-media carousel design, using a single-confirmation plus cover-first two-phase flow that decides intent first then executes.
 triggers:
-  - 社媒轮播图设计师（封面优先）
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Social Carousel Designer (Cover-First)
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
 ---
 
-## 身份验证 (Authentication)
+## Authentication
 
-所有请求都需要配置 dLazy API key。
+All requests require a dLazy API key. The recommended way to obtain and store one is the browser-based device login flow:
 
-**CLI 配置**: 你可以通过以下命令设置你的 API key：
+```bash
+dlazy login
+```
+
+This opens dlazy.com in your browser for approval and persists the key for you. If you already have a key on hand, configure it directly:
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
-### 获取你的 API Key
+The CLI saves the key to `~/.dlazy/config.json` (`%USERPROFILE%\.dlazy\config.json` on Windows). You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable, which takes precedence over the config file.
 
-1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
-2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. 点击 API Key 右侧的复制按钮获取它
+### Getting Your API Key
 
-# 社媒轮播图设计师（封面优先）
+1. Sign in or create an account at [dlazy.com](https://dlazy.com)
+2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. Copy the key shown in the API Key section
 
-这是一个专门用于设计社交媒体轮播图的结构化工作流技能。核心方法是先确定设计意图，再执行生成，采用“一次确认 + 封面优先”的两阶段流程。
+Each key is scoped to your dLazy organization and can be **rotated or revoked at any time** from the same dashboard.
 
-## 核心定位
+## About & Provenance
 
-你的职责边界：
+- **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **Maintainer**: dlazyai
+- **npm package**: `@dlazy/cli` (pinned to `1.0.7` in this skill's install spec)
+- **Homepage**: [dlazy.com](https://dlazy.com)
 
-- ✅ 设计决策（做什么、为什么）
-- ✅ 结构化意图数据输出
-- ❌ 图像生成提示词渲染细节
+You can install on demand without persisting a global binary by running:
 
-## 执行框架
+```bash
+npx @dlazy/cli@1.0.7 <command>
+```
 
-### 步骤 0：任务规划（必须）
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.7`). Review the GitHub source before installing.
 
-在开始任何输出前，先建立任务计划，至少包含：
+## How It Works
 
-- 方向确认与幻灯片规划
-- 封面优先生成与确认
-- 批量生成剩余幻灯片
-- 返工处理与一致性收敛
+This skill is a thin client over the dLazy hosted API. When you invoke it:
 
-执行规则：
+- Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
+- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
+- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
 
-- 仅保留一个 `in_progress` 任务，其他任务标记为 `pending`。
-- 每完成一个阶段，更新计划状态。
-- 若用户提出返工或新增资产，新增或重排任务并重新进入对应阶段。
+This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles.
 
-### 阶段 1：方向确认 + 全部幻灯片（一次性确认）
+# Social Carousel Designer (Cover-First)
 
-在此阶段必须完成：
+[English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-1. 确定视觉参考
-   - 用户提供风格参考图时，直接使用。
-   - 用户未提供时，使用 `search_image` 搜索合适视觉参考。
-2. 输出确认表格，至少包含：
-   - 平台与幻灯片数量
-   - 每张幻灯片的角色、标题、副标题
-   - 参考图像列表
-   - 技术细节（平台规格、目标受众、叙事流程等）
-3. 等待用户一次性确认
-   - 用户明确“好的/可以/继续”后，才进入阶段 2。
+A structured workflow skill dedicated to social-media carousel design. The core method is "decide intent first, then execute," using a "single-confirmation + cover-first" two-phase flow.
 
-### 阶段 2：封面优先生成（5 个步骤）
+## Core Positioning
 
-#### 步骤 1：分析参考图像（规划者执行，绝不委托）
+Your responsibilities:
 
-- 使用 `analyse_image` 提取设计结构。
-- 聚焦以下结构维度：
-  - 色彩策略
-  - 排版层级
-  - 背景材质（半色调、颗粒、渐变等）
-  - 元素与背景融合方式（叠加/纹理成形/半透明）
-  - 空间构图
-  - 关键元素质感（写实 3D、扁平矢量、雕塑感等）
-- 输出 3-6 个结构性模式，只描述结构和技术，不描述情绪词。
+- ✅ Design decisions (what to do, why)
+- ✅ Structured intent data output
+- ❌ Image-generation prompt rendering details
 
-#### 步骤 2：内容映射到结构
+## Execution Framework
 
-- 将每张幻灯片内容映射到步骤 1 的结构模式。
-- 保持质量等级，不把高质量形态降级。
-- 完整替换参考图特定内容，避免内容污染。
-- 维持元素-背景融合技术一致。
+### Step 0: Task Planning (Mandatory)
 
-#### 步骤 3：生成封面（仅第 1 张，可委托）
+Before any design output, call the `write_todos` tool to set up a task plan that includes at least:
 
-- 使用步骤 1 的结构分析 + 步骤 2 的内容映射 + 参考图 URL。
-- 任务类型必须使用 `REFERENCE_TO_IMAGE`。
-- 提示词必须明确包含构图技术、融合方法、空间构图等结构信息。
-- 分辨率默认：平台宽高比 + 1K；仅用户明确要求时提升。
-- 展示封面后询问：
-  - “这个封面看起来对吗？我将生成其余部分以匹配这种风格。”
-- 停止并等待：
-  - 批准 → 进入步骤 4
-  - 拒绝 → 回到步骤 1-3 迭代
+- Direction confirmation and slide planning
+- Cover-first generation and confirmation
+- Batch generation of remaining slides
+- Rework handling and consistency convergence
 
-#### 步骤 4：分析已批准封面（规划者执行，绝不委托）
+Execution rules:
 
-- 使用 `analyse_image` 识别两类要素：
-  - 视觉锚点（必须保持）：色板、排版风格、用户资产
-  - 灵活元素（应当变化）：布局构图、背景图像、装饰元素
-- 目标是“同一家族，不同个性”，而不是“同一模板替换文字”。
+- Keep only one task `in_progress`; the rest are `pending`.
+- Update `write_todos` status as soon as each phase finishes.
+- If the user asks for rework or new assets, add or re-order tasks and re-enter the corresponding phase.
 
-#### 步骤 5：生成剩余幻灯片（2-N，可委托）
+### Phase 1: Direction Confirmation + All Slides (single confirmation)
 
-- 封面 URL 必须是步骤 3 的实际输出 URL。
-- 在 `project_context` 与 `image_url_list` 同时传入封面 URL。
-- 不再传递原始风格参考图，封面已吸收其结构特征。
-- 每次生成调用都使用 `REFERENCE_TO_IMAGE`，并将封面 URL 放在 `image_url_list`。
-- 分辨率与步骤 3 保持一致：默认平台宽高比 + 1K。
+This phase must accomplish:
 
-## 平台规格参考
+1. Establish visual references
+   - When the user provides a style reference image, use it directly.
+   - Otherwise, use `search_image` to find a suitable visual reference.
+2. Output a confirmation table that includes at least:
+   - Platform and slide count
+   - Each slide's role, headline, subheadline
+   - Reference-image list
+   - Technical details (platform spec, target audience, narrative flow, etc.)
+3. Wait for the user's single confirmation.
+   - Only after the user explicitly says "ok / go / continue" may you enter Phase 2.
 
-| 平台 | 宽高比 | 安全区（顶部 / 底部） |
+### Phase 2: Cover-First Generation (5 steps)
+
+#### Step 1: Analyze Reference Image (planner executes — never delegate)
+
+- Use `analyse_image` to extract design structure.
+- Focus on these structural dimensions:
+  - Color strategy
+  - Typography hierarchy
+  - Background materials (halftone, grain, gradient, etc.)
+  - How elements blend with the background (overlay / texture-shaped / semi-transparent)
+  - Spatial composition
+  - Texture quality of key elements (photoreal 3D, flat vector, sculptural, etc.)
+- Output 3–6 structural patterns. Describe structure and technique only — no mood words.
+
+#### Step 2: Map Content to Structure
+
+- Map each slide's content to the structural patterns from Step 1.
+- Preserve quality tier — do not downgrade high-quality forms.
+- Replace the reference image's specific content fully to avoid contamination.
+- Keep element-background blending technique consistent.
+
+#### Step 3: Generate the Cover (Slide 1 only — delegable)
+
+- Use Step 1's structural analysis + Step 2's content mapping + the reference URL.
+- Task type must be `REFERENCE_TO_IMAGE`.
+- The prompt must explicitly include compositional technique, blending method, and spatial composition.
+- Default resolution: platform aspect ratio + 1K; only escalate when the user explicitly asks for more.
+- After showing the cover, ask:
+  - "Does this cover look right? I'll generate the rest to match this style."
+- Stop and wait:
+  - Approval → proceed to Step 4
+  - Rejection → return to Steps 1–3 and iterate
+
+#### Step 4: Analyze the Approved Cover (planner executes — never delegate)
+
+- Use `analyse_image` to identify two element classes:
+  - Visual anchors (must keep): palette, typography style, user assets
+  - Flexible elements (should vary): layout composition, background imagery, decorative elements
+- The goal is "same family, different personalities," not "same template, swap text."
+
+#### Step 5: Generate Remaining Slides (2–N — delegable)
+
+- The cover URL must be the actual output URL from Step 3.
+- Pass the cover URL into both `project_context` and `image_url_list`.
+- Stop passing the original style reference — the cover has absorbed its structural traits.
+- Every generation call uses `REFERENCE_TO_IMAGE`, with the cover URL in `image_url_list`.
+- Resolution stays consistent with Step 3: default platform aspect ratio + 1K.
+
+## Platform Spec Reference
+
+| Platform | Aspect Ratio | Safe Area (top / bottom) |
 | --- | --- | --- |
 | TikTok | 9:16 | 15% / 25% |
 | Instagram Feed | 4:5 | 10% / 10% |
 | Instagram Story | 9:16 | 15% / 25% |
-| 小红书 | 3:4 | 8% / 20% |
+| Xiaohongshu | 3:4 | 8% / 20% |
 | LinkedIn | 1:1 | 5% / 5% |
 
-## 10 条核心规则
+## 10 Core Rules
 
-1. 一次确认：阶段 1 完成后，用户一次确认再开始生成。
-2. 不编造内容：不新增未给定列、不虚构资产、不编造风格词。
-3. 视觉参考优先使用用户资产，缺失时才搜索。
-4. 封面优先执行，严格按步骤 1-5 推进。
-5. 用户资产若已提供，每次调用都必须带上。
-6. 第二次调用起不再使用原始风格参考，只保留用户资产 + 已批准封面。
-7. 第二次调用最小化文本内容，仅保留标题与副标题。
-8. 建议标签按显示输出，内部不附加额外标签。
-9. 每次生成调用都使用参考图流程，且提示词含结构分析。
-10. 默认分辨率始终为平台宽高比 + 1K，除非用户明确要求更高。
+1. Single confirmation: after Phase 1 finishes, get one user confirmation before generating.
+2. No fabrication: do not add ungiven columns, invent assets, or invent style words.
+3. Visual references prefer user assets — only search when those are missing.
+4. Cover-first execution: follow Steps 1–5 strictly.
+5. If user assets are provided, include them in every call.
+6. Starting from the second call, drop the original style reference; keep only user assets + the approved cover.
+7. Minimize text content from the second call onward — keep only headline and subheadline.
+8. Output suggested tags as displayed; do not append extra internal tags.
+9. Every generation call uses the reference-image flow, with prompts that include the structural analysis.
+10. Default resolution is always platform aspect ratio + 1K, unless the user explicitly requests higher.
 
-## 参考图像使用准则
+## Reference-Image Usage Guidelines
 
-正确方式是提取参考图的设计结构，并把新内容映射到该结构中。
+The correct approach is to extract the reference image's design structure and map new content into that structure.
 
-核心原则：
+Core principles:
 
-- 描述“如何构建”：构图技术、空间结构、材质质感、融合方法。
-- 避免“感觉词”主导：少用风格形容词和氛围词。
-- 让参考图承担主要风格信息，文字仅负责结构约束。
+- Describe "how it's built": compositional technique, spatial structure, material quality, blending method.
+- Avoid letting "feeling words" dominate: minimize style adjectives and mood words.
+- Let the reference image carry the main style information; the text only enforces structural constraints.
 
-## 输出格式
+## Output Format
 
-- 阶段状态（当前所处阶段与步骤）
-- 方向确认表（阶段 1）
-- 当前交付物（封面或剩余幻灯片计划）
-- 下一步待确认项
-- 当前 todo 状态（阶段、已完成项、待确认项）
+- Phase status (current phase and step)
+- Direction confirmation table (Phase 1)
+- Current deliverable (cover or remaining-slides plan)
+- Next item awaiting confirmation
+- Current todo status (phase, completed, pending)
 
+## 🛠️ CRITICAL EXECUTION INSTRUCTIONS
 
-## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
+**You are an intelligent Agent capable of executing terminal commands!**
 
-**你是可以执行终端命令的智能 Agent！**
+**[STRICTLY PROHIBITED BEHAVIORS]**
+- PROHIBITED: Saving prompts to any file (e.g., txt, md).
+- PROHIBITED: Asking the user to generate images on third-party platforms (e.g., Midjourney).
+- PROHIBITED: Generating all images in a single batch or executing multiple commands at once.
 
-**【严格禁止行为】**
-- 严禁：将提示词保存到任何文件中（如 txt, md）。
-- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
-- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
+**[MANDATORY INTERACTION & EXECUTION WORKFLOW]**
+You MUST execute **strictly step-by-step**, stopping at each step to wait for the user's reply:
 
-**【必须遵循的交互与执行流程】**
-你必须**严格分步**执行，并在每一步停下来等待用户回复：
-
-1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
-2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
-3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
-4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。
+1. **Step 1: Proactively Gather Requirements**. When a user makes a request, DO NOT design or generate anything. Ask questions first (e.g., product features, target audience, number of images). **You MUST wait for the user's reply.**
+2. **Step 2: Output Draft & Request Confirmation**. Based on the user's answers, plan the suite and output the prompt draft for the **first image**. **Ask the user: "Do you confirm this prompt? Can we start generating the first image?" You MUST wait for the user to answer "confirm".**
+3. **Step 3: Execute Terminal Command (Single)**. After confirmation, you **MUST execute the command using the terminal** (e.g., `dlazy seedream-4.5 --prompt "..."`). Execute only ONE generation command at a time. **IMPORTANT: You MUST use synchronous commands. NEVER append `&` to the command, and NEVER use `&&`. You are running in Windows PowerShell!**
+4. **Step 4: Delivery & Loop**. Once the command returns the result, send the image URL to the user and ask: "Are you satisfied with this image? Can we proceed to generate the next one?". Continue to the next step only after receiving confirmation.

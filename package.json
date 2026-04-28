@@ -1,6 +1,6 @@
 {
 	"name": "@dlazy/cli",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"description": "Command-line interface for dLazy AI workflow, allowing direct invocation of various large models in the terminal",
 	"author": "dLazy",
 	"license": "MIT",
@@ -15,7 +15,9 @@
 		"start": "node dist/index.js",
 		"build": "tsup src/index.ts --format cjs",
 		"prepublishOnly": "pnpm run build",
-		"dev": "tsx src/index.ts"
+		"dev": "tsx src/index.ts",
+		"pack": "pnpm run build && pnpm pack",
+		"test": "pnpm -w exec vitest run packages/cli/tests"
 	},
 	"dependencies": {
 		"commander": "^12.0.0",

@@ -10,13 +10,19 @@ import {
 	success,
 	usageError,
 } from "../lib/envelope";
-import { buildInput, loadJsonInput, validateInput } from "../lib/input";
+import {
+	buildInput,
+	loadJsonInput,
+	resolveMediaFields,
+	validateInput,
+} from "../lib/input";
 import {
 	describeSchema,
 	type FieldDescriptor,
 	inferOutputKind,
 	toJsonSchema,
 } from "../lib/schema";
+import { t } from "../messages";
 import { isHeadless, resolveApiKey } from "../utils/config";
 
 const SKIPPED_CLI_NAMES = new Set<string>(["qwen3.6-plus"]);
@@ -64,10 +70,7 @@ async function requireApiKey(globals: GlobalOptions): Promise<string> {
 		interactive: !isHeadless(),
 	});
 	if (!key) {
-		return failure(
-			"no_api_key",
-			"No API key available. Pass --api-key, set DLAZY_API_KEY, or run `dlazy login` in an interactive shell.",
-		);
+		return failure("no_api_key", t().auth.noApiKey);
 	}
 	return key;
 }
@@ -80,6 +83,10 @@ function describeCondition(cond: unknown): string | undefined {
 	}
 	if ("any" in c && Array.isArray(c.any)) {
 		return c.any.map(describeCondition).filter(Boolean).join(" || ");
+	}
+	if ("not" in c) {
+		const inner = describeCondition(c.not);
+		return inner ? `!(${inner})` : undefined;
 	}
 	if (c.operator === "equals") return `${c.field}=${JSON.stringify(c.value)}`;
 	if (c.operator === "notEquals")
@@ -102,10 +109,17 @@ function buildFlagDescription(field: FieldDescriptor): string {
 			: field.defaultValue;
 		if (d !== null) desc += ` [default: ${d}]`;
 	}
+	if (field.dynamicEnum) {
+		const parts = Object.entries(field.dynamicEnum.groups).map(
+			([groupKey, opts]) => {
+				const pairs = opts.map((o) => `${o.id} (${o.name})`).join(", ");
+				return `${field.dynamicEnum!.dependsOn}=${groupKey}: ${pairs}`;
+			},
+		);
+		desc += ` [options depend on --${field.dynamicEnum.dependsOn}; ${parts.join("; ")}]`;
+	}
 	const showWhen = describeCondition(field.showWhen);
 	if (showWhen) desc += ` [only when ${showWhen}]`;
-	const hideWhen = describeCondition(field.hideWhen);
-	if (hideWhen) desc += ` [hidden when ${hideWhen}]`;
 	return desc;
 }
 
@@ -136,22 +150,22 @@ function registerRunCommand(
 			`--${field.key} ${spec}`,
 			buildFlagDescription(field),
 		);
-		if (field.enumChoices && !field.isArray) {
+		// For dynamic enums we keep the full grouped listing in the description
+		// (with id→name and per-group validity) and skip commander's flat
+		// (choices: ...) footer which would just repeat the raw ids.
+		if (field.enumChoices && !field.isArray && !field.dynamicEnum) {
 			option.choices(field.enumChoices);
 		}
 		cmd.addOption(option);
 	}
 
 	cmd
-		.option(
-			"--input <spec>",
-			"JSON payload: inline string, @file, or - (stdin)",
-		)
-		.option("--dry-run", "Print payload + cost estimate without calling API")
-		.option("--no-wait", "Return generateId immediately for async tasks")
+		.option("--input <spec>", t().tools.runInputOption)
+		.option("--dry-run", t().tools.runDryRunOption)
+		.option("--no-wait", t().tools.runNoWaitOption)
 		.option(
 			"--timeout <seconds>",
-			"Max seconds to wait for async completion",
+			t().tools.runTimeoutOption,
 			String(DEFAULT_TIMEOUT_SECONDS),
 		);
 
@@ -176,34 +190,45 @@ function registerRunCommand(
 			explicitInput,
 		});
 
-		const validation = validateInput(config.inputSchema, rawInput);
+		const apiKey = await requireApiKey(globals);
+		const baseUrl = getBaseUrl(globals);
+
+		const resolvedInput = await resolveMediaFields(rawInput, fields, {
+			apiKey,
+			baseUrl,
+		});
+
+		const validation = validateInput(config.inputSchema, resolvedInput);
 		if (!validation.ok) {
-			return usageError("input validation failed", validation.issues);
+			return usageError(t().tools.inputValidationFailed, validation.issues);
 		}
 
-		const cost = config.costs
-			? await safeEstimate(() => config.costs(rawInput))
-			: null;
-		const durationEstimate = config.durationEstimation
-			? await safeEstimate(() => config.durationEstimation!(rawInput))
-			: null;
-
 		if (globals.dryRun) {
+			const cost = config.costs
+				? await safeEstimate(() => config.costs(resolvedInput))
+				: null;
+			const durationEstimate = config.durationEstimation
+				? await safeEstimate(() => config.durationEstimation!(resolvedInput))
+				: null;
 			return success("raw", {
 				dryRun: true,
 				model: modelId,
-				input: rawInput,
+				input: resolvedInput,
 				estimatedCostCredits: cost,
 				estimatedDurationSeconds: durationEstimate,
 			});
 		}
 
-		const apiKey = await requireApiKey(globals);
-		const baseUrl = getBaseUrl(globals);
+		const cost = config.costs
+			? await safeEstimate(() => config.costs(resolvedInput))
+			: null;
+		const durationEstimate = config.durationEstimation
+			? await safeEstimate(() => config.durationEstimation!(resolvedInput))
+			: null;
 
-		if (cost !== null) log(`estimated cost: ${cost} credits`);
+		if (cost !== null) log(t().tools.estimatedCost(cost));
 		if (durationEstimate !== null)
-			log(`estimated duration: ${durationEstimate}s`);
+			log(t().tools.estimatedDuration(durationEstimate));
 
 		const timeoutSeconds = Number(globals.timeout ?? DEFAULT_TIMEOUT_SECONDS);
 		const shouldWait = globals.wait !== false;
@@ -212,10 +237,11 @@ function registerRunCommand(
 			apiKey,
 			baseUrl,
 			modelId,
-			input: rawInput,
+			input: resolvedInput,
 			organizationId: globals.organizationId,
 			projectId: globals.projectId,
 			outputSchema: config.outputSchema,
+			mediaType: config.type,
 			wait: shouldWait,
 			timeoutMs: timeoutSeconds * 1000,
 		});
@@ -223,13 +249,14 @@ function registerRunCommand(
 }
 
 function registerToolsNamespace(program: Command) {
+	const msgs = t();
 	const tools = program
 		.command("tools")
-		.description("Discover available AI tools");
+		.description(msgs.tools.namespaceDescription);
 
 	tools
 		.command("list")
-		.description("List all tools exposed by the CLI")
+		.description(msgs.tools.listDescription)
 		.action(() => {
 			const list = listCliModels().map(([id, cfg]) => ({
 				cli_name: cfg.cli_name!,
@@ -245,13 +272,13 @@ function registerToolsNamespace(program: Command) {
 
 	tools
 		.command("describe <name>")
-		.description("Emit full metadata + JSON schema for a single tool")
+		.description(msgs.tools.describeDescription)
 		.action((name: string) => {
 			const found = findByCliName(name);
 			if (!found) {
 				return failure(
 					"tool_not_found",
-					`no tool with cli_name '${name}'`,
+					t().tools.toolNotFound(name),
 					{ availableTools: listCliModels().map(([_, c]) => c.cli_name) },
 					2,
 				);
@@ -277,7 +304,7 @@ function registerToolsNamespace(program: Command) {
 						defaultValue: f.defaultValue ?? null,
 						maxItems: f.maxItems ?? null,
 						showWhen: f.showWhen ?? null,
-						hideWhen: f.hideWhen ?? null,
+						dynamicEnum: f.dynamicEnum ?? null,
 					})),
 					jsonSchema: toJsonSchema(config.inputSchema),
 				},
@@ -292,19 +319,17 @@ function registerToolsNamespace(program: Command) {
 }
 
 function registerStatusCommand(program: Command) {
+	const msgs = t();
 	program
 		.command("status <generateId>")
-		.description("Query or wait on an async task by generateId")
-		.option("--wait", "Poll until completion")
+		.description(msgs.tools.statusDescription)
+		.option("--wait", msgs.tools.statusWaitOption)
 		.option(
 			"--timeout <seconds>",
-			"Max seconds to wait (with --wait)",
+			msgs.tools.statusTimeoutOption,
 			String(DEFAULT_TIMEOUT_SECONDS),
 		)
-		.option(
-			"--tool <cli_name>",
-			"Use this tool's outputSchema for typed result parsing",
-		)
+		.option("--tool <cli_name>", msgs.tools.statusToolOption)
 		.action(async (generateId: string, _opts, cmdInstance) => {
 			const globals = cmdInstance.optsWithGlobals() as GlobalOptions & {
 				wait?: boolean;
@@ -316,9 +341,11 @@ function registerStatusCommand(program: Command) {
 			const baseUrl = getBaseUrl(globals);
 			const timeoutSeconds = Number(globals.timeout ?? DEFAULT_TIMEOUT_SECONDS);
 			let outputSchema: AIModelConfig["outputSchema"] | undefined;
+			let mediaType: AIModelConfig["type"] | undefined;
 			if (globals.tool) {
 				const found = findByCliName(globals.tool);
 				outputSchema = found?.config.outputSchema;
+				mediaType = found?.config.type;
 			}
 			await apiStatus({
 				apiKey,
@@ -327,6 +354,7 @@ function registerStatusCommand(program: Command) {
 				wait: Boolean(globals.wait),
 				timeoutMs: timeoutSeconds * 1000,
 				outputSchema,
+				mediaType,
 			});
 		});
 }

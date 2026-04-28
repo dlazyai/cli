@@ -2,10 +2,13 @@
 name: dlazy-mj.imagine
 version: 1.0.2
 description: Generate artistic images using Midjourney (MJ) model. Supports text-to-image.
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"When this skill is called, you can run dlazy mj.imagine -h to view help information."}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy mj.imagine -h for help."}}
 ---
 
 # dlazy-mj.imagine
+
+[English](./SKILL.md) · [中文](./SKILL-cn.md)
+
 
 Generate artistic images using Midjourney (MJ) model. Supports text-to-image.
 
@@ -18,19 +21,46 @@ Generate artistic images using Midjourney (MJ) model. Supports text-to-image.
 
 ## Authentication
 
-All requests require the dLazy API key via CLI configuration.
-
-**CLI Configuration**: You can set your API key using the following command:
+All requests require a dLazy API key, configured through the CLI:
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
+The CLI saves the key in your user config directory (`~/.dlazy/config.json` on macOS/Linux, `%USERPROFILE%\.dlazy\config.json` on Windows), with file permissions restricted to your OS user account. You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable.
+
 ### Getting Your API Key
 
 1. Sign in or create an account at [dlazy.com](https://dlazy.com)
 2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. Click the copy button on the right side of API Key section to copy it
+3. Copy the key shown in the API Key section
+
+Each key is scoped to your dLazy organization and can be **rotated or revoked at any time** from the same dashboard.
+
+## About & Provenance
+
+- **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **Maintainer**: dlazyai
+- **npm package**: `@dlazy/cli` (pinned to `1.0.7` in this skill's install spec)
+- **Homepage**: [dlazy.com](https://dlazy.com)
+
+You can install on demand without persisting a global binary by running:
+
+```bash
+npx @dlazy/cli@1.0.7 <command>
+```
+
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.7`). Review the GitHub source before installing.
+
+## How It Works
+
+This skill is a thin client over the dLazy hosted API. When you invoke it:
+
+- Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
+- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
+- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
+
+This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles. See [dlazy.com](https://dlazy.com) for the full service terms.
 
 ## Usage
 
@@ -45,6 +75,7 @@ Options:
   --aspect_ratio <aspect_ratio>        Aspect Ratio [default: auto] (choices: "auto", "1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3", "21:9")
   --botType <botType>                  Bot Type [default: MID_JOURNEY] (choices: "MID_JOURNEY", "NIJI_JOURNEY")
   --output <output>                    Output [default: grid] (choices: "grid", "U1", "U2", "U3", "U4")
+  --promptRefs <promptRefs...>         promptRefs [default: ]
   --input <spec>                       JSON payload: inline string, @file, or - (stdin)
   --dry-run                            Print payload + cost estimate without calling API
   --no-wait                            Return generateId immediately for async tasks
@@ -65,6 +96,9 @@ Options:
   }
 }
 ```
+
+
+
 
 ## Command Examples
 

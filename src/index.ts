@@ -3,18 +3,32 @@
 import { Command } from "commander";
 import { registerAuthCommands } from "./commands/auth";
 import { registerToolCommands } from "./commands/tools";
+import { resolveLocale, SUPPORTED_LOCALES, setLocale, t } from "./messages";
+
+// Resolve locale before registering commands so commander descriptions pick up
+// the translated text at definition time.
+setLocale(resolveLocale(process.argv));
+
+const msgs = t();
 
 const program = new Command();
 
 program
 	.name("dlazy")
-	.description(
-		"AI tool runner. Emits JSON envelopes on stdout; logs on stderr.",
-	)
+	.description(msgs.cli.description)
 	.version("1.0.6")
-	.option("--api-key <key>", "API key (overrides DLAZY_API_KEY and config)")
-	.option("--base-url <url>", "API base URL (overrides DLAZY_BASE_URL)")
-	.option("--verbose", "Enable debug logging on stderr");
+	.option("--api-key <key>", msgs.cli.apiKeyOption)
+	.option("--base-url <url>", msgs.cli.baseUrlOption)
+	.option("--verbose", msgs.cli.verboseOption)
+	.option("-l, --lang <locale>", msgs.cli.langOption, (value) => {
+		if (!(SUPPORTED_LOCALES as readonly string[]).includes(value)) {
+			throw new Error(
+				`Unsupported locale: ${value}. Supported: ${SUPPORTED_LOCALES.join(", ")}`,
+			);
+		}
+		setLocale(value);
+		return value;
+	});
 
 registerAuthCommands(program);
 registerToolCommands(program);

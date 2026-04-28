@@ -1,100 +1,131 @@
 ---
 name: text-spoken-script
-version: 1.0.2
-description: 该技能用于引导 AI 生成具有高反差、强共鸣、故事感及个人 IP 属性的短视频口播文案。生成的所有文案必须严格遵循以下 7 步结构进行创作：
+version: 1.0.0
+description: This skill is used to guide the AI in generating short video spoken scripts with high contrast, strong resonance, a sense of story, and personal IP attributes. All generated scripts must str
 triggers:
-  - 短视频口播文案生成 (Text Spoken Script)
-  - 适用于短视频口播文案、人物故事分享、IP 观点类文案。
-  - 要求在语言上尽量口语化，适合念诵，有起伏和呼吸感。
-  - 切忌空洞说教，一定要有具体的“人事物”支撑。
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Short Video Spoken Script Generation (Text Spoken Script)
+  - Suitable for short video spoken scripts, character story sharing, and IP viewpoint scripts.
+  - Requires the language to be as colloquial as possible, suitable for reciting, with rhythm and breathing space.
+  - Avoid empty preaching; it must be supported by specific "people, events, and things."
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
 ---
 
-## 身份验证 (Authentication)
+## Authentication
 
-所有请求都需要配置 dLazy API key。
+All requests require a dLazy API key. The recommended way to obtain and store one is the browser-based device login flow:
 
-**CLI 配置**: 你可以通过以下命令设置你的 API key：
+```bash
+dlazy login
+```
+
+This opens dlazy.com in your browser for approval and persists the key for you. If you already have a key on hand, configure it directly:
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
-### 获取你的 API Key
+The CLI saves the key to `~/.dlazy/config.json` (`%USERPROFILE%\.dlazy\config.json` on Windows). You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable, which takes precedence over the config file.
 
-1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
-2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. 点击 API Key 右侧的复制按钮获取它
+### Getting Your API Key
 
----
-name: 'text-spoken-script'
-description: '生成具有高反差、强共鸣和故事感的口播文案。当用户需要创作短视频口播文案、人物故事或个人IP文案时调用此技能。'
----
+1. Sign in or create an account at [dlazy.com](https://dlazy.com)
+2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. Copy the key shown in the API Key section
 
-# 短视频口播文案生成 (Text Spoken Script)
+Each key is scoped to your dLazy organization and can be **rotated or revoked at any time** from the same dashboard.
 
-该技能用于引导 AI 生成具有高反差、强共鸣、故事感及个人 IP 属性的短视频口播文案。生成的所有文案必须严格遵循以下 7 步结构进行创作：
+## About & Provenance
 
-## 核心创作逻辑与 7 步结构
+- **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **Maintainer**: dlazyai
+- **npm package**: `@dlazy/cli` (pinned to `1.0.7` in this skill's install spec)
+- **Homepage**: [dlazy.com](https://dlazy.com)
 
-1. **标签反差定场**
-   - **目标**: 用极具反差感的人物标签或设定开场，瞬间抓住观众注意力，点明核心受众和痛点。
-   - **示例**: 70 岁还在学做短视频的方姐，想跟所有为孩子按下 “暂停键” 的妈妈说：你停下的只是工作，不是人生。
+You can install on demand without persisting a global binary by running:
 
-2. **制造悬念 / 共鸣**
-   - **目标**: 抛出受众群体普遍面临的困境、焦虑或痛点，通过具体的情境引发强烈的代入感。
-   - **示例**: 前两天，我女儿的闺蜜来家里，聊着聊着眼泪就在眼眶里打转。她说，为了两个孩子陪读，把工作辞了，一晃三年没进过办公室。看着先生一个人扛起全家，是又心疼又着急，可自己又实在撒不开手。
+```bash
+npx @dlazy/cli@1.0.7 <command>
+```
 
-3. **展开故事（画面感）**
-   - **目标**: 用带有细节和画面感的语言讲述具体事件，刻画人物情绪（如无力感、焦虑、不甘等），让观众身临其境。
-   - **示例**: 她搓着手跟我说：“方姨，我感觉自己快被社会淘汰了，除了柴米油盐，什么都不会了。” 那个眼神里，有焦虑，有不甘，还有深深的无力感。这种心情，我太懂了。
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.7`). Review the GitHub source before installing.
 
-4. **抛出核心观点 / 反认知**
-   - **目标**: 给出打破常规认知的核心观点，直击痛点本质，给出令人醍醐灌顶的结论。
-   - **示例**: 我跟她说，孩子，你记住一句话：社会淘汰的，从来不是不工作的人，而是不学习的人。
+## How It Works
 
-5. **深化故事与观点（结合经历）**
-   - **目标**: 结合讲演者自身的真实经历（如跨越年龄的学习、克服困难的经历等），进一步论证观点。提出切实可行的微小行动建议，让观众觉得“我也能做到”。
-   - **示例**:
-     - 你现在把家庭和孩子经营好，这就是你现阶段最重要的 “项目”。但这个项目里，你得给自己留一个 “学习端口”。不是让你立刻去考个证，而是别让好奇心熄火，别让学习能力生锈。
-     - 我 50 岁决定北漂，在招待所里，一有空我就抄写英语单词，学着用当时最新的管理系统。很多人笑我：“这么大年纪了，还学这些有啥用？” 我没管，我就觉得，学一点，我就新一点。后来这些 “没用” 的东西，都成了我管理第一家酒店的底气。
-     - 现在 70 了，我还在学剪辑，学怎么看后台数据。难吗？真难。但学习这个动作本身，就是在告诉世界：我还在场，我还能跟上。
-     - 你每天接送孩子，能不能听听行业播客？料理家务时，能不能线上学点感兴趣的东西？哪怕每天只投入半小时，这半小时就是在为你未来的 “重启” 充电。你的价值，不在于今天是否在岗，而在于你明天是否还有上岗的能力。
+This skill is a thin client over the dLazy hosted API. When you invoke it:
 
-6. **总结拔高，链接人设**
-   - **目标**: 将话题升华，回归到个人的成长或人生的更宏大主题上，同时强化讲演者的个人 IP 形象（如：不断成长的引路人）。
-   - **示例**: 女人的角色是多重的，有时候不得不有取舍。这段全职照顾家庭的时光，不是你职业生涯的 “断点”，恰恰可能是你沉淀、观察、蓄力的 “加油站”。用学习保持和世界的连接，你的焦虑就会变成清晰的路径。
+- Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
+- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
+- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
 
-7. **金句收尾**
-   - **目标**: 用精炼、有力、富有哲理且易于传播的金句作为结尾，给人留下深刻印象。
-   - **示例**: 妈妈的身份，是给了我们一份爱的责任，而不是一个停止成长的借口。只要你还在学，路就一直在往前延伸。时代淘汰不了永远在准备的人。
+This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles.
 
-## 适用场景与限制
 
-- 适用于短视频口播文案、人物故事分享、IP 观点类文案。
-- 要求在语言上尽量口语化，适合念诵，有起伏和呼吸感。
-- 切忌空洞说教，一定要有具体的“人事物”支撑。
+# Short Video Spoken Script Generation (Text Spoken Script)
 
-## 最终输出要求
+[English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-当用户调用本技能并提供基本的人设、痛点或话题时，请**直接输出**符合上述 7 个步骤的文案内容，每个步骤均可以作为一段（并在生成时保留或不保留步骤序号，具体视用户需求而定，若无说明可直接作为完整文案输出，段落分明即可）。
+This skill is used to guide the AI in generating short video spoken scripts with high contrast, strong resonance, a sense of story, and personal IP attributes. All generated scripts must strictly follow the 7-step structure below:
 
-## 下一步工作建议
-调用 text-storyboard-script 技能生成分镜脚本
+## Core Creative Logic & 7-Step Structure
 
-## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
+1. **Tag Contrast Hook**
+   - **Goal**: Open with a highly contrasting character tag or setting to instantly grab the audience's attention and pinpoint the core audience and their pain points.
+   - **Example**: Sister Fang, who is still learning to make short videos at 70, wants to tell all mothers who have hit the "pause button" for their children: What you have paused is just your job, not your life.
 
-**你是可以执行终端命令的智能 Agent！**
+2. **Create Suspense / Resonance**
+   - **Goal**: Introduce a dilemma, anxiety, or pain point commonly faced by the target audience, triggering a strong sense of empathy through specific situations.
+   - **Example**: A couple of days ago, my daughter's best friend came over, and as we chatted, tears started welling up in her eyes. She said she quit her job to accompany her two kids studying, and in a flash, she hasn't stepped into an office in three years. Seeing her husband shoulder the family's expenses alone, she feels both heartbroken and anxious, yet she really can't let go of the kids.
 
-**【严格禁止行为】**
-- 严禁：将提示词保存到任何文件中（如 txt, md）。
-- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
-- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
+3. **Unfold the Story (Visual Imagery)**
+   - **Goal**: Tell a specific event using detailed, visual language to portray the character's emotions (such as powerlessness, anxiety, unwillingness), making the audience feel as if they are there.
+   - **Example**: She rubbed her hands and told me: "Aunt Fang, I feel like I'm about to be eliminated by society. Besides cooking and cleaning, I don't know anything anymore." In that look, there was anxiety, unwillingness, and a deep sense of powerlessness. I understand this feeling all too well.
 
-**【必须遵循的交互与执行流程】**
-你必须**严格分步**执行，并在每一步停下来等待用户回复：
+4. **Deliver Core Viewpoint / Counter-Intuition**
+   - **Goal**: Provide a core viewpoint that breaks conventional thinking, hitting the essence of the pain point and offering an enlightening conclusion.
+   - **Example**: I told her, "Child, remember one sentence: Society never eliminates those who don't work, but those who don't learn."
 
-1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
-2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
-3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
-4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。
+5. **Deepen Story & Viewpoint (Combine Experience)**
+   - **Goal**: Further demonstrate the viewpoint by combining the speaker's own real experiences (e.g., learning across ages, overcoming difficulties). Propose actionable micro-actions so the audience feels "I can do this too."
+   - **Example**:
+     - Right now, managing your family and children well is your most important "project" at this stage. But within this project, you must leave a "learning port" for yourself. It's not about immediately getting a certificate, but not letting your curiosity die out or your learning ability rust.
+     - When I was 50, I decided to work in Beijing. In the guesthouse, whenever I had free time, I copied English words and learned to use the latest management system at the time. Many people laughed at me: "What's the use of learning this at your age?" I didn't care. I just felt that learning a little makes me a little newer. Later, these "useless" things became my confidence in managing my first hotel.
+     - Now at 70, I'm still learning video editing and how to read backend data. Is it hard? Really hard. But the act of learning itself is telling the world: I'm still in the game, and I can still keep up.
+     - When you pick up and drop off your kids every day, can you listen to an industry podcast? While doing housework, can you learn something interesting online? Even if you only invest half an hour a day, this half hour is charging you for your future "reboot." Your value lies not in whether you are on duty today, but in whether you still have the ability to be on duty tomorrow.
+
+6. **Summarize and Elevate, Link Persona**
+   - **Goal**: Elevate the topic, returning to personal growth or a grander theme of life, while strengthening the speaker's personal IP image (e.g., a constantly growing guide).
+   - **Example**: A woman's roles are multiple, and sometimes trade-offs have to be made. This period of being a full-time homemaker is not a "break" in your career; it might precisely be a "gas station" for you to settle, observe, and accumulate power. Use learning to maintain your connection with the world, and your anxiety will turn into a clear path.
+
+7. **Punchline Ending**
+   - **Goal**: Conclude with a refined, powerful, philosophical, and highly spreadable punchline to leave a deep impression.
+   - **Example**: The identity of a mother gives us a responsibility of love, not an excuse to stop growing. As long as you are still learning, the road will keep extending forward. The era cannot eliminate those who are always prepared.
+
+## Applicable Scenarios and Limitations
+
+- Suitable for short video spoken scripts, character story sharing, and IP viewpoint scripts.
+- Requires the language to be as colloquial as possible, suitable for reciting, with rhythm and breathing space.
+- Avoid empty preaching; it must be supported by specific "people, events, and things."
+
+## Final Output Requirements
+
+When the user invokes this skill and provides basic persona, pain points, or topics, please **directly output** the script content conforming to the 7-step structure above. Each step can serve as a paragraph (and during generation, keep or remove the step numbers depending on the user's request. If unspecified, output directly as a complete, well-paragraphed script).
+
+## Next Step Suggestions
+Call the `text-storyboard-script` skill to generate a storyboard script.
+
+## 🛠️ CRITICAL EXECUTION INSTRUCTIONS
+
+**You are an intelligent Agent capable of executing terminal commands!**
+
+**[STRICTLY PROHIBITED BEHAVIORS]**
+- PROHIBITED: Saving prompts to any file (e.g., txt, md).
+- PROHIBITED: Asking the user to generate images on third-party platforms (e.g., Midjourney).
+- PROHIBITED: Generating all images in a single batch or executing multiple commands at once.
+
+**[MANDATORY INTERACTION & EXECUTION WORKFLOW]**
+You MUST execute **strictly step-by-step**, stopping at each step to wait for the user's reply:
+
+1. **Step 1: Proactively Gather Requirements**. When a user makes a request, DO NOT design or generate anything. Ask questions first (e.g., product features, target audience, number of images). **You MUST wait for the user's reply.**
+2. **Step 2: Output Draft & Request Confirmation**. Based on the user's answers, plan the suite and output the prompt draft for the **first image**. **Ask the user: "Do you confirm this prompt? Can we start generating the first image?" You MUST wait for the user to answer "confirm".**
+3. **Step 3: Execute Terminal Command (Single)**. After confirmation, you **MUST execute the command using the terminal** (e.g., `dlazy seedream-4.5 --prompt "..."`). Execute only ONE generation command at a time. **IMPORTANT: You MUST use synchronous commands. NEVER append `&` to the command, and NEVER use `&&`. You are running in Windows PowerShell!**
+4. **Step 4: Delivery & Loop**. Once the command returns the result, send the image URL to the user and ask: "Are you satisfied with this image? Can we proceed to generate the next one?". Continue to the next step only after receiving confirmation.

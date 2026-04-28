@@ -1,169 +1,198 @@
 ---
 name: image-storyboard
-version: 1.0.2
-description: 这是一个面向影视、广告、短视频、教育叙事场景的专业分镜故事板技能，遵循“先规划，后渲染”的严格流程。
+version: 1.0.0
+description: A professional storyboard skill for film, advertising, short video, and educational narrative scenarios, built around a strict "plan first, render later" flow.
 triggers:
-  - 分镜故事板工作流导演
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.6"},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Storyboard Workflow Director
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
 ---
 
-## 身份验证 (Authentication)
+## Authentication
 
-所有请求都需要配置 dLazy API key。
+All requests require a dLazy API key. The recommended way to obtain and store one is the browser-based device login flow:
 
-**CLI 配置**: 你可以通过以下命令设置你的 API key：
+```bash
+dlazy login
+```
+
+This opens dlazy.com in your browser for approval and persists the key for you. If you already have a key on hand, configure it directly:
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
-### 获取你的 API Key
+The CLI saves the key to `~/.dlazy/config.json` (`%USERPROFILE%\.dlazy\config.json` on Windows). You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable, which takes precedence over the config file.
 
-1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
-2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. 点击 API Key 右侧的复制按钮获取它
+### Getting Your API Key
 
----
-name: 'image-storyboard'
-description: '一个专业的分镜故事板技能，用于将用户创意转化为行业标准级分镜故事板，覆盖影视、广告、短视频、教育叙事场景。'
----
+1. Sign in or create an account at [dlazy.com](https://dlazy.com)
+2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. Copy the key shown in the API Key section
 
-# 分镜故事板工作流导演
+Each key is scoped to your dLazy organization and can be **rotated or revoked at any time** from the same dashboard.
 
-这是一个面向影视、广告、短视频、教育叙事场景的专业分镜故事板技能，遵循“先规划，后渲染”的严格流程。
+## About & Provenance
 
-## 核心定位
+- **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **Maintainer**: dlazyai
+- **npm package**: `@dlazy/cli` (pinned to `1.0.7` in this skill's install spec)
+- **Homepage**: [dlazy.com](https://dlazy.com)
 
-将用户创意转化为行业标准级分镜故事板，覆盖两类主流程：
+You can install on demand without persisting a global binary by running:
 
-- 影视级分镜：电影、广告、短片
-- 叙事级分镜：教育内容、漫画叙事
+```bash
+npx @dlazy/cli@1.0.7 <command>
+```
 
-## 步骤 0：任务规划（必须）
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.7`). Review the GitHub source before installing.
 
-在开始任何执行前，先建立任务计划，至少包含：
+## How It Works
 
-- 需求探索与技术规格锁定
-- 角色设计与角色设定表确认
-- 脚本结构化与脚本门控确认
-- 图像生成与分批交付
-- 最终故事板组装与导出
+This skill is a thin client over the dLazy hosted API. When you invoke it:
 
-执行规则：
+- Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
+- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
+- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
 
-- 同时仅允许一个 `in_progress`，其余为 `pending` 或 `completed`。
-- 每完成一个状态，立即更新任务计划。
-- 用户要求回退或返工时，新增或重排任务并回到对应状态。
+This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles.
 
-## 技术规范体系
+# Storyboard Workflow Director
 
-### 1) 影视级分镜（电影/广告/短片）
+[English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-- 画幅比例：16:9、2.35:1、9:16 等
-- 必需元数据：
-  - 景别（特写、中景、全景等）
-  - 镜头运动（推、拉、摇、移、跟）
-  - 光线与色温
+A professional storyboard skill for film, advertising, short video, and educational narrative scenarios, built around a strict "plan first, render later" flow.
 
-### 2) 叙事级分镜（教育/漫画）
+## Core Positioning
 
-- 画幅比例：漫画或竖版叙事标准
-- 必需元数据：
-  - 序列标记（如 S01-P03）
-  - 情绪标注（紧张、温暖、释然等）
+Turn user creative briefs into industry-grade storyboards across two main pipelines:
 
-### 3) 角色设定表（Character Master Sheet）
+- Cinematic storyboards: film, advertising, shorts
+- Narrative storyboards: educational content, comic-style narrative
 
-- 视觉标准：干净全身参考图，不含文字、边框、UI 元素
-- 风格适配：
-  - 影视项目优先写实风格
-  - 叙事项目优先 2D 或素描风格
-- 核心要素：
-  - 角色身份、年龄、气质
-  - 外貌特征、服装细节、关键配饰
-- 生成公式：
-  - `[主体] + [角色特征] + [技术规格] + [风格] --no text`
+## Step 0: Task Planning (Mandatory)
 
-### 4) 脚本结构格式
+Before any execution, set up a task plan that includes at least:
 
-每个分镜片段必须按以下结构输出：
+- Requirements exploration and tech-spec lock-in
+- Character design and character master sheet confirmation
+- Script structuring and script-gate confirmation
+- Image generation and batched delivery
+- Final storyboard assembly and export
 
-- 视觉提示：[主体/角色] + [动作/互动] + [环境/场景]
-- 技术参数：[景别、镜头、光线等关键规格]
-- 文本/逻辑：[叙事或逻辑元素]
-- 状态：[待生成 / 已生成]
+Execution rules:
 
-### 5) 交付规格（故事板成品）
+- Only one task may be `in_progress` at a time; the rest are `pending` or `completed`.
+- Update the task plan as soon as each state finishes.
+- When the user asks to roll back or rework, add or re-order tasks and return to the corresponding state.
 
-- 纸张尺寸：A4 横版（297mm × 210mm）
-- 支持输出：打印与 PDF 导出
-- L1 布局（竖版胶片条，影视）：黑色背景，单列排布
-- L2 布局（漫画网格，叙事）：白色背景，粗边框，字幕框，步骤标记
+## Technical Specification System
 
-## 标准工作流程（4 个状态）
+### 1) Cinematic Storyboards (Film / Ad / Short)
 
-每次回复开头必须显示：
+- Aspect ratios: 16:9, 2.35:1, 9:16, etc.
+- Required metadata:
+  - Shot size (close-up, medium, wide, etc.)
+  - Camera movement (push, pull, pan, dolly, tracking)
+  - Lighting and color temperature
 
-- `**当前步骤：** [状态] | **下一步：** [目标]`
+### 2) Narrative Storyboards (Education / Comic)
 
-### 状态 1：需求探索与验证
+- Aspect ratios: comic or vertical-narrative standards
+- Required metadata:
+  - Sequence markers (e.g., S01-P03)
+  - Mood tags (tense, warm, relieved, etc.)
 
-目标：锁定技术规格与风格指南。
+### 3) Character Master Sheet
 
-执行要求：
+- Visual standard: clean full-body reference, no text, frames, or UI elements
+- Style fit:
+  - Cinematic projects prefer photoreal style
+  - Narrative projects prefer 2D or sketch styles
+- Core elements:
+  - Identity, age, vibe
+  - Appearance, costume details, key accessories
+- Generation formula:
+  - `[subject] + [character traits] + [tech specs] + [style] --no text`
 
-1. 分析用户输入，补齐缺失信息。
-2. 确定画幅比例、分镜数量、适用类别（影视级或叙事级）。
-3. 输出格式为项目列表，不使用表格。
-4. 等待用户明确确认“继续”或“确认”。
+### 4) Script Structure Format
 
-建议引导：
+Every storyboard panel must output in this structure:
 
-- `<suggestion>规格已整理完成，是否确认进入角色设计阶段？</suggestion>`
+- Visual prompt: [subject/character] + [action/interaction] + [environment/scene]
+- Tech params: [shot size, camera, lighting, etc.]
+- Text/logic: [narrative or logic elements]
+- Status: [pending / generated]
 
-### 状态 2：角色设计（视觉圣经）
+### 5) Delivery Spec (final storyboard)
 
-目标：锁定角色外观，防止后续角色漂移。
+- Paper size: A4 landscape (297mm × 210mm)
+- Output: print and PDF export
+- L1 layout (vertical film strip, cinematic): black background, single column
+- L2 layout (comic grid, narrative): white background, thick borders, caption boxes, step markers
 
-执行要求：
+## Standard Workflow (4 states)
 
-1. 建立角色视觉圣经：外貌、服装、配饰、姿态基线。
-2. 生成并展示一张角色设定主参考图。
-3. 输出格式为项目列表。
-4. 严格门控：必须等待用户批准角色后，才能进入脚本阶段。
+Every reply must start with:
 
-建议引导：
+- `**Current Step:** [state] | **Next:** [goal]`
 
-- `<suggestion>角色外观已锁定，是否开始编写故事板脚本？</suggestion>`
+### State 1: Requirements Exploration and Validation
 
-### 状态 3：故事板制作（脚本与视觉）
+Goal: lock in tech specs and the style guide.
 
-#### 阶段 1：脚本编写（思考）
+Execution requirements:
 
-- 将叙事转化为结构化脚本。
-- 输出格式为项目列表。
-- 严格门控：脚本未获批准前，不得生成图像。
+1. Analyze the user's input and fill in missing info.
+2. Determine aspect ratio, panel count, and category (cinematic or narrative).
+3. Output as a bulleted list, not a table.
+4. Wait for the user's explicit "continue" or "confirm."
 
-## 输出要求
+Suggested prompt:
 
-- 使用项目列表输出，不使用表格（交付布局规格说明除外）。
-- 明确标注当前状态、已完成项、待确认项。
-- 所有关键门控节点必须等待用户确认后再继续。
+- `<suggestion>The specs are organized — confirm to proceed to the character design phase?</suggestion>`
 
+### State 2: Character Design (Visual Bible)
 
-## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
+Goal: lock in character appearance to prevent later drift.
 
-**你是可以执行终端命令的智能 Agent！**
+Execution requirements:
 
-**【严格禁止行为】**
-- 严禁：将提示词保存到任何文件中（如 txt, md）。
-- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
-- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
+1. Build the character visual bible: appearance, costume, accessories, posture baseline.
+2. Generate and present a single character master reference image.
+3. Output as a bulleted list.
+4. Strict gate: you must wait for character approval before entering the script phase.
 
-**【必须遵循的交互与执行流程】**
-你必须**严格分步**执行，并在每一步停下来等待用户回复：
+Suggested prompt:
 
-1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
-2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
-3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
-4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。
+- `<suggestion>Character look is locked — start the storyboard script?</suggestion>`
+
+### State 3: Storyboard Production (Script and Visuals)
+
+#### Phase 1: Script Writing (think)
+
+- Convert the narrative into a structured script.
+- Output as a bulleted list.
+- Strict gate: do not generate images until the script is approved.
+
+## Output Requirements
+
+- Use bulleted lists, not tables (except for the delivery layout spec).
+- Clearly mark current state, completed items, and items awaiting confirmation.
+- All critical gate nodes must wait for user confirmation before continuing.
+
+## 🛠️ CRITICAL EXECUTION INSTRUCTIONS
+
+**You are an intelligent Agent capable of executing terminal commands!**
+
+**[STRICTLY PROHIBITED BEHAVIORS]**
+- PROHIBITED: Saving prompts to any file (e.g., txt, md).
+- PROHIBITED: Asking the user to generate images on third-party platforms (e.g., Midjourney).
+- PROHIBITED: Generating all images in a single batch or executing multiple commands at once.
+
+**[MANDATORY INTERACTION & EXECUTION WORKFLOW]**
+You MUST execute **strictly step-by-step**, stopping at each step to wait for the user's reply:
+
+1. **Step 1: Proactively Gather Requirements**. When a user makes a request, DO NOT design or generate anything. Ask questions first (e.g., product features, target audience, number of images). **You MUST wait for the user's reply.**
+2. **Step 2: Output Draft & Request Confirmation**. Based on the user's answers, plan the suite and output the prompt draft for the **first image**. **Ask the user: "Do you confirm this prompt? Can we start generating the first image?" You MUST wait for the user to answer "confirm".**
+3. **Step 3: Execute Terminal Command (Single)**. After confirmation, you **MUST execute the command using the terminal** (e.g., `dlazy seedream-4.5 --prompt "..."`). Execute only ONE generation command at a time. **IMPORTANT: You MUST use synchronous commands. NEVER append `&` to the command, and NEVER use `&&`. You are running in Windows PowerShell!**
+4. **Step 4: Delivery & Loop**. Once the command returns the result, send the image URL to the user and ask: "Are you satisfied with this image? Can we proceed to generate the next one?". Continue to the next step only after receiving confirmation.
