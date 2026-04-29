@@ -1,6 +1,8 @@
 import { type Command, Option } from "commander";
 import type { AIModelConfig } from "../../../../config/modal.config";
-import { getAiModels } from "../../../../config/modal.config";
+import { createTranslator, getAiModels } from "../../../../config/modal.config";
+import enModelsMessages from "../../../../messages/en-US/Models.json";
+import zhModelsMessages from "../../../../messages/zh-CN/Models.json";
 import { apiPostRun, apiStatus } from "../lib/api";
 import {
 	debug,
@@ -22,8 +24,20 @@ import {
 	inferOutputKind,
 	toJsonSchema,
 } from "../lib/schema";
-import { t } from "../messages";
+import { getLocale, t } from "../messages";
 import { isHeadless, resolveApiKey } from "../utils/config";
+
+const MODELS_MESSAGES_BY_LOCALE = {
+	"en-US": enModelsMessages,
+	"zh-CN": zhModelsMessages,
+} as const;
+
+function getModelsTranslator() {
+	const locale = getLocale();
+	const messages =
+		MODELS_MESSAGES_BY_LOCALE[locale] ?? MODELS_MESSAGES_BY_LOCALE["en-US"];
+	return createTranslator(messages as Record<string, any>);
+}
 
 const SKIPPED_CLI_NAMES = new Set<string>(["qwen3.6-plus"]);
 
@@ -38,7 +52,7 @@ type GlobalOptions = {
 };
 
 function listCliModels(): Array<[string, AIModelConfig]> {
-	const models = getAiModels();
+	const models = getAiModels(getModelsTranslator());
 	const out: Array<[string, AIModelConfig]> = [];
 	for (const [id, cfg] of Object.entries(models)) {
 		if (!cfg.cli_name) continue;
@@ -58,11 +72,9 @@ function findByCliName(
 }
 
 function getBaseUrl(globals: GlobalOptions): string {
-	return (
-		globals.baseUrl ||
-		process.env.DLAZY_BASE_URL ||
-		"https://dlazy.com/api/ai/tool"
-	);
+	const url =
+		globals.baseUrl || process.env.DLAZY_BASE_URL || "https://dlazy.com";
+	return url.replace(/\/+$/, "");
 }
 
 async function requireApiKey(globals: GlobalOptions): Promise<string> {
@@ -235,7 +247,7 @@ function registerRunCommand(
 
 		await apiPostRun({
 			apiKey,
-			baseUrl,
+			baseUrl: `${baseUrl}/api/ai/tool`,
 			modelId,
 			input: resolvedInput,
 			organizationId: globals.organizationId,
@@ -349,7 +361,7 @@ function registerStatusCommand(program: Command) {
 			}
 			await apiStatus({
 				apiKey,
-				baseUrl,
+				baseUrl: `${baseUrl}/api/ai/tool`,
 				generateId,
 				wait: Boolean(globals.wait),
 				timeoutMs: timeoutSeconds * 1000,

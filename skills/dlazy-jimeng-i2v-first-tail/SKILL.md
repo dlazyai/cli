@@ -2,7 +2,7 @@
 name: dlazy-jimeng-i2v-first-tail
 version: 1.0.2
 description: Generate coherent transition videos using Jimeng's first and tail frame models.
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy jimeng-i2v-first-tail -h for help."}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy jimeng-i2v-first-tail -h for help."}}
 ---
 
 # dlazy-jimeng-i2v-first-tail
@@ -40,16 +40,16 @@ Each key is scoped to your dLazy organization and can be **rotated or revoked at
 
 - **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **Maintainer**: dlazyai
-- **npm package**: `@dlazy/cli` (pinned to `1.0.7` in this skill's install spec)
+- **npm package**: `@dlazy/cli` (pinned to `1.0.8` in this skill's install spec)
 - **Homepage**: [dlazy.com](https://dlazy.com)
 
 You can install on demand without persisting a global binary by running:
 
 ```bash
-npx @dlazy/cli@1.0.7 <command>
+npx @dlazy/cli@1.0.8 <command>
 ```
 
-Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.7`). Review the GitHub source before installing.
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.8`). Review the GitHub source before installing.
 
 ## How It Works
 

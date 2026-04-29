@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
+import { version } from "../package.json";
 import { registerAuthCommands } from "./commands/auth";
 import { registerToolCommands } from "./commands/tools";
 import { resolveLocale, SUPPORTED_LOCALES, setLocale, t } from "./messages";
@@ -16,7 +17,7 @@ const program = new Command();
 program
 	.name("dlazy")
 	.description(msgs.cli.description)
-	.version("1.0.6")
+	.version(version)
 	.option("--api-key <key>", msgs.cli.apiKeyOption)
 	.option("--base-url <url>", msgs.cli.baseUrlOption)
 	.option("--verbose", msgs.cli.verboseOption)

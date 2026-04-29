@@ -2,7 +2,7 @@
 name: dlazy-gpt-image-2
 version: 1.0.3
 description: "GPT Image 2 model for text-to-image and image editing. Supports generating images from text as well as editing and synthesizing images with reference inputs. GPT Image 2 图像生成与编辑模型。支持文生图，以及通过提供参考图进行图像编辑和合成。"
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy gpt-image-2 -h for help."}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy gpt-image-2 -h for help."}}
 ---
 
 # dlazy-gpt-image-2
@@ -38,16 +38,16 @@ Each key is scoped to your dLazy organization and can be **rotated or revoked at
 
 - **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **Maintainer**: dlazyai
-- **npm package**: `@dlazy/cli` (pinned to `1.0.7` in this skill's install spec)
+- **npm package**: `@dlazy/cli` (pinned to `1.0.8` in this skill's install spec)
 - **Homepage**: [dlazy.com](https://dlazy.com)
 
 You can install on demand without persisting a global binary by running:
 
 ```bash
-npx @dlazy/cli@1.0.7 <command>
+npx @dlazy/cli@1.0.8 <command>
 ```
 
-Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.7`). Review the GitHub source before installing.
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.8`). Review the GitHub source before installing.
 
 ## How It Works
 

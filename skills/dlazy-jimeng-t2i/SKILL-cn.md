@@ -2,7 +2,7 @@
 name: dlazy-jimeng-t2i
 version: 1.0.2
 description: 使用即梦 (Jimeng) 进行文生图创作，快速将文字转化为高质量图像。
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy jimeng-t2i -h 查看帮助信息。"}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy jimeng-t2i -h 查看帮助信息。"}}
 ---
 
 # dlazy-jimeng-t2i
@@ -41,16 +41,16 @@ CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/
 
 - **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **维护者**: dlazyai
-- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.7` 版本）
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.8` 版本）
 - **官网**: [dlazy.com](https://dlazy.com)
 
 如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.7 <command>
+npx @dlazy/cli@1.0.8 <command>
 ```
 
-如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.7`。安装前建议先到 GitHub 仓库审阅源码。
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.8`。安装前建议先到 GitHub 仓库审阅源码。
 
 ## 工作原理
 

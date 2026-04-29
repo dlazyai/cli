@@ -4,7 +4,7 @@ version: 1.0.0
 description: Convert the contents of a storyboard into a video-generation pipeline that the user can add to the canvas.
 triggers:
   - Storyboard Video Generation Pipeline
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.7","installAlternative":"npx @dlazy/cli@1.0.7","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
 ---
 
 ## Authentication
@@ -35,16 +35,16 @@ Each key is scoped to your dLazy organization and can be **rotated or revoked at
 
 - **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **Maintainer**: dlazyai
-- **npm package**: `@dlazy/cli` (pinned to `1.0.7` in this skill's install spec)
+- **npm package**: `@dlazy/cli` (pinned to `1.0.8` in this skill's install spec)
 - **Homepage**: [dlazy.com](https://dlazy.com)
 
 You can install on demand without persisting a global binary by running:
 
 ```bash
-npx @dlazy/cli@1.0.7 <command>
+npx @dlazy/cli@1.0.8 <command>
 ```
 
-Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.7`). Review the GitHub source before installing.
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.8`). Review the GitHub source before installing.
 
 ## How It Works
 
