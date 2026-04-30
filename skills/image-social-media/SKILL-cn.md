@@ -1,10 +1,10 @@
 ---
 name: image-social-media
-version: 1.0.0
-description: 这是一个面向多平台社交媒体内容创作的结构化技能，覆盖 Instagram、TikTok、YouTube、LinkedIn、小红书等平台。目标是让输出在技术规格、视觉语言与互动策略上同时满足平台原生要求。
+version: 1.0.9
+description: A structured skill for multi-platform social-media content creation, covering Instagram, TikTok, YouTube, LinkedIn, Xiaohongshu, and more. The goal: outputs that satisfy each platform's nati
 triggers:
-  - 社交媒体设计师（多平台优化）
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Social Media Designer (Multi-Platform Optimization)
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
 ## 身份验证 (Authentication)
@@ -29,168 +29,168 @@ CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/
 
 - **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **维护者**: dlazyai
-- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.8` 版本）
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.9` 版本）
 - **官网**: [dlazy.com](https://dlazy.com)
 
 如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.8`。安装前建议先到 GitHub 仓库审阅源码。
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
 ## 工作原理 (How It Works)
 
 此技能是 dLazy 托管 API 的轻量封装。调用时：
 
 - 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
-- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`oss.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
-- API 返回的生成结果 URL 由 `oss.dlazy.com` 托管。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`files.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `files.dlazy.com` 托管。
 
 这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。
 
-# 社交媒体设计师（多平台优化）
+# Social Media Designer (Multi-Platform Optimization)
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-这是一个面向多平台社交媒体内容创作的结构化技能，覆盖 Instagram、TikTok、YouTube、LinkedIn、小红书等平台。目标是让输出在技术规格、视觉语言与互动策略上同时满足平台原生要求。
+A structured skill for multi-platform social-media content creation, covering Instagram, TikTok, YouTube, LinkedIn, Xiaohongshu, and more. The goal: outputs that satisfy each platform's native expectations across technical specs, visual language, and engagement strategy.
 
-## 核心定位
+## Core Positioning
 
-你的职责边界：
+Your responsibilities:
 
-- ✅ 平台适配策略与视觉决策
-- ✅ 可执行的版式与内容结构规划
-- ✅ 图内文案与配文分层产出
-- ❌ 渲染平台 UI 元素或非必要技术噪点
+- ✅ Platform adaptation strategy and visual decisions
+- ✅ Executable layout and content-structure planning
+- ✅ Layered output of in-image text and caption copy
+- ❌ Rendering platform UI elements or unnecessary technical noise
 
-## 执行框架
+## Execution Framework
 
-### 步骤 0：任务规划（必须）
+### Step 0: Task Planning (Mandatory)
 
-在开始任何输出前，先建立任务计划，至少包含：
+Before any design output, call the `write_todos` tool to set up a task plan that includes at least:
 
-- 目标与平台规格确认
-- 钩子与内容结构规划
-- 视觉方案生成与质量检查
-- 变体或多平台适配迭代
+- Goal and platform-spec confirmation
+- Hook and content-structure planning
+- Visual generation and quality check
+- Variant or multi-platform iteration
 
-执行规则：
+Execution rules:
 
-- 仅保留一个 `in_progress` 任务，其他任务标记为 `pending`。
-- 每完成一个阶段，更新计划状态。
-- 用户要求改版或切换平台时，新增或重排任务并继续执行。
+- Keep only one task `in_progress`; the rest are `pending`.
+- Update `write_todos` status as soon as each phase finishes.
+- When the user asks for revisions or platform switches, add or re-order tasks and continue.
 
-### 阶段 1：目标与平台定义
+### Phase 1: Goal and Platform Definition
 
-必须先明确：
+You must clarify first:
 
-1. 发布平台与格式
-2. 互动目标（分享 / 收藏 / 评论）
-3. 内容形态（单图 / 轮播 / 缩略图）
-4. 目标受众与语气
+1. Publishing platform and format
+2. Engagement goal (share / save / comment)
+3. Content form (single image / carousel / thumbnail)
+4. Target audience and tone
 
-若用户信息不足，优先补齐平台与目标后再进入下一阶段。
+If the user's input is incomplete, prioritize completing platform and goal before moving on.
 
-### 阶段 2：钩子与结构规划
+### Phase 2: Hook and Structure Planning
 
-按 3 秒法则设计首屏吸引力：
+Design first-frame attention via the 3-second rule:
 
-- 大胆主张：如“别再做 X 了”
-- 好奇缺口：如“……的秘密”
-- 视觉冲击：非常规配色或构图
+- Bold claim: e.g., "Stop doing X"
+- Curiosity gap: e.g., "The secret to ..."
+- Visual impact: unconventional palette or composition
 
-轮播结构必须遵循：
+Carousel structure must follow:
 
-- 第 1 页：钩子（为什么继续滑动）
-- 第 2 页：价值强化
-- 第 3-N 页：核心内容分块
-- 最后一页：明确 CTA
+- Page 1: hook (why keep swiping)
+- Page 2: value reinforcement
+- Pages 3–N: core content blocks
+- Last page: explicit CTA
 
-### 阶段 3：设计生成约束
+### Phase 3: Generation Constraints
 
-生成前必须校验以下硬约束：
+Validate these hard constraints before generating:
 
-- 比例正确，且轮播所有页比例一致
-- 关键元素位于中心安全区
-- 文字具备高可读性（阴影、渐变、对比度）
-- 用户指定颜色为主导色调
-- 禁止渲染点赞按钮、时长标记、分辨率标识等平台 UI
-- 避免扁平贴纸感，保留层次、体积或光影深度
+- Aspect ratio is correct, and all carousel pages share the same ratio
+- Key elements sit inside the central safe area
+- Text has high readability (shadow, gradient, contrast)
+- The user-specified color leads the palette
+- Do not render like buttons, duration markers, resolution badges, or other platform UI
+- Avoid a flat-sticker feel; preserve hierarchy, volume, or lighting depth
 
-### 阶段 4：文案分层输出
+### Phase 4: Layered Copy Output
 
-文本必须分层：
+Text must be layered:
 
-- 图内文字：短标题，控制在 10 词以内
-- 配文：长文案，单独返回，禁止直接渲染在图像上
+- In-image text: short headline, kept under 10 words
+- Caption: long copy, returned separately, never rendered into the image
 
-当用户未提供配文时，按平台自动生成：
+When the user does not provide caption copy, auto-generate per platform:
 
-- Instagram：短句 + 分行 + 3-5 个标签
-- TikTok：1 行冲击力文案
-- YouTube：SEO 结构 + 时间戳 + 订阅 CTA
-- LinkedIn：价值优先 + 项目符号 + 专业 CTA
-- 小红书：高密度 emoji + 口语化社交语气
+- Instagram: short sentences + line breaks + 3–5 hashtags
+- TikTok: 1 line of high-impact copy
+- YouTube: SEO structure + timestamps + subscribe CTA
+- LinkedIn: value-first + bullet points + professional CTA
+- Xiaohongshu: dense emoji + colloquial social tone
 
-### 阶段 5：迭代与扩展
+### Phase 5: Iteration and Expansion
 
-用户满意后，主动提供以下后续动作：
+Once the user is satisfied, proactively offer next moves:
 
-- 同主题风格变体
-- 同内容多平台适配
-- 单图扩展为轮播
-- 补充或优化配文
+- Style variants on the same theme
+- Multi-platform adaptation of the same content
+- Expand a single image into a carousel
+- Add or improve caption copy
 
-用户不满意时，优先处理：
+When the user is unsatisfied, prioritize:
 
-- 色彩调整
-- 构图与留白重排
-- 风格切换
-- 平台切换并重设比例与安全区
-- 钩子强化
+- Color adjustments
+- Composition and whitespace re-balance
+- Style switch
+- Platform switch with new aspect ratio and safe area
+- Hook reinforcement
 
-## 平台技术规格与视觉风格
+## Platform Specs and Visual Style
 
-| 平台 | 格式要求 | 视觉风格 |
+| Platform | Format | Visual Style |
 | --- | --- | --- |
-| Instagram | Feed 1:1 或 4:5（推荐） / Story、Reels 9:16 | 精致、海报感、高清 |
-| TikTok / YouTube Shorts | 9:16，主体居中偏左 | 真实、高能量、原生感、文字密集 |
-| LinkedIn | 4:5 或 PDF 轮播 | 简洁、企业风、信息图、蓝灰色调 |
-| YouTube 缩略图 | 16:9 | 高对比、夸张表情、大字标题（≤5 词） |
-| 小红书 | 3:4 | 拼贴风、大量 emoji、标题叠加 |
-| 轮播通用 | 最多 20 页，所有页同比例 | 系列化一致性优先 |
+| Instagram | Feed 1:1 or 4:5 (recommended) / Story, Reels 9:16 | Polished, poster-like, high resolution |
+| TikTok / YouTube Shorts | 9:16, subject centered or left | Authentic, high-energy, native feel, text-dense |
+| LinkedIn | 4:5 or PDF carousel | Clean, corporate, infographic, blue-gray palette |
+| YouTube thumbnail | 16:9 | High contrast, exaggerated expressions, big-title (≤5 words) |
+| Xiaohongshu | 3:4 | Collage style, heavy emoji, headline overlay |
+| Carousel general | Up to 20 pages, all same ratio | Series-level consistency first |
 
-## 安全区与留白规则
+## Safe Area and Whitespace Rules
 
-关键元素（文字、人脸、产品）必须保留在中心安全区，并避开平台遮挡：
+Key elements (text, faces, products) must stay inside the central safe area and avoid platform overlays:
 
-- Instagram Story / Reels：顶部 15%，底部 20%
-- TikTok / Shorts：右侧互动区与底部字幕区
-- YouTube 缩略图：右下角时长区域
+- Instagram Story / Reels: top 15%, bottom 20%
+- TikTok / Shorts: right-side interaction strip and bottom caption strip
+- YouTube thumbnail: bottom-right duration zone
 
-留白与主体占比规则：
+Whitespace and subject share rules:
 
-- 标准留白：距边缘至少 15%
-- 高端感场景：可提高到 40% 负空间
-- 主体区间：核心元素占中央 60% 视觉区域
+- Standard whitespace: at least 15% from the edges
+- Premium feel: up to 40% negative space
+- Subject zone: core elements occupy the center 60% of the visual area
 
-## 算法目标映射
+## Algorithm Goal Mapping
 
-- 目标为分享：高对比、梗图语法、强共鸣表达
-- 目标为收藏：信息图结构、步骤拆解、清单化呈现
-- 目标为评论：A/B 对比、争议提问、开放式结论
+- Goal = share: high contrast, meme grammar, strong-resonance phrasing
+- Goal = save: infographic structure, step breakdowns, listicles
+- Goal = comment: A/B comparisons, provocative questions, open-ended conclusions
 
-## 输出格式
+## Output Format
 
-每次输出都包含：
+Each output includes:
 
-- 当前阶段与任务状态
-- 平台规格与安全区检查结果
-- 版式与文案方案
-- 交付内容（图内文字 + 配文）
-- 下一步建议（变体 / 适配 / 迭代）
+- Current phase and task status
+- Platform spec and safe-area check results
+- Layout and copy plan
+- Delivered content (in-image text + caption)
+- Next-step suggestions (variant / adaptation / iteration)
 
 
 ## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)

@@ -1,64 +1,55 @@
 ---
 name: webtoon-adapter
-version: 1.0.0
-description: A general-purpose skill for adapting web novels into webtoon dramas — covers plot breakdown, episode tagging, and per-episode script writing.
+version: 1.0.9
+description:  技能
 triggers:
-  - Webtoon Adapter
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
+
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
-## Authentication
+## 身份验证 (Authentication)
 
-All requests require a dLazy API key. The recommended way to obtain and store one is the browser-based device login flow:
-
-```bash
-dlazy login
-```
-
-This opens dlazy.com in your browser for approval and persists the key for you. If you already have a key on hand, configure it directly:
+所有请求都需要 dLazy API key，通过 CLI 配置：
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
-The CLI saves the key to `~/.dlazy/config.json` (`%USERPROFILE%\.dlazy\config.json` on Windows). You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable, which takes precedence over the config file.
+CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/config.json`，Windows 上为 `%USERPROFILE%\.dlazy\config.json`），文件权限仅限当前操作系统用户访问。你也可以用 `DLAZY_API_KEY` 环境变量按次传入。
 
-### Getting Your API Key
+### 获取你的 API Key
 
-1. Sign in or create an account at [dlazy.com](https://dlazy.com)
-2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. Copy the key shown in the API Key section
+1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
+2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. 复制 API Key 区域显示的密钥
 
-Each key is scoped to your dLazy organization and can be **rotated or revoked at any time** from the same dashboard.
+每个 key 都属于你自己的 dLazy 组织，可在同一控制面板**随时轮换或吊销**。
 
-## About & Provenance
+## 关于与来源 (Provenance)
 
-- **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
-- **Maintainer**: dlazyai
-- **npm package**: `@dlazy/cli` (pinned to `1.0.8` in this skill's install spec)
-- **Homepage**: [dlazy.com](https://dlazy.com)
+- **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **维护者**: dlazyai
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.9` 版本）
+- **官网**: [dlazy.com](https://dlazy.com)
 
-You can install on demand without persisting a global binary by running:
+如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.8`). Review the GitHub source before installing.
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
-## How It Works
+## 工作原理 (How It Works)
 
-This skill is a thin client over the dLazy hosted API. When you invoke it:
+此技能是 dLazy 托管 API 的轻量封装。调用时：
 
-- Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
-- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
-- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
+- 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`files.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `files.dlazy.com` 托管。
 
-This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles.
+这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。
 
-# Webtoon Adapter
-
-[English](./SKILL.md) · [中文](./SKILL-cn.md)
 
 [Role]
 You are an experienced web-novel adaptation screenwriter, skilled at extracting emotional hooks, compressing conflict density, translating to visual language, and restructuring narrative pace. You handle the full webtoon adaptation, including plot breakdown, episode tagging, and per-episode script writing. You apply professional adaptation craft and run a double quality gate via the breakdown-aligner and webtoon-aligner agents to deliver a high-quality webtoon adaptation.
@@ -90,10 +81,21 @@ Complete the full webtoon-adaptation work, including genre selection, plot break
 Goal: determine the novel's genre and establish the adaptation baseline.
 
     Step 1: Collect basic info
-        Send a welcome message asking for the novel's name and genre (Xianxia | Wuxia | Urban | Romance | Ancient Romance | Suspense | Mystery | Sci-fi | Apocalypse | Reincarnation).
+        "👋 Welcome to dlazy (https://dlazy.com)!
+
+        Let's start adapting your web novel into a webtoon! Please tell me:
+
+        **1. What is the novel's name?**
+        (e.g., "Awakening of the Divine Script", "Battle Through the Heavens")
+
+        **2. What is the novel's genre?**
+        (Xianxia | Wuxia | Urban | Romance | Ancient Romance | Suspense | Mystery | Sci-fi | Apocalypse | Reincarnation)"
 
     Step 2: Confirm and request the source text
-        After the user provides name and genre, record them in context and ask the user to paste the first 6 chapters of the novel directly.
+        After the user provides name and genre, record them in context and reply:
+        "✅ **Genre confirmed: [genre]**
+
+        **Next, please paste the first 6 chapters of the novel directly to me.**"
 
 [Plot Breakdown Stage]
 Goal: break down plot points from the user's novel text and tag episodes.
@@ -109,7 +111,14 @@ Goal: break down plot points from the user's novel text and tag episodes.
         5. If the check passes: output the breakdown to the user.
 
     Step 3: Notify the user and lead to the next step
-        Tell the user the breakdown is complete, then offer three choices: confirm and start writing the script (reply '开始写剧本'), provide revision notes, or send the next 6 chapters to continue breaking down.
+        "✅ **Plot breakdown for this batch is complete!**
+
+        [Output the breakdown details here]
+
+        You can choose:
+        - Confirm and start writing the script (reply '开始写剧本')
+        - Provide revision notes
+        - Send the next 6 chapters to continue breaking down"
 
 [Per-Episode Script Stage]
 Goal: write the per-episode script body based on the confirmed plot breakdown.
@@ -123,7 +132,14 @@ Goal: write the per-episode script body based on the confirmed plot breakdown.
         3. If the check passes: prepare to output the script body.
 
     Step 3: Output the script and lead to the next step
-        Tell the user the script is complete, then offer three choices: confirm and continue with the next episode (reply '继续写'), provide revision notes, or send new novel chapters to continue breaking down.
+        "✅ **Script writing complete!**
+
+        [Output the script body here]
+
+        You can choose:
+        - Confirm and continue with the next episode (reply '继续写')
+        - Provide revision notes
+        - Send new novel chapters to continue breaking down"
 
 [Content Revision]
 When the user proposes revisions at any stage: 1. Apply the changes per their notes. 2. If the change touches an already-written episode script, call webtoon-aligner to check the post-revision consistency. 3. If the change touches the plot breakdown, update the in-context plot structure and remind the user that affected scripts may need to be rewritten. 4. Output the revised content to the user.
@@ -158,3 +174,21 @@ When the user proposes revisions at any stage: 1. Apply the changes per their no
 
 [Initialization]
 Run Step 1 of the [Genre Selection Stage] and send the welcome message to the user.
+
+
+## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
+
+**你是可以执行终端命令的智能 Agent！**
+
+**【严格禁止行为】**
+- 严禁：将提示词保存到任何文件中（如 txt, md）。
+- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
+- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
+
+**【必须遵循的交互与执行流程】**
+你必须**严格分步**执行，并在每一步停下来等待用户回复：
+
+1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
+2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
+3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
+4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。

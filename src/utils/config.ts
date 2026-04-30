@@ -3,7 +3,12 @@ import * as crypto from "node:crypto";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { log } from "../lib/envelope";
 import { t } from "../messages";
+// Self-import so intra-module calls go through the module namespace. Allows
+// tests to `vi.spyOn(config, "loadConfig")` and have the spy intercept calls
+// from `getApiKeySync` / `resolveApiKey` inside this same file.
+import * as self from "./config";
 import { sleep } from "./utils";
 
 const CONFIG_DIR = path.join(os.homedir(), ".dlazy");
@@ -23,18 +28,22 @@ export function openBrowser(urlToOpen: string) {
 	}
 }
 
-export function loadConfig(): Record<string, any> {
+export type DLazyConfig = {
+	DLAZY_API_KEY?: string;
+} & Record<string, string | undefined>;
+
+export function loadConfig(): DLazyConfig {
 	if (fs.existsSync(CONFIG_FILE)) {
 		try {
-			return JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
-		} catch (_e) {
+			return JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8")) as DLazyConfig;
+		} catch {
 			return {};
 		}
 	}
 	return {};
 }
 
-export function saveConfig(config: Record<string, any>) {
+export function saveConfig(config: DLazyConfig) {
 	if (!fs.existsSync(CONFIG_DIR)) {
 		fs.mkdirSync(CONFIG_DIR, { recursive: true });
 	}
@@ -74,9 +83,9 @@ export async function waitForApiKeyAuth(options?: {
 	const verificationUri = `${baseUrl}/auth/cli?token=${encodeURIComponent(token)}`;
 	const pollUrl = `${baseUrl}/api/cli/verification?token=${encodeURIComponent(token)}`;
 
-	console.log(msgs.startingAuth);
-	console.log(msgs.visitToAuthorize(verificationUri));
-	console.log(msgs.pollingNotice(expiresInMinutes));
+	log(msgs.startingAuth);
+	log(msgs.visitToAuthorize(verificationUri));
+	log(msgs.pollingNotice(expiresInMinutes));
 
 	openBrowser(verificationUri);
 
@@ -113,7 +122,7 @@ export function getApiKeySync(): string | null {
 	const apiKey = process.env.DLAZY_API_KEY;
 	if (apiKey) return apiKey;
 
-	const config = loadConfig();
+	const config = self.loadConfig();
 	if (config.DLAZY_API_KEY) return config.DLAZY_API_KEY;
 
 	return null;
@@ -138,24 +147,12 @@ export async function resolveApiKey(
 	opts: { interactive?: boolean } = {},
 ): Promise<string | null> {
 	if (override) return override;
-	const cached = getApiKeySync();
+	const cached = self.getApiKeySync();
 	if (cached) return cached;
-	if (opts.interactive === false || isHeadless()) return null;
-	const fetched = await waitForApiKeyAuth();
-	const config = loadConfig();
+	if (opts.interactive === false || self.isHeadless()) return null;
+	const fetched = await self.waitForApiKeyAuth();
+	const config = self.loadConfig();
 	config.DLAZY_API_KEY = fetched;
-	saveConfig(config);
+	self.saveConfig(config);
 	return fetched;
-}
-
-/**
- * @deprecated use resolveApiKey; kept for backward compat with existing auth command.
- */
-export async function ensureApiKey(): Promise<string> {
-	const key = await resolveApiKey();
-	if (!key) {
-		console.error(t().auth.noApiKeyExit);
-		process.exit(1);
-	}
-	return key;
 }

@@ -1,13 +1,13 @@
 ---
 name: text-spoken-script
-version: 1.0.0
-description: 该技能用于引导 AI 生成具有高反差、强共鸣、故事感及个人 IP 属性的短视频口播文案。生成的所有文案必须严格遵循以下 7 步结构进行创作：
+version: 1.0.9
+description: This skill is used to guide the AI in generating short video spoken scripts with high contrast, strong resonance, a sense of story, and personal IP attributes. All generated scripts must str
 triggers:
-  - 短视频口播文案生成 (Text Spoken Script)
-  - 适用于短视频口播文案、人物故事分享、IP 观点类文案。
-  - 要求在语言上尽量口语化，适合念诵，有起伏和呼吸感。
-  - 切忌空洞说教，一定要有具体的“人事物”支撑。
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Short Video Spoken Script Generation (Text Spoken Script)
+  - Suitable for short video spoken scripts, character story sharing, and IP viewpoint scripts.
+  - Requires the language to be as colloquial as possible, suitable for reciting, with rhythm and breathing space.
+  - Avoid empty preaching; it must be supported by specific "people, events, and things."
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
 ## 身份验证 (Authentication)
@@ -32,84 +32,80 @@ CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/
 
 - **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **维护者**: dlazyai
-- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.8` 版本）
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.9` 版本）
 - **官网**: [dlazy.com](https://dlazy.com)
 
 如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.8`。安装前建议先到 GitHub 仓库审阅源码。
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
 ## 工作原理 (How It Works)
 
 此技能是 dLazy 托管 API 的轻量封装。调用时：
 
 - 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
-- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`oss.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
-- API 返回的生成结果 URL 由 `oss.dlazy.com` 托管。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`files.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `files.dlazy.com` 托管。
 
 这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。
 
----
-name: 'text-spoken-script'
-description: '生成具有高反差、强共鸣和故事感的口播文案。当用户需要创作短视频口播文案、人物故事或个人IP文案时调用此技能。'
----
 
-# 短视频口播文案生成 (Text Spoken Script)
+# Short Video Spoken Script Generation (Text Spoken Script)
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-该技能用于引导 AI 生成具有高反差、强共鸣、故事感及个人 IP 属性的短视频口播文案。生成的所有文案必须严格遵循以下 7 步结构进行创作：
+This skill is used to guide the AI in generating short video spoken scripts with high contrast, strong resonance, a sense of story, and personal IP attributes. All generated scripts must strictly follow the 7-step structure below:
 
-## 核心创作逻辑与 7 步结构
+## Core Creative Logic & 7-Step Structure
 
-1. **标签反差定场**
-   - **目标**: 用极具反差感的人物标签或设定开场，瞬间抓住观众注意力，点明核心受众和痛点。
-   - **示例**: 70 岁还在学做短视频的方姐，想跟所有为孩子按下 “暂停键” 的妈妈说：你停下的只是工作，不是人生。
+1. **Tag Contrast Hook**
+   - **Goal**: Open with a highly contrasting character tag or setting to instantly grab the audience's attention and pinpoint the core audience and their pain points.
+   - **Example**: Sister Fang, who is still learning to make short videos at 70, wants to tell all mothers who have hit the "pause button" for their children: What you have paused is just your job, not your life.
 
-2. **制造悬念 / 共鸣**
-   - **目标**: 抛出受众群体普遍面临的困境、焦虑或痛点，通过具体的情境引发强烈的代入感。
-   - **示例**: 前两天，我女儿的闺蜜来家里，聊着聊着眼泪就在眼眶里打转。她说，为了两个孩子陪读，把工作辞了，一晃三年没进过办公室。看着先生一个人扛起全家，是又心疼又着急，可自己又实在撒不开手。
+2. **Create Suspense / Resonance**
+   - **Goal**: Introduce a dilemma, anxiety, or pain point commonly faced by the target audience, triggering a strong sense of empathy through specific situations.
+   - **Example**: A couple of days ago, my daughter's best friend came over, and as we chatted, tears started welling up in her eyes. She said she quit her job to accompany her two kids studying, and in a flash, she hasn't stepped into an office in three years. Seeing her husband shoulder the family's expenses alone, she feels both heartbroken and anxious, yet she really can't let go of the kids.
 
-3. **展开故事（画面感）**
-   - **目标**: 用带有细节和画面感的语言讲述具体事件，刻画人物情绪（如无力感、焦虑、不甘等），让观众身临其境。
-   - **示例**: 她搓着手跟我说：“方姨，我感觉自己快被社会淘汰了，除了柴米油盐，什么都不会了。” 那个眼神里，有焦虑，有不甘，还有深深的无力感。这种心情，我太懂了。
+3. **Unfold the Story (Visual Imagery)**
+   - **Goal**: Tell a specific event using detailed, visual language to portray the character's emotions (such as powerlessness, anxiety, unwillingness), making the audience feel as if they are there.
+   - **Example**: She rubbed her hands and told me: "Aunt Fang, I feel like I'm about to be eliminated by society. Besides cooking and cleaning, I don't know anything anymore." In that look, there was anxiety, unwillingness, and a deep sense of powerlessness. I understand this feeling all too well.
 
-4. **抛出核心观点 / 反认知**
-   - **目标**: 给出打破常规认知的核心观点，直击痛点本质，给出令人醍醐灌顶的结论。
-   - **示例**: 我跟她说，孩子，你记住一句话：社会淘汰的，从来不是不工作的人，而是不学习的人。
+4. **Deliver Core Viewpoint / Counter-Intuition**
+   - **Goal**: Provide a core viewpoint that breaks conventional thinking, hitting the essence of the pain point and offering an enlightening conclusion.
+   - **Example**: I told her, "Child, remember one sentence: Society never eliminates those who don't work, but those who don't learn."
 
-5. **深化故事与观点（结合经历）**
-   - **目标**: 结合讲演者自身的真实经历（如跨越年龄的学习、克服困难的经历等），进一步论证观点。提出切实可行的微小行动建议，让观众觉得“我也能做到”。
-   - **示例**:
-     - 你现在把家庭和孩子经营好，这就是你现阶段最重要的 “项目”。但这个项目里，你得给自己留一个 “学习端口”。不是让你立刻去考个证，而是别让好奇心熄火，别让学习能力生锈。
-     - 我 50 岁决定北漂，在招待所里，一有空我就抄写英语单词，学着用当时最新的管理系统。很多人笑我：“这么大年纪了，还学这些有啥用？” 我没管，我就觉得，学一点，我就新一点。后来这些 “没用” 的东西，都成了我管理第一家酒店的底气。
-     - 现在 70 了，我还在学剪辑，学怎么看后台数据。难吗？真难。但学习这个动作本身，就是在告诉世界：我还在场，我还能跟上。
-     - 你每天接送孩子，能不能听听行业播客？料理家务时，能不能线上学点感兴趣的东西？哪怕每天只投入半小时，这半小时就是在为你未来的 “重启” 充电。你的价值，不在于今天是否在岗，而在于你明天是否还有上岗的能力。
+5. **Deepen Story & Viewpoint (Combine Experience)**
+   - **Goal**: Further demonstrate the viewpoint by combining the speaker's own real experiences (e.g., learning across ages, overcoming difficulties). Propose actionable micro-actions so the audience feels "I can do this too."
+   - **Example**:
+     - Right now, managing your family and children well is your most important "project" at this stage. But within this project, you must leave a "learning port" for yourself. It's not about immediately getting a certificate, but not letting your curiosity die out or your learning ability rust.
+     - When I was 50, I decided to work in Beijing. In the guesthouse, whenever I had free time, I copied English words and learned to use the latest management system at the time. Many people laughed at me: "What's the use of learning this at your age?" I didn't care. I just felt that learning a little makes me a little newer. Later, these "useless" things became my confidence in managing my first hotel.
+     - Now at 70, I'm still learning video editing and how to read backend data. Is it hard? Really hard. But the act of learning itself is telling the world: I'm still in the game, and I can still keep up.
+     - When you pick up and drop off your kids every day, can you listen to an industry podcast? While doing housework, can you learn something interesting online? Even if you only invest half an hour a day, this half hour is charging you for your future "reboot." Your value lies not in whether you are on duty today, but in whether you still have the ability to be on duty tomorrow.
 
-6. **总结拔高，链接人设**
-   - **目标**: 将话题升华，回归到个人的成长或人生的更宏大主题上，同时强化讲演者的个人 IP 形象（如：不断成长的引路人）。
-   - **示例**: 女人的角色是多重的，有时候不得不有取舍。这段全职照顾家庭的时光，不是你职业生涯的 “断点”，恰恰可能是你沉淀、观察、蓄力的 “加油站”。用学习保持和世界的连接，你的焦虑就会变成清晰的路径。
+6. **Summarize and Elevate, Link Persona**
+   - **Goal**: Elevate the topic, returning to personal growth or a grander theme of life, while strengthening the speaker's personal IP image (e.g., a constantly growing guide).
+   - **Example**: A woman's roles are multiple, and sometimes trade-offs have to be made. This period of being a full-time homemaker is not a "break" in your career; it might precisely be a "gas station" for you to settle, observe, and accumulate power. Use learning to maintain your connection with the world, and your anxiety will turn into a clear path.
 
-7. **金句收尾**
-   - **目标**: 用精炼、有力、富有哲理且易于传播的金句作为结尾，给人留下深刻印象。
-   - **示例**: 妈妈的身份，是给了我们一份爱的责任，而不是一个停止成长的借口。只要你还在学，路就一直在往前延伸。时代淘汰不了永远在准备的人。
+7. **Punchline Ending**
+   - **Goal**: Conclude with a refined, powerful, philosophical, and highly spreadable punchline to leave a deep impression.
+   - **Example**: The identity of a mother gives us a responsibility of love, not an excuse to stop growing. As long as you are still learning, the road will keep extending forward. The era cannot eliminate those who are always prepared.
 
-## 适用场景与限制
+## Applicable Scenarios and Limitations
 
-- 适用于短视频口播文案、人物故事分享、IP 观点类文案。
-- 要求在语言上尽量口语化，适合念诵，有起伏和呼吸感。
-- 切忌空洞说教，一定要有具体的“人事物”支撑。
+- Suitable for short video spoken scripts, character story sharing, and IP viewpoint scripts.
+- Requires the language to be as colloquial as possible, suitable for reciting, with rhythm and breathing space.
+- Avoid empty preaching; it must be supported by specific "people, events, and things."
 
-## 最终输出要求
+## Final Output Requirements
 
-当用户调用本技能并提供基本的人设、痛点或话题时，请**直接输出**符合上述 7 个步骤的文案内容，每个步骤均可以作为一段（并在生成时保留或不保留步骤序号，具体视用户需求而定，若无说明可直接作为完整文案输出，段落分明即可）。
+When the user invokes this skill and provides basic persona, pain points, or topics, please **directly output** the script content conforming to the 7-step structure above. Each step can serve as a paragraph (and during generation, keep or remove the step numbers depending on the user's request. If unspecified, output directly as a complete, well-paragraphed script).
 
-## 下一步工作建议
-调用 text-storyboard-script 技能生成分镜脚本
+## Next Step Suggestions
+Call the `text-storyboard-script` skill to generate a storyboard script.
 
 ## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
 

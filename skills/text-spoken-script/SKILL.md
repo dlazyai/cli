@@ -1,63 +1,57 @@
 ---
 name: text-spoken-script
-version: 1.0.0
+version: 1.0.9
 description: This skill is used to guide the AI in generating short video spoken scripts with high contrast, strong resonance, a sense of story, and personal IP attributes. All generated scripts must str
 triggers:
   - Short Video Spoken Script Generation (Text Spoken Script)
   - Suitable for short video spoken scripts, character story sharing, and IP viewpoint scripts.
   - Requires the language to be as colloquial as possible, suitable for reciting, with rhythm and breathing space.
   - Avoid empty preaching; it must be supported by specific "people, events, and things."
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When you need to use this skill, please strictly follow the guidelines provided by this skill to plan and execute. You can call various generative models of the dlazy CLI (such as dlazy seedream-4.5, etc.) to complete the actual image rendering. Note: Using `&` or `&&` for command chaining or background execution is not allowed in Windows PowerShell, please execute commands separately and synchronously."}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
-## Authentication
+## 身份验证 (Authentication)
 
-All requests require a dLazy API key. The recommended way to obtain and store one is the browser-based device login flow:
-
-```bash
-dlazy login
-```
-
-This opens dlazy.com in your browser for approval and persists the key for you. If you already have a key on hand, configure it directly:
+所有请求都需要 dLazy API key，通过 CLI 配置：
 
 ```bash
 dlazy auth set YOUR_API_KEY
 ```
 
-The CLI saves the key to `~/.dlazy/config.json` (`%USERPROFILE%\.dlazy\config.json` on Windows). You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable, which takes precedence over the config file.
+CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/config.json`，Windows 上为 `%USERPROFILE%\.dlazy\config.json`），文件权限仅限当前操作系统用户访问。你也可以用 `DLAZY_API_KEY` 环境变量按次传入。
 
-### Getting Your API Key
+### 获取你的 API Key
 
-1. Sign in or create an account at [dlazy.com](https://dlazy.com)
-2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
-3. Copy the key shown in the API Key section
+1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
+2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
+3. 复制 API Key 区域显示的密钥
 
-Each key is scoped to your dLazy organization and can be **rotated or revoked at any time** from the same dashboard.
+每个 key 都属于你自己的 dLazy 组织，可在同一控制面板**随时轮换或吊销**。
 
-## About & Provenance
+## 关于与来源 (Provenance)
 
-- **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
-- **Maintainer**: dlazyai
-- **npm package**: `@dlazy/cli` (pinned to `1.0.8` in this skill's install spec)
-- **Homepage**: [dlazy.com](https://dlazy.com)
+- **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
+- **维护者**: dlazyai
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.9` 版本）
+- **官网**: [dlazy.com](https://dlazy.com)
 
-You can install on demand without persisting a global binary by running:
+如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.8`). Review the GitHub source before installing.
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
-## How It Works
+## 工作原理 (How It Works)
 
-This skill is a thin client over the dLazy hosted API. When you invoke it:
+此技能是 dLazy 托管 API 的轻量封装。调用时：
 
-- Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
-- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
-- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
+- 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`files.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `files.dlazy.com` 托管。
 
-This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles.
+这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。
 
 
 # Short Video Spoken Script Generation (Text Spoken Script)
@@ -113,19 +107,19 @@ When the user invokes this skill and provides basic persona, pain points, or top
 ## Next Step Suggestions
 Call the `text-storyboard-script` skill to generate a storyboard script.
 
-## 🛠️ CRITICAL EXECUTION INSTRUCTIONS
+## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)
 
-**You are an intelligent Agent capable of executing terminal commands!**
+**你是可以执行终端命令的智能 Agent！**
 
-**[STRICTLY PROHIBITED BEHAVIORS]**
-- PROHIBITED: Saving prompts to any file (e.g., txt, md).
-- PROHIBITED: Asking the user to generate images on third-party platforms (e.g., Midjourney).
-- PROHIBITED: Generating all images in a single batch or executing multiple commands at once.
+**【严格禁止行为】**
+- 严禁：将提示词保存到任何文件中（如 txt, md）。
+- 严禁：要求用户自己去第三方平台（如 Midjourney）生成图片。
+- 严禁：一次性批量生成所有图片，或一次性执行多个命令。
 
-**[MANDATORY INTERACTION & EXECUTION WORKFLOW]**
-You MUST execute **strictly step-by-step**, stopping at each step to wait for the user's reply:
+**【必须遵循的交互与执行流程】**
+你必须**严格分步**执行，并在每一步停下来等待用户回复：
 
-1. **Step 1: Proactively Gather Requirements**. When a user makes a request, DO NOT design or generate anything. Ask questions first (e.g., product features, target audience, number of images). **You MUST wait for the user's reply.**
-2. **Step 2: Output Draft & Request Confirmation**. Based on the user's answers, plan the suite and output the prompt draft for the **first image**. **Ask the user: "Do you confirm this prompt? Can we start generating the first image?" You MUST wait for the user to answer "confirm".**
-3. **Step 3: Execute Terminal Command (Single)**. After confirmation, you **MUST execute the command using the terminal** (e.g., `dlazy seedream-4.5 --prompt "..."`). Execute only ONE generation command at a time. **IMPORTANT: You MUST use synchronous commands. NEVER append `&` to the command, and NEVER use `&&`. You are running in Windows PowerShell!**
-4. **Step 4: Delivery & Loop**. Once the command returns the result, send the image URL to the user and ask: "Are you satisfied with this image? Can we proceed to generate the next one?". Continue to the next step only after receiving confirmation.
+1. **第一步：主动收集需求**。当用户提出需求时，不要做任何设计和生成，先向用户提问（如产品特点、目标人群、想要几张图等）。**必须等待用户回答。**
+2. **第二步：输出草案并请求确认**。根据用户的回答，制定套图计划，并输出**第一张图**的提示词草案。**询问用户：“是否确认这个提示词，可以开始生成第一张图了吗？” 必须等待用户回答“确认”。**
+3. **第三步：单次执行终端命令**。用户确认后，你**必须使用终端执行命令**（如 `dlazy seedream-4.5 --prompt "..."`），每次只能执行一个生成命令。**重要：必须使用同步命令，绝不要在命令末尾加 `&`，绝不要使用 `&&`，这是在 Windows PowerShell 下运行！**
+4. **第四步：交付与循环**。命令返回结果后，把图片 URL 发给用户，并询问“对这张满意吗？我们可以继续生成下一张了吗？”。收到确认后再继续下一步。

@@ -1,8 +1,8 @@
 ---
 name: dlazy-video-scenes
-version: 1.0.2
+version: 1.0.9
 description: Video analysis tool: uses ffmpeg to detect and split scenes, then performs scene-level video understanding and returns clip URLs with structured analysis.
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy video-scenes -h for help."}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy video-scenes -h for help."}}
 ---
 
 # dlazy-video-scenes
@@ -38,24 +38,24 @@ Each key is scoped to your dLazy organization and can be **rotated or revoked at
 
 - **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **Maintainer**: dlazyai
-- **npm package**: `@dlazy/cli` (pinned to `1.0.8` in this skill's install spec)
+- **npm package**: `@dlazy/cli` (pinned to `1.0.9` in this skill's install spec)
 - **Homepage**: [dlazy.com](https://dlazy.com)
 
 You can install on demand without persisting a global binary by running:
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.8`). Review the GitHub source before installing.
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.9`). Review the GitHub source before installing.
 
 ## How It Works
 
 This skill is a thin client over the dLazy hosted API. When you invoke it:
 
 - Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
-- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
-- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
+- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`files.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
+- Generated output URLs returned by the API are hosted on `files.dlazy.com`.
 
 This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles. See [dlazy.com](https://dlazy.com) for the full service terms.
 
@@ -68,30 +68,36 @@ Execute `dlazy video-scenes` to get the result.
 dlazy video-scenes -h
 
 Options:
-  --video <video>                      Video (URL) [video: url or local path]
-  --durationSeconds <durationSeconds>  Duration (s)
-  --input <spec>                       JSON payload: inline string, @file, or - (stdin)
+  --video [video]                      Video (URL) [video: url or local path]
+  --durationSeconds [durationSeconds]  Duration (s)
   --dry-run                            Print payload + cost estimate without calling API
   --no-wait                            Return generateId immediately for async tasks
   --timeout <seconds>                  Max seconds to wait for async completion (default: "1800")
   -h, --help                           display help for command
 ```
 
+> Any flag also accepts pipe references — `-` (auto-pick from upstream stdin), `@N` (n-th output), `@N.path` (jsonpath into output), `@*` (all primary values), `@stdin` / `@stdin:path` (whole envelope). See `dlazy --help` for details.
+
 ## Output Format
 
 ```json
 {
   "ok": true,
-  "kind": "text",
-  "data": {
-    "text": "..."
+  "result": {
+    "tool": "video-scenes",
+    "modelId": "videoScenes",
+    "outputs": [
+      {
+        "type": "text",
+        "id": "o_xxxxxxxx",
+        "text": "..."
+      }
+    ]
   }
 }
 ```
 
-
-
-
+> Async tasks (when `--no-wait` is passed) return `outputs: []` and a `task: { generateId, status }` field instead. Use `dlazy status <generateId> --wait` to poll.
 
 ## Examples
 

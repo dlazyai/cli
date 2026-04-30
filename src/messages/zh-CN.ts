@@ -11,7 +11,8 @@ export const messages: Messages = {
 	auth: {
 		description: "管理认证配置",
 		setDescription: "手动设置 DLAZY_API_KEY",
-		getDescription: "查看当前配置的 DLAZY_API_KEY",
+		getDescription: "查看当前配置的 DLAZY_API_KEY(默认遮蔽)",
+		getShowOption: "完整显示 API 密钥,不进行遮蔽",
 		loginDescription: "通过设备码流程登录（支持远程终端）",
 		localOption: "使用 localhost:3000 进行本地测试",
 		loginSuccess: "登录成功;API 密钥已保存到配置文件",
@@ -23,8 +24,6 @@ export const messages: Messages = {
 		notConfigured: "尚未设置 API 密钥",
 		noApiKey:
 			"未找到可用的 API 密钥。请传入 --api-key、设置 DLAZY_API_KEY,或在交互式终端运行 `dlazy login`。",
-		noApiKeyExit:
-			"未找到 API 密钥。请设置 DLAZY_API_KEY、传入 --api-key,或在交互式终端运行 `dlazy login`。",
 	},
 	tools: {
 		namespaceDescription: "浏览可用的 AI 工具",
@@ -35,18 +34,41 @@ export const messages: Messages = {
 		statusWaitOption: "轮询直到任务完成",
 		statusTimeoutOption: "最大等待秒数（配合 --wait 使用）",
 		statusToolOption: "使用该工具的 outputSchema 解析结果类型",
-		runInputOption: "JSON 载荷:行内字符串、@文件路径 或 -（标准输入）",
 		runDryRunOption: "仅打印载荷和费用预估,不实际调用 API",
 		runNoWaitOption: "异步任务立即返回 generateId,不等待完成",
 		runTimeoutOption: "异步任务等待的最大秒数",
+		runBatchOption: "并行执行 N 次,所有 outputs 合并到同一信封(默认 1)",
+		runInputOption: "内联 JSON 或 @path/to/file.json,与 flag 值合并(flag 优先)",
 		inputValidationFailed: "输入参数校验失败",
+		inputFileNotFound: (p) => `--input 文件不存在:${p}`,
+		inputFileBadJson: (p, reason) => `--input ${p}:JSON 解析失败(${reason})`,
 		estimatedCost: (credits) => `预估费用:${credits} 积分`,
 		estimatedDuration: (seconds) => `预估耗时:${seconds} 秒`,
+		outputHeader: "输出 (stdout JSON 信封):",
+		outputEnvelope:
+			"  { ok: true, result: { tool, modelId, outputs[], usage?, task? } }",
+		outputErrorEnvelope:
+			"  失败时: { ok: false, code, message, details? } (退出码 1 或 2)",
+		outputUrlsKind: (mediaType) =>
+			`  outputs[]: { type: "${mediaType}", id, url, mimeType?, bytes?, width?, height?, durationMs?, thumbnailUrl? }`,
+		outputTextKind:
+			'  outputs[]: { type: "text", id, text, format?: "plain"|"markdown"|"json"|"srt"|"vtt" }',
+		outputRawKind:
+			'  outputs[]: { type: "json", id, value: <详见下方 Output schema> }',
+		outputAsyncNote:
+			"  异步工具:配合 --no-wait 时,outputs=[] 且 result.task = { generateId, status }",
+		outputSchemaHeader: "Output schema (信封包装前的原始 provider 数据):",
+		outputSchemaEmpty: "  (该工具未声明 output schema)",
+		outputListHeader: "输出:",
+		outputListShape:
+			'  result.outputs[0] = { type: "json", value: { tools: [{ cli_name, id, type, runMode, asynchronous, tier, description }] } }',
+		outputDescribeHeader: "输出:",
+		outputDescribeShape:
+			'  result.outputs[0] = { type: "json", value: { cli_name, id, type, description, runMode, asynchronous, tier, input: { fields[], jsonSchema }, output: { kind, jsonSchema } | null } }',
+		outputStatusHeader:
+			'输出:与工具运行的信封一致;传 --tool <cli_name> 后使用该工具的 outputSchema 解析 outputs[](否则 outputs[].type="json")。',
 	},
 	input: {
-		inputFileNotFound: (p) => `--input 文件不存在:${p}`,
-		invalidJson: (err) => `--input 不是合法的 JSON:${err}`,
-		inputMustBeObject: "--input 必须是一个 JSON 对象",
 		fileNotFound: (label, p) => `${label}:文件不存在:${p}`,
 		fileTooLarge: (label, sizeMb, limitMb) =>
 			`${label}:文件大小 ${sizeMb} MB,超过 ${limitMb} MB 上传上限。`,
@@ -65,7 +87,6 @@ export const messages: Messages = {
 		playVideo: (label) => `[▶ 点击播放视频${label}]`,
 		playAudio: (label) => `[🔊 点击播放音频${label}]`,
 		viewDownload: (label) => `[查看/下载${label}]`,
-		shapesGenerated: (count) => `✅ 已生成 ${count} 个画布元素`,
 		taskSubmittedDisplay: (generateId, status) =>
 			`⏳ 任务已提交(ID: \`${generateId}\`,状态: ${status})。可运行 \`dlazy status ${generateId} --wait\` 轮询结果。`,
 		generationCompleted: "=== 生成完成 ===",

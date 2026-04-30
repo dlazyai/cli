@@ -1,29 +1,42 @@
 {
 	"name": "@dlazy/cli",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "Command-line interface for dLazy AI workflow, allowing direct invocation of various large models in the terminal",
 	"author": "dLazy",
 	"license": "MIT",
-	"main": "dist/index.js",
+	"main": "dist/sdk.js",
+	"types": "dist/sdk.d.ts",
 	"files": [
 		"dist"
 	],
 	"bin": {
 		"dlazy": "./dist/index.js"
 	},
+	"exports": {
+		".": {
+			"types": "./dist/sdk.d.ts",
+			"require": "./dist/sdk.js",
+			"default": "./dist/sdk.js"
+		},
+		"./sdk": {
+			"types": "./dist/sdk.d.ts",
+			"require": "./dist/sdk.js",
+			"default": "./dist/sdk.js"
+		},
+		"./package.json": "./package.json"
+	},
 	"scripts": {
 		"start": "node dist/index.js",
-		"build": "tsup src/index.ts --format cjs",
+		"build": "tsup",
 		"prepublishOnly": "pnpm run build",
-		"dev": "tsx src/index.ts",
+		"dev": "DLAZY_BASE_URL=http://localhost:3000 tsx src/index.ts",
+
 		"pack": "pnpm run build && pnpm pack",
 		"test": "pnpm -w exec vitest run packages/cli/tests"
 	},
 	"dependencies": {
 		"commander": "^12.0.0",
-		"dotenv": "^16.4.5",
-		"mime-types": "^2.1.35",
-		"zod": "4.3.6"
+		"mime-types": "^2.1.35"
 	},
 	"devDependencies": {
 		"@types/mime-types": "^3.0.1",

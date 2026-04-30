@@ -1,14 +1,30 @@
 ---
 name: searchOnlineAssets
-version: 1.0.0
-description: "Online asset search tool: queries public stock libraries (Pixabay) for high-quality photos, illustrations, vectors and videos, returning result metadata and URLs for use in the current workflow."
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, call the searchOnlineAssets tool to query public asset libraries (Pixabay)."}}
+version: 1.0.9
+description: 'Online asset search tool: queries public stock libraries (Pixabay) for high-quality photos, illustrations, vectors and videos, returning result metadata and URLs for use in the current workflow.'
+metadata:
+  {
+    'clawdbot':
+      {
+        'emoji': '🤖',
+        'requires': { 'bins': ['npm', 'npx'] },
+        'install': 'npm install -g @dlazy/cli@1.0.9',
+        'installAlternative': 'npx @dlazy/cli@1.0.9',
+        'homepage': 'https://github.com/dlazyai/cli',
+        'source': 'https://github.com/dlazyai/cli',
+        'author': 'dlazyai',
+        'license': 'see-repo',
+        'npm': 'https://www.npmjs.com/package/@dlazy/cli',
+        'configLocation': '~/.dlazy/config.json',
+        'apiEndpoints': ['api.dlazy.com', 'files.dlazy.com'],
+      },
+    'openclaw': { 'systemPrompt': 'When invoking this skill, call the searchOnlineAssets tool to query public asset libraries (Pixabay).' },
+  }
 ---
 
 # searchOnlineAssets
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
-
 
 Online asset search tool: queries public stock libraries (Pixabay) for high-quality photos, illustrations, vectors and videos, and returns result metadata + URLs for use in the current workflow.
 
@@ -46,10 +62,10 @@ Each key is scoped to your dLazy organization and can be **rotated or revoked at
 You can install on demand without persisting a global binary by running:
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.8`). Review the GitHub source before installing.
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.9`). Review the GitHub source before installing.
 
 ## How It Works
 
@@ -110,31 +126,32 @@ Behaviour notes:
 ```ts
 // Find horizontal photos of cityscapes
 searchOnlineAssets({
-  query: "cityscape skyline",
-  imageType: "photo",
-  orientation: "horizontal",
+  query: 'cityscape skyline',
+  imageType: 'photo',
+  orientation: 'horizontal',
   perPage: 6,
-});
+})
 ```
 
 ```ts
 // Find vector icons for nature
 searchOnlineAssets({
-  query: "leaf nature icon",
-  imageType: "vector",
+  query: 'leaf nature icon',
+  imageType: 'vector',
   perPage: 12,
-});
+})
 ```
 
 ## Error Handling
 
-| Code | Error Type | Example Message |
-| --- | --- | --- |
-| 401 | Unauthorized (No API Key) | `Pixabay API key is not configured` |
-| 502 | Upstream API failed | `Pixabay API error: <statusText>` |
-| 503 | Network / fetch failed | `Failed to search images from Pixabay` |
+| Code | Error Type                | Example Message                        |
+| ---- | ------------------------- | -------------------------------------- |
+| 401  | Unauthorized (No API Key) | `Pixabay API key is not configured`    |
+| 502  | Upstream API failed       | `Pixabay API error: <statusText>`      |
+| 503  | Network / fetch failed    | `Failed to search images from Pixabay` |
 
 > **AGENT CRITICAL INSTRUCTION**:
+>
 > 1. If the tool throws `Pixabay API key is not configured`, the workspace is missing its Pixabay credentials — inform the user and stop; do not retry.
 > 2. If `Pixabay API error` is returned, retry once with a simpler / shorter query before falling back to telling the user no result was found.
 

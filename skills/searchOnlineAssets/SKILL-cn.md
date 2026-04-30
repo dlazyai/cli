@@ -1,14 +1,30 @@
 ---
 name: searchOnlineAssets
-version: 1.0.0
-description: "在线素材搜索工具：调用公共素材库（Pixabay）检索高质量图片、插画、矢量图与视频，返回素材元数据与 URL 供当前工作流使用。"
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，请使用 searchOnlineAssets 工具检索公共素材库（Pixabay）。"}}
+version: 1.0.9
+description: '在线素材搜索工具：调用公共素材库（Pixabay）检索高质量图片、插画、矢量图与视频，返回素材元数据与 URL 供当前工作流使用。'
+metadata:
+  {
+    'clawdbot':
+      {
+        'emoji': '🤖',
+        'requires': { 'bins': ['npm', 'npx'] },
+        'install': 'npm install -g @dlazy/cli@1.0.9',
+        'installAlternative': 'npx @dlazy/cli@1.0.9',
+        'homepage': 'https://github.com/dlazyai/cli',
+        'source': 'https://github.com/dlazyai/cli',
+        'author': 'dlazyai',
+        'license': 'see-repo',
+        'npm': 'https://www.npmjs.com/package/@dlazy/cli',
+        'configLocation': '~/.dlazy/config.json',
+        'apiEndpoints': ['api.dlazy.com', 'files.dlazy.com'],
+      },
+    'openclaw': { 'systemPrompt': '当调用此技能时，请使用 searchOnlineAssets 工具检索公共素材库（Pixabay）。' },
+  }
 ---
 
 # searchOnlineAssets
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
-
 
 在线素材搜索工具：调用公共素材库（Pixabay）检索高质量图片、插画、矢量图与视频，返回素材元数据与 URL 供当前工作流使用。
 
@@ -46,10 +62,10 @@ CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/
 如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.8`。安装前建议先到 GitHub 仓库审阅源码。
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
 ## 工作原理
 
@@ -110,31 +126,32 @@ npx @dlazy/cli@1.0.8 <command>
 ```ts
 // 搜索横版城市风景照片
 searchOnlineAssets({
-  query: "cityscape skyline",
-  imageType: "photo",
-  orientation: "horizontal",
+  query: 'cityscape skyline',
+  imageType: 'photo',
+  orientation: 'horizontal',
   perPage: 6,
-});
+})
 ```
 
 ```ts
 // 搜索自然主题的矢量图标
 searchOnlineAssets({
-  query: "leaf nature icon",
-  imageType: "vector",
+  query: 'leaf nature icon',
+  imageType: 'vector',
   perPage: 12,
-});
+})
 ```
 
 ## 错误处理
 
-| Code | 错误类型 | 示例信息 |
-| --- | --- | --- |
-| 401 | 未授权（缺少 API Key） | `Pixabay API key is not configured` |
-| 502 | 上游 API 调用失败 | `Pixabay API error: <statusText>` |
-| 503 | 网络 / fetch 失败 | `Failed to search images from Pixabay` |
+| Code | 错误类型               | 示例信息                               |
+| ---- | ---------------------- | -------------------------------------- |
+| 401  | 未授权（缺少 API Key） | `Pixabay API key is not configured`    |
+| 502  | 上游 API 调用失败      | `Pixabay API error: <statusText>`      |
+| 503  | 网络 / fetch 失败      | `Failed to search images from Pixabay` |
 
 > **智能体关键指令**:
+>
 > 1. 如果工具抛出 `Pixabay API key is not configured`，说明工作区未配置 Pixabay 凭证——请直接告知用户并停止重试。
 > 2. 如果返回 `Pixabay API error`，请用更简短的关键词重试一次，仍失败再告知用户未找到素材。
 

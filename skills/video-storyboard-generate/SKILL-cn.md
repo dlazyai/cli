@@ -1,10 +1,10 @@
 ---
 name: video-storyboard-generate
-version: 1.0.0
-description: 1. 获取分镜信息
+version: 1.0.9
+description: 1. Get the storyboard info
 triggers:
-  - 分镜视频生成流程
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Storyboard Video Generation Pipeline
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
 ## 身份验证 (Authentication)
@@ -29,60 +29,56 @@ CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/
 
 - **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **维护者**: dlazyai
-- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.8` 版本）
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.9` 版本）
 - **官网**: [dlazy.com](https://dlazy.com)
 
 如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.8`。安装前建议先到 GitHub 仓库审阅源码。
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
 ## 工作原理 (How It Works)
 
 此技能是 dLazy 托管 API 的轻量封装。调用时：
 
 - 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
-- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`oss.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
-- API 返回的生成结果 URL 由 `oss.dlazy.com` 托管。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`files.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `files.dlazy.com` 托管。
 
 这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。
 
----
-name: 'video-storyboard-generate'
-description: '将一个分镜的内容，转换成一个分镜生成视频的生成流程，用户可以将流程添加到画布中'
----
 
-# 分镜视频生成流程
+# Storyboard Video Generation Pipeline
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-1. 获取分镜信息
-2. 定义视频的生成流程
-3. 画到画布中
+1. Get the storyboard info
+2. Define the video generation pipeline
+3. Draw it onto the canvas
 
-## 获取分镜信息
+## Get the Storyboard Info
 
-从上下文中获取分镜信息：
+Read the storyboard info from context:
 
-- 图片/视频比例：aspect_ratio， 例如：16:9、9:16、4:3、3:4、1:1
-- 图片/视频分辨率：resolution，例如：1080p、720p
-- 依据比率和分辨率，计算出视频的宽度和高度， width, height
+- Image / video aspect ratio: aspect_ratio, e.g., 16:9, 9:16, 4:3, 3:4, 1:1
+- Image / video resolution: resolution, e.g., 1080p, 720p
+- Use the ratio and resolution to compute the video width and height (width, height)
 
-提取分镜列表：
+Extract the storyboard list:
 
-- 分镜名称：story_name1
-- 对话文本：dialogue_text1
-- 视频生成提示词：video_prompt1
+- Storyboard name: story_name1
+- Dialogue text: dialogue_text1
+- Video generation prompt: video_prompt1
 
-  ## 定义视频的生成流程
+  ## Define the Video Generation Pipeline
 
-  视频生成流程时一段JSON字符串，示例格式如下, 请注意以下问题：
-  1. 记得替换{name}中的内容, 注意 x\y\w\h 是数值，替换后需要去掉引号；
-  2. 原始声音和场景图是所有分镜共用的,只有一个，克隆声音和视频和分镜数量一致，请循环分镜列表创建。
-  3. 元素的位置x和y，按分镜列表的顺序累加，每个分镜之间间隔100像素。
+  The pipeline is a JSON string. Sample format below — note these requirements:
+  1. Replace the contents inside `{name}`. Note that x / y / w / h are numbers — drop the quotes after substitution.
+  2. The original audio and the scene image are shared across all storyboards (one each). The cloned audio and the video are produced per storyboard, so iterate over the storyboard list.
+  3. Element x and y positions accumulate in the order of the storyboard list, with a 100-pixel gap between adjacent storyboards.
 
   ```json
   [
@@ -142,9 +138,9 @@ description: '将一个分镜的内容，转换成一个分镜生成视频的生
   ]
   ```
 
-  ## 画到画布中
+  ## Draw onto the Canvas
 
-  调用 MCP 的 drawToCanvas 工具， 将前面定义的流程添加到画布中。
+  Call the MCP `drawToCanvas` tool to add the pipeline defined above to the canvas.
 
 
 ## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)

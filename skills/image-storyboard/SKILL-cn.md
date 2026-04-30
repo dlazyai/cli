@@ -1,10 +1,10 @@
 ---
 name: image-storyboard
-version: 1.0.0
-description: 这是一个面向影视、广告、短视频、教育叙事场景的专业分镜故事板技能，遵循“先规划，后渲染”的严格流程。
+version: 1.0.9
+description: A professional storyboard skill for film, advertising, short video, and educational narrative scenarios, built around a strict 'plan first, render later' flow.
 triggers:
-  - 分镜故事板工作流导演
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Storyboard Workflow Director
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
 ## 身份验证 (Authentication)
@@ -29,155 +29,151 @@ CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/
 
 - **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **维护者**: dlazyai
-- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.8` 版本）
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.9` 版本）
 - **官网**: [dlazy.com](https://dlazy.com)
 
 如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.8`。安装前建议先到 GitHub 仓库审阅源码。
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
 ## 工作原理 (How It Works)
 
 此技能是 dLazy 托管 API 的轻量封装。调用时：
 
 - 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
-- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`oss.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
-- API 返回的生成结果 URL 由 `oss.dlazy.com` 托管。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`files.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `files.dlazy.com` 托管。
 
 这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。
 
----
-name: 'image-storyboard'
-description: '一个专业的分镜故事板技能，用于将用户创意转化为行业标准级分镜故事板，覆盖影视、广告、短视频、教育叙事场景。'
----
 
-# 分镜故事板工作流导演
+# Storyboard Workflow Director
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-这是一个面向影视、广告、短视频、教育叙事场景的专业分镜故事板技能，遵循“先规划，后渲染”的严格流程。
+A professional storyboard skill for film, advertising, short video, and educational narrative scenarios, built around a strict "plan first, render later" flow.
 
-## 核心定位
+## Core Positioning
 
-将用户创意转化为行业标准级分镜故事板，覆盖两类主流程：
+Turn user creative briefs into industry-grade storyboards across two main pipelines:
 
-- 影视级分镜：电影、广告、短片
-- 叙事级分镜：教育内容、漫画叙事
+- Cinematic storyboards: film, advertising, shorts
+- Narrative storyboards: educational content, comic-style narrative
 
-## 步骤 0：任务规划（必须）
+## Step 0: Task Planning (Mandatory)
 
-在开始任何执行前，先建立任务计划，至少包含：
+Before any execution, set up a task plan that includes at least:
 
-- 需求探索与技术规格锁定
-- 角色设计与角色设定表确认
-- 脚本结构化与脚本门控确认
-- 图像生成与分批交付
-- 最终故事板组装与导出
+- Requirements exploration and tech-spec lock-in
+- Character design and character master sheet confirmation
+- Script structuring and script-gate confirmation
+- Image generation and batched delivery
+- Final storyboard assembly and export
 
-执行规则：
+Execution rules:
 
-- 同时仅允许一个 `in_progress`，其余为 `pending` 或 `completed`。
-- 每完成一个状态，立即更新任务计划。
-- 用户要求回退或返工时，新增或重排任务并回到对应状态。
+- Only one task may be `in_progress` at a time; the rest are `pending` or `completed`.
+- Update the task plan as soon as each state finishes.
+- When the user asks to roll back or rework, add or re-order tasks and return to the corresponding state.
 
-## 技术规范体系
+## Technical Specification System
 
-### 1) 影视级分镜（电影/广告/短片）
+### 1) Cinematic Storyboards (Film / Ad / Short)
 
-- 画幅比例：16:9、2.35:1、9:16 等
-- 必需元数据：
-  - 景别（特写、中景、全景等）
-  - 镜头运动（推、拉、摇、移、跟）
-  - 光线与色温
+- Aspect ratios: 16:9, 2.35:1, 9:16, etc.
+- Required metadata:
+  - Shot size (close-up, medium, wide, etc.)
+  - Camera movement (push, pull, pan, dolly, tracking)
+  - Lighting and color temperature
 
-### 2) 叙事级分镜（教育/漫画）
+### 2) Narrative Storyboards (Education / Comic)
 
-- 画幅比例：漫画或竖版叙事标准
-- 必需元数据：
-  - 序列标记（如 S01-P03）
-  - 情绪标注（紧张、温暖、释然等）
+- Aspect ratios: comic or vertical-narrative standards
+- Required metadata:
+  - Sequence markers (e.g., S01-P03)
+  - Mood tags (tense, warm, relieved, etc.)
 
-### 3) 角色设定表（Character Master Sheet）
+### 3) Character Master Sheet
 
-- 视觉标准：干净全身参考图，不含文字、边框、UI 元素
-- 风格适配：
-  - 影视项目优先写实风格
-  - 叙事项目优先 2D 或素描风格
-- 核心要素：
-  - 角色身份、年龄、气质
-  - 外貌特征、服装细节、关键配饰
-- 生成公式：
-  - `[主体] + [角色特征] + [技术规格] + [风格] --no text`
+- Visual standard: clean full-body reference, no text, frames, or UI elements
+- Style fit:
+  - Cinematic projects prefer photoreal style
+  - Narrative projects prefer 2D or sketch styles
+- Core elements:
+  - Identity, age, vibe
+  - Appearance, costume details, key accessories
+- Generation formula:
+  - `[subject] + [character traits] + [tech specs] + [style] --no text`
 
-### 4) 脚本结构格式
+### 4) Script Structure Format
 
-每个分镜片段必须按以下结构输出：
+Every storyboard panel must output in this structure:
 
-- 视觉提示：[主体/角色] + [动作/互动] + [环境/场景]
-- 技术参数：[景别、镜头、光线等关键规格]
-- 文本/逻辑：[叙事或逻辑元素]
-- 状态：[待生成 / 已生成]
+- Visual prompt: [subject/character] + [action/interaction] + [environment/scene]
+- Tech params: [shot size, camera, lighting, etc.]
+- Text/logic: [narrative or logic elements]
+- Status: [pending / generated]
 
-### 5) 交付规格（故事板成品）
+### 5) Delivery Spec (final storyboard)
 
-- 纸张尺寸：A4 横版（297mm × 210mm）
-- 支持输出：打印与 PDF 导出
-- L1 布局（竖版胶片条，影视）：黑色背景，单列排布
-- L2 布局（漫画网格，叙事）：白色背景，粗边框，字幕框，步骤标记
+- Paper size: A4 landscape (297mm × 210mm)
+- Output: print and PDF export
+- L1 layout (vertical film strip, cinematic): black background, single column
+- L2 layout (comic grid, narrative): white background, thick borders, caption boxes, step markers
 
-## 标准工作流程（4 个状态）
+## Standard Workflow (4 states)
 
-每次回复开头必须显示：
+Every reply must start with:
 
-- `**当前步骤：** [状态] | **下一步：** [目标]`
+- `**Current Step:** [state] | **Next:** [goal]`
 
-### 状态 1：需求探索与验证
+### State 1: Requirements Exploration and Validation
 
-目标：锁定技术规格与风格指南。
+Goal: lock in tech specs and the style guide.
 
-执行要求：
+Execution requirements:
 
-1. 分析用户输入，补齐缺失信息。
-2. 确定画幅比例、分镜数量、适用类别（影视级或叙事级）。
-3. 输出格式为项目列表，不使用表格。
-4. 等待用户明确确认“继续”或“确认”。
+1. Analyze the user's input and fill in missing info.
+2. Determine aspect ratio, panel count, and category (cinematic or narrative).
+3. Output as a bulleted list, not a table.
+4. Wait for the user's explicit "continue" or "confirm."
 
-建议引导：
+Suggested prompt:
 
-- `<suggestion>规格已整理完成，是否确认进入角色设计阶段？</suggestion>`
+- `<suggestion>The specs are organized — confirm to proceed to the character design phase?</suggestion>`
 
-### 状态 2：角色设计（视觉圣经）
+### State 2: Character Design (Visual Bible)
 
-目标：锁定角色外观，防止后续角色漂移。
+Goal: lock in character appearance to prevent later drift.
 
-执行要求：
+Execution requirements:
 
-1. 建立角色视觉圣经：外貌、服装、配饰、姿态基线。
-2. 生成并展示一张角色设定主参考图。
-3. 输出格式为项目列表。
-4. 严格门控：必须等待用户批准角色后，才能进入脚本阶段。
+1. Build the character visual bible: appearance, costume, accessories, posture baseline.
+2. Generate and present a single character master reference image.
+3. Output as a bulleted list.
+4. Strict gate: you must wait for character approval before entering the script phase.
 
-建议引导：
+Suggested prompt:
 
-- `<suggestion>角色外观已锁定，是否开始编写故事板脚本？</suggestion>`
+- `<suggestion>Character look is locked — start the storyboard script?</suggestion>`
 
-### 状态 3：故事板制作（脚本与视觉）
+### State 3: Storyboard Production (Script and Visuals)
 
-#### 阶段 1：脚本编写（思考）
+#### Phase 1: Script Writing (think)
 
-- 将叙事转化为结构化脚本。
-- 输出格式为项目列表。
-- 严格门控：脚本未获批准前，不得生成图像。
+- Convert the narrative into a structured script.
+- Output as a bulleted list.
+- Strict gate: do not generate images until the script is approved.
 
-## 输出要求
+## Output Requirements
 
-- 使用项目列表输出，不使用表格（交付布局规格说明除外）。
-- 明确标注当前状态、已完成项、待确认项。
-- 所有关键门控节点必须等待用户确认后再继续。
+- Use bulleted lists, not tables (except for the delivery layout spec).
+- Clearly mark current state, completed items, and items awaiting confirmation.
+- All critical gate nodes must wait for user confirmation before continuing.
 
 
 ## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)

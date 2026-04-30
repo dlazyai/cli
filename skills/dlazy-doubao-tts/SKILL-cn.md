@@ -1,8 +1,8 @@
 ---
 name: dlazy-doubao-tts
-version: 1.0.3
+version: 1.0.9
 description: 使用豆包 (Doubao) TTS 文本转语音模型，将文字合成为自然流畅的语音播报。
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy doubao-tts -h 查看帮助信息。"}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy doubao-tts -h 查看帮助信息。"}}
 ---
 
 # dlazy-doubao-tts
@@ -41,65 +41,69 @@ CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/
 
 - **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **维护者**: dlazyai
-- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.8` 版本）
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.9` 版本）
 - **官网**: [dlazy.com](https://dlazy.com)
 
 如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.8`。安装前建议先到 GitHub 仓库审阅源码。
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
 ## 工作原理
 
 此技能是 dLazy 托管 API 的轻量封装。调用时：
 
 - 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
-- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`oss.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
-- API 返回的生成结果 URL 由 `oss.dlazy.com` 托管。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`files.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `files.dlazy.com` 托管。
 
 这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。完整服务条款请参见 [dlazy.com](https://dlazy.com)。
 
 ## 使用方法
 
-**CRITICAL INSTRUCTION FOR AGENT**: 
+**CRITICAL INSTRUCTION FOR AGENT**:
 执行 `dlazy doubao-tts` 命令获取结果。
 
 ```bash
 dlazy doubao-tts -h
 
 Options:
-  --prompt <prompt>                    Prompt
-  --voice_language <voice_language>    Voice Language [default: zh-cn] (choices: "zh-cn", "en")
-  --voiceId <voiceId>                  Voice ID Options depend on "voice_language". when voice_language="zh-cn": zh_female_vv_uranus_bigtts (Vivi 2.0), zh_female_xiaohe_uranus_bigtts (小何 2.0), zh_male_m191_uranus_bigtts (云舟 2.0), zh_male_taocheng_uranus_bigtts (小天 2.0), zh_male_liufei_uranus_bigtts (刘飞 2.0), zh_male_sophie_uranus_bigtts (魅力苏菲 2.0), zh_female_qingxinnvsheng_uranus_bigtts (清新女声 2.0), zh_female_cancan_uranus_bigtts (知性灿灿 2.0), zh_female_sajiaoxuemei_uranus_bigtts (撒娇学妹 2.0), zh_female_tianmeixiaoyuan_uranus_bigtts (甜美小源 2.0), zh_female_tianmeitaozi_uranus_bigtts (甜美桃子 2.0), zh_female_shuangkuaisisi_uranus_bigtts (爽快思思 2.0), zh_female_peiqi_uranus_bigtts (佩奇猪 2.0), zh_female_linjianvhai_uranus_bigtts (邻家女孩 2.0), zh_male_shaonianzixin_uranus_bigtts (少年梓辛/Brayan 2.0), zh_male_sunwukong_uranus_bigtts (猴哥 2.0), zh_female_yingyujiaoxue_uranus_bigtts (Tina老师 2.0), zh_female_kefunvsheng_uranus_bigtts (暖阳女声 2.0), zh_female_xiaoxue_uranus_bigtts (儿童绘本 2.0), zh_male_dayi_uranus_bigtts (大壹 2.0), zh_female_mizai_uranus_bigtts (黑猫侦探社咪仔 2.0), zh_female_jitangnv_uranus_bigtts (鸡汤女 2.0), zh_female_meilinvyou_uranus_bigtts (魅力女友 2.0), zh_female_liuchangnv_uranus_bigtts (流畅女声 2.0), zh_male_ruyayichen_uranus_bigtts (儒雅逸辰 2.0), saturn_zh_female_keainvsheng_tob (可爱女生), saturn_zh_female_tiaopigongzhu_tob (调皮公主), saturn_zh_male_shuanglangshaonian_tob (爽朗少年), saturn_zh_male_tiancaitongzhuo_tob (天才同桌), saturn_zh_female_cancan_tob (知性灿灿), saturn_zh_female_qingyingduoduo_cs_tob (轻盈朵朵 2.0), saturn_zh_female_wenwanshanshan_cs_tob (温婉珊珊 2.0), saturn_zh_female_reqingaina_cs_tob (热情艾娜 2.0); when voice_language="en": timen_male_tim_uranus_bigtts (Timen), en_female_dacey_uranus_bigtts (Dacey), en_female_stokie_uranus_bigtts (Stokie) [default: zh_female_shuangkuaisisi_uranus_bigtts] (choices: "zh_female_vv_uranus_bigtts", "zh_female_xiaohe_uranus_bigtts", "zh_male_m191_uranus_bigtts", "zh_male_taocheng_uranus_bigtts", "zh_male_liufei_uranus_bigtts", "zh_male_sophie_uranus_bigtts", "zh_female_qingxinnvsheng_uranus_bigtts", "zh_female_cancan_uranus_bigtts", "zh_female_sajiaoxuemei_uranus_bigtts", "zh_female_tianmeixiaoyuan_uranus_bigtts", "zh_female_tianmeitaozi_uranus_bigtts", "zh_female_shuangkuaisisi_uranus_bigtts", "zh_female_peiqi_uranus_bigtts", "zh_female_linjianvhai_uranus_bigtts", "zh_male_shaonianzixin_uranus_bigtts", "zh_male_sunwukong_uranus_bigtts", "zh_female_yingyujiaoxue_uranus_bigtts", "zh_female_kefunvsheng_uranus_bigtts", "zh_female_xiaoxue_uranus_bigtts", "zh_male_dayi_uranus_bigtts", "zh_female_mizai_uranus_bigtts", "zh_female_jitangnv_uranus_bigtts", "zh_female_meilinvyou_uranus_bigtts", "zh_female_liuchangnv_uranus_bigtts", "zh_male_ruyayichen_uranus_bigtts", "saturn_zh_female_keainvsheng_tob", "saturn_zh_female_tiaopigongzhu_tob", "saturn_zh_male_shuanglangshaonian_tob", "saturn_zh_male_tiancaitongzhuo_tob", "saturn_zh_female_cancan_tob", "saturn_zh_female_qingyingduoduo_cs_tob", "saturn_zh_female_wenwanshanshan_cs_tob", "saturn_zh_female_reqingaina_cs_tob", "timen_male_tim_uranus_bigtts", "en_female_dacey_uranus_bigtts", "en_female_stokie_uranus_bigtts")
-  --speed_ratio <speed_ratio>          Speed Ratio [default: 1.0] (choices: "0.8", "1.0", "1.2", "1.5", "2.0")
-  --promptRefs <promptRefs...>         promptRefs [default: ]
-  --input <spec>                       JSON payload: inline string, @file, or - (stdin)
+  --prompt [prompt]                    提示词
+  --voice_language [voice_language]    语音语言 [default: zh-cn] (choices: "zh-cn", "en")
+  --voiceId [voiceId]                  音色ID Options depend on "voice_language". when voice_language="zh-cn": zh_female_vv_uranus_bigtts (Vivi 2.0), zh_female_xiaohe_uranus_bigtts (小何 2.0), zh_male_m191_uranus_bigtts (云舟 2.0), zh_male_taocheng_uranus_bigtts (小天 2.0), zh_male_liufei_uranus_bigtts (刘飞 2.0), zh_male_sophie_uranus_bigtts (魅力苏菲 2.0), zh_female_qingxinnvsheng_uranus_bigtts (清新女声 2.0), zh_female_cancan_uranus_bigtts (知性灿灿 2.0), zh_female_sajiaoxuemei_uranus_bigtts (撒娇学妹 2.0), zh_female_tianmeixiaoyuan_uranus_bigtts (甜美小源 2.0), zh_female_tianmeitaozi_uranus_bigtts (甜美桃子 2.0), zh_female_shuangkuaisisi_uranus_bigtts (爽快思思 2.0), zh_female_peiqi_uranus_bigtts (佩奇猪 2.0), zh_female_linjianvhai_uranus_bigtts (邻家女孩 2.0), zh_male_shaonianzixin_uranus_bigtts (少年梓辛/Brayan 2.0), zh_male_sunwukong_uranus_bigtts (猴哥 2.0), zh_female_yingyujiaoxue_uranus_bigtts (Tina老师 2.0), zh_female_kefunvsheng_uranus_bigtts (暖阳女声 2.0), zh_female_xiaoxue_uranus_bigtts (儿童绘本 2.0), zh_male_dayi_uranus_bigtts (大壹 2.0), zh_female_mizai_uranus_bigtts (黑猫侦探社咪仔 2.0), zh_female_jitangnv_uranus_bigtts (鸡汤女 2.0), zh_female_meilinvyou_uranus_bigtts (魅力女友 2.0), zh_female_liuchangnv_uranus_bigtts (流畅女声 2.0), zh_male_ruyayichen_uranus_bigtts (儒雅逸辰 2.0), saturn_zh_female_keainvsheng_tob (可爱女生), saturn_zh_female_tiaopigongzhu_tob (调皮公主), saturn_zh_male_shuanglangshaonian_tob (爽朗少年), saturn_zh_male_tiancaitongzhuo_tob (天才同桌), saturn_zh_female_cancan_tob (知性灿灿), saturn_zh_female_qingyingduoduo_cs_tob (轻盈朵朵 2.0), saturn_zh_female_wenwanshanshan_cs_tob (温婉珊珊 2.0), saturn_zh_female_reqingaina_cs_tob (热情艾娜 2.0); when voice_language="en": timen_male_tim_uranus_bigtts (Timen), en_female_dacey_uranus_bigtts (Dacey), en_female_stokie_uranus_bigtts (Stokie) [default: zh_female_shuangkuaisisi_uranus_bigtts] [options depend on --voice_language; voice_language=zh: zh_female_vv_uranus_bigtts (Vivi 2.0), zh_female_xiaohe_uranus_bigtts (小何 2.0), zh_male_m191_uranus_bigtts (云舟 2.0), zh_male_taocheng_uranus_bigtts (小天 2.0), zh_male_liufei_uranus_bigtts (刘飞 2.0), zh_male_sophie_uranus_bigtts (魅力苏菲 2.0), zh_female_qingxinnvsheng_uranus_bigtts (清新女声 2.0), zh_female_cancan_uranus_bigtts (知性灿灿 2.0), zh_female_sajiaoxuemei_uranus_bigtts (撒娇学妹 2.0), zh_female_tianmeixiaoyuan_uranus_bigtts (甜美小源 2.0), zh_female_tianmeitaozi_uranus_bigtts (甜美桃子 2.0), zh_female_shuangkuaisisi_uranus_bigtts (爽快思思 2.0), zh_female_peiqi_uranus_bigtts (佩奇猪 2.0), zh_female_linjianvhai_uranus_bigtts (邻家女孩 2.0), zh_male_shaonianzixin_uranus_bigtts (少年梓辛/Brayan 2.0), zh_male_sunwukong_uranus_bigtts (猴哥 2.0), zh_female_yingyujiaoxue_uranus_bigtts (Tina老师 2.0), zh_female_kefunvsheng_uranus_bigtts (暖阳女声 2.0), zh_female_xiaoxue_uranus_bigtts (儿童绘本 2.0), zh_male_dayi_uranus_bigtts (大壹 2.0), zh_female_mizai_uranus_bigtts (黑猫侦探社咪仔 2.0), zh_female_jitangnv_uranus_bigtts (鸡汤女 2.0), zh_female_meilinvyou_uranus_bigtts (魅力女友 2.0), zh_female_liuchangnv_uranus_bigtts (流畅女声 2.0), zh_male_ruyayichen_uranus_bigtts (儒雅逸辰 2.0), saturn_zh_female_keainvsheng_tob (可爱女生), saturn_zh_female_tiaopigongzhu_tob (调皮公主), saturn_zh_male_shuanglangshaonian_tob (爽朗少年), saturn_zh_male_tiancaitongzhuo_tob (天才同桌), saturn_zh_female_cancan_tob (知性灿灿), saturn_zh_female_qingyingduoduo_cs_tob (轻盈朵朵 2.0), saturn_zh_female_wenwanshanshan_cs_tob (温婉珊珊 2.0), saturn_zh_female_reqingaina_cs_tob (热情艾娜 2.0); voice_language=en: timen_male_tim_uranus_bigtts (Timen), en_female_dacey_uranus_bigtts (Dacey), en_female_stokie_uranus_bigtts (Stokie)]
+  --speed_ratio [speed_ratio]          语速 [default: 1.0] (choices: "0.8", "1.0", "1.2", "1.5", "2.0")
   --dry-run                            Print payload + cost estimate without calling API
   --no-wait                            Return generateId immediately for async tasks
   --timeout <seconds>                  Max seconds to wait for async completion (default: "1800")
   -h, --help                           display help for command
 ```
 
+> Any flag also accepts pipe references — `-` (auto-pick from upstream stdin), `@N` (n-th output), `@N.path` (jsonpath into output), `@*` (all primary values), `@stdin` / `@stdin:path` (whole envelope). See `dlazy --help` for details.
+
 ## 输出格式
 
 ```json
 {
   "ok": true,
-  "kind": "urls",
-  "data": {
-    "urls": [
-      "https://oss.dlazy.com/result.mp4"
+  "result": {
+    "tool": "doubao-tts",
+    "modelId": "doubao-tts",
+    "outputs": [
+      {
+        "type": "image",
+        "id": "o_xxxxxxxx",
+        "url": "https://files.dlazy.com/result.png",
+        "mimeType": "image/png"
+      }
     ]
   }
 }
 ```
 
-
-
-
+> Async tasks (when `--no-wait` is passed) return `outputs: []` and a `task: { generateId, status }` field instead. Use `dlazy status <generateId> --wait` to poll.
 
 ## 命令示例
 

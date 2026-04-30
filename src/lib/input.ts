@@ -1,55 +1,13 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { z } from "zod";
 import { t } from "../messages";
-import { failure, log, usageError } from "./envelope";
+import { log, SdkError } from "./envelope";
+import { resolveRefValue } from "./refs";
 import type { FieldDescriptor } from "./schema";
 import { type UploadContext, uploadDataUrl, uploadLocalFile } from "./upload";
 
 const FILE_SIZE_WARN_BYTES = 100 * 1024 * 1024; // 100 MB
 const FILE_SIZE_ERROR_BYTES = 500 * 1024 * 1024; // 500 MB
-
-/**
- * Load a JSON payload from one of:
- *  - `-` → read stdin
- *  - `@path/to.json` → read file
- *  - `{...}` → inline JSON string
- */
-export async function loadJsonInput(spec: string): Promise<unknown> {
-	let raw: string;
-	if (spec === "-") {
-		raw = await readStdin();
-	} else if (spec.startsWith("@")) {
-		const p = path.resolve(spec.slice(1));
-		if (!fs.existsSync(p)) {
-			return usageError(t().input.inputFileNotFound(p));
-		}
-		raw = fs.readFileSync(p, "utf8");
-	} else {
-		raw = spec;
-	}
-	try {
-		return JSON.parse(raw);
-	} catch (err) {
-		return usageError(t().input.invalidJson((err as Error).message));
-	}
-}
-
-function readStdin(): Promise<string> {
-	return new Promise((resolve, reject) => {
-		if (process.stdin.isTTY) {
-			resolve("");
-			return;
-		}
-		let data = "";
-		process.stdin.setEncoding("utf8");
-		process.stdin.on("data", (chunk) => {
-			data += chunk;
-		});
-		process.stdin.on("end", () => resolve(data));
-		process.stdin.on("error", reject);
-	});
-}
 
 /**
  * Resolve a media-typed value to a publicly-reachable URL.
@@ -69,7 +27,7 @@ export async function resolveFileValue(
 		try {
 			return await uploadDataUrl(val, ctx);
 		} catch (err) {
-			return failure(
+			throw new SdkError(
 				"upload_failed",
 				t().input.uploadFailed(label, (err as Error).message),
 			);
@@ -78,11 +36,11 @@ export async function resolveFileValue(
 
 	const p = path.resolve(val);
 	if (!fs.existsSync(p)) {
-		return failure("file_not_found", t().input.fileNotFound(label, p));
+		throw new SdkError("file_not_found", t().input.fileNotFound(label, p));
 	}
 	const stat = fs.statSync(p);
 	if (stat.size > FILE_SIZE_ERROR_BYTES) {
-		return failure(
+		throw new SdkError(
 			"file_too_large",
 			t().input.fileTooLarge(
 				label,
@@ -97,7 +55,7 @@ export async function resolveFileValue(
 	try {
 		return await uploadLocalFile(p, ctx);
 	} catch (err) {
-		return failure(
+		throw new SdkError(
 			"upload_failed",
 			t().input.uploadFailed(label, (err as Error).message),
 		);
@@ -107,39 +65,61 @@ export async function resolveFileValue(
 export type BuildInputOptions = {
 	fields: FieldDescriptor[];
 	flagValues: Record<string, unknown>;
-	explicitInput?: unknown;
+	/**
+	 * Pre-supplied input (e.g. from `--input <file>` JSON). Flag values
+	 * always win over keys in `explicitInput`.
+	 */
+	explicitInput?: Record<string, unknown>;
 };
 
 /**
- * Merge flag values + --input JSON into a single payload object.
+ * Merge explicit-input (e.g. from `--input file.json`) with commander flag
+ * values into a single payload object.
  *
- * Precedence (later wins): explicitInput < flagValues. This lets an AI pass a
- * full JSON payload via --input and selectively override one field via a flag.
+ * - All keys from `explicitInput` pass through (server may accept extra fields).
+ * - Schema-known field keys with a flag value override `explicitInput`.
  *
  * Media-typed fields are NOT resolved here — call `resolveMediaFields` once
  * an upload context (api key + base url) is available.
  */
 export function buildInput(opts: BuildInputOptions): Record<string, unknown> {
-	const input: Record<string, unknown> = {};
-
-	if (opts.explicitInput !== undefined) {
-		if (
-			typeof opts.explicitInput !== "object" ||
-			opts.explicitInput === null ||
-			Array.isArray(opts.explicitInput)
-		) {
-			return usageError(t().input.inputMustBeObject);
-		}
-		Object.assign(input, opts.explicitInput);
-	}
-
+	const input: Record<string, unknown> = { ...(opts.explicitInput ?? {}) };
 	for (const field of opts.fields) {
-		const v = opts.flagValues[field.key];
-		if (v === undefined) continue;
-		input[field.key] = v;
+		const flagVal = opts.flagValues[field.key];
+		if (flagVal !== undefined) input[field.key] = flagVal;
 	}
-
 	return input;
+}
+
+/**
+ * Replace any pipe references (`-`, `@<n>`, `@*`, `@stdin:...`) with their
+ * resolved values. Walks every field; recurses through array values so a
+ * single `--videos @0,@1` style array also works.
+ *
+ * Runs BEFORE resolveMediaFields so that piped urls are uploaded only when
+ * they aren't already public URLs (which they typically are).
+ */
+export async function resolveRefs(
+	input: Record<string, unknown>,
+	fields: FieldDescriptor[],
+): Promise<Record<string, unknown>> {
+	const out: Record<string, unknown> = { ...input };
+	for (const field of fields) {
+		const v = out[field.key];
+		if (v === undefined) continue;
+		if (Array.isArray(v)) {
+			const resolved: unknown[] = [];
+			for (const item of v) {
+				const r = await resolveRefValue(item, field);
+				if (Array.isArray(r)) resolved.push(...r);
+				else resolved.push(r);
+			}
+			out[field.key] = resolved;
+		} else {
+			out[field.key] = await resolveRefValue(v, field);
+		}
+	}
+	return out;
 }
 
 /**
@@ -168,13 +148,4 @@ export async function resolveMediaFields(
 		}
 	}
 	return out;
-}
-
-export function validateInput(
-	schema: z.ZodType,
-	input: Record<string, unknown>,
-): { ok: true; data: unknown } | { ok: false; issues: unknown } {
-	const parsed = schema.safeParse(input);
-	if (parsed.success) return { ok: true, data: parsed.data };
-	return { ok: false, issues: parsed.error.issues };
 }

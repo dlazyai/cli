@@ -1,3 +1,4 @@
+import { peekFlagValue } from "../utils/argv";
 import { messages as enUS } from "./en-US";
 import {
 	DEFAULT_LOCALE,
@@ -30,17 +31,16 @@ function normalizeLocale(raw: string | undefined | null): Locale | undefined {
  *   4. DEFAULT_LOCALE
  */
 export function resolveLocale(argv: readonly string[] = process.argv): Locale {
-	for (let i = 0; i < argv.length; i++) {
-		const a = argv[i];
-		if (a === "--lang" || a === "-l") {
-			const v = argv[i + 1];
-			const n = normalizeLocale(v);
-			if (n) return n;
-		} else if (a?.startsWith("--lang=")) {
-			const n = normalizeLocale(a.slice("--lang=".length));
-			if (n) return n;
-		}
-	}
+	const flagLong = peekFlagValue(argv, "lang");
+	const flagShort = ((): string | undefined => {
+		for (let i = 0; i < argv.length; i++)
+			if (argv[i] === "-l") return argv[i + 1];
+		return undefined;
+	})();
+	const flagValue = flagLong ?? flagShort;
+	const flagLocale = normalizeLocale(flagValue);
+	if (flagLocale) return flagLocale;
+
 	const envLocale =
 		normalizeLocale(process.env.DLAZY_LANG) ||
 		normalizeLocale(process.env.LC_ALL) ||

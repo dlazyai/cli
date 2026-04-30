@@ -12,7 +12,8 @@ export const messages: Messages = {
 	auth: {
 		description: "Manage authentication configuration",
 		setDescription: "Set your DLAZY_API_KEY manually",
-		getDescription: "Get the currently configured DLAZY_API_KEY",
+		getDescription: "Get the currently configured DLAZY_API_KEY (masked)",
+		getShowOption: "Print the full key instead of masking it",
 		loginDescription: "Log in via device-code flow (works on remote shells)",
 		localOption: "Use localhost:3000 for local testing",
 		loginSuccess: "login successful; api key saved to config",
@@ -24,8 +25,6 @@ export const messages: Messages = {
 		notConfigured: "API key is not set",
 		noApiKey:
 			"No API key available. Pass --api-key, set DLAZY_API_KEY, or run `dlazy login` in an interactive shell.",
-		noApiKeyExit:
-			"No API key. Set DLAZY_API_KEY, pass --api-key, or run `dlazy login` in an interactive shell.",
 	},
 	tools: {
 		namespaceDescription: "Discover available AI tools",
@@ -36,18 +35,44 @@ export const messages: Messages = {
 		statusWaitOption: "Poll until completion",
 		statusTimeoutOption: "Max seconds to wait (with --wait)",
 		statusToolOption: "Use this tool's outputSchema for typed result parsing",
-		runInputOption: "JSON payload: inline string, @file, or - (stdin)",
 		runDryRunOption: "Print payload + cost estimate without calling API",
 		runNoWaitOption: "Return generateId immediately for async tasks",
 		runTimeoutOption: "Max seconds to wait for async completion",
+		runBatchOption:
+			"Run the tool N times in parallel; merge all outputs into one envelope (default 1)",
+		runInputOption:
+			"Inline JSON or @path/to/file.json — merged under flag values (flags win)",
 		inputValidationFailed: "input validation failed",
+		inputFileNotFound: (p) => `--input file not found: ${p}`,
+		inputFileBadJson: (p, reason) => `--input ${p}: invalid JSON (${reason})`,
 		estimatedCost: (credits) => `estimated cost: ${credits} credits`,
 		estimatedDuration: (seconds) => `estimated duration: ${seconds}s`,
+		outputHeader: "Output (stdout, JSON envelope):",
+		outputEnvelope:
+			"  { ok: true, result: { tool, modelId, outputs[], usage?, task? } }",
+		outputErrorEnvelope:
+			"  on failure: { ok: false, code, message, details? } (exit code 1 or 2)",
+		outputUrlsKind: (mediaType) =>
+			`  outputs[]: { type: "${mediaType}", id, url, mimeType?, bytes?, width?, height?, durationMs?, thumbnailUrl? }`,
+		outputTextKind:
+			'  outputs[]: { type: "text", id, text, format?: "plain"|"markdown"|"json"|"srt"|"vtt" }',
+		outputRawKind:
+			'  outputs[]: { type: "json", id, value: <see Output schema below> }',
+		outputAsyncNote:
+			"  async tool: with --no-wait, outputs=[] and result.task = { generateId, status }",
+		outputSchemaHeader:
+			"Output schema (raw provider payload before envelope wrapping):",
+		outputSchemaEmpty: "  (no output schema declared)",
+		outputListHeader: "Output:",
+		outputListShape:
+			'  result.outputs[0] = { type: "json", value: { tools: [{ cli_name, id, type, runMode, asynchronous, tier, description }] } }',
+		outputDescribeHeader: "Output:",
+		outputDescribeShape:
+			'  result.outputs[0] = { type: "json", value: { cli_name, id, type, description, runMode, asynchronous, tier, input: { fields[], jsonSchema }, output: { kind, jsonSchema } | null } }',
+		outputStatusHeader:
+			'Output: same envelope as a tool run; pass --tool <cli_name> to parse outputs[] using that tool\'s outputSchema (otherwise outputs[].type="json").',
 	},
 	input: {
-		inputFileNotFound: (p) => `--input file not found: ${p}`,
-		invalidJson: (err) => `--input is not valid JSON: ${err}`,
-		inputMustBeObject: "--input must be a JSON object",
 		fileNotFound: (label, p) => `${label}: file not found: ${p}`,
 		fileTooLarge: (label, sizeMb, limitMb) =>
 			`${label}: file is ${sizeMb} MB, exceeds ${limitMb} MB upload limit.`,
@@ -67,7 +92,6 @@ export const messages: Messages = {
 		playVideo: (label) => `[▶ Play video${label}]`,
 		playAudio: (label) => `[🔊 Play audio${label}]`,
 		viewDownload: (label) => `[View / Download${label}]`,
-		shapesGenerated: (count) => `✅ Generated ${count} canvas element(s)`,
 		taskSubmittedDisplay: (generateId, status) =>
 			`⏳ Task submitted (ID: \`${generateId}\`, status: ${status}). Run \`dlazy status ${generateId} --wait\` to poll for results.`,
 		generationCompleted: "=== Generation Completed ===",

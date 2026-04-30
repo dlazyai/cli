@@ -1,10 +1,10 @@
 ---
 name: logo-branding-system
-version: 1.0.0
-description: 用于构建从核心标志到完整品牌视觉系统的专业化流程，确保创意质量、执行一致性与可落地交付。
+version: 1.0.9
+description: A professional pipeline for building everything from a core mark to a complete brand visual system, ensuring creative quality, execution consistency, and shippable delivery.
 triggers:
-  - Logo & Branding 专业设计系统
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Logo & Branding Professional Design System
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
 ## 身份验证 (Authentication)
@@ -29,143 +29,143 @@ CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/
 
 - **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **维护者**: dlazyai
-- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.8` 版本）
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.9` 版本）
 - **官网**: [dlazy.com](https://dlazy.com)
 
 如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.8`。安装前建议先到 GitHub 仓库审阅源码。
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
 ## 工作原理 (How It Works)
 
 此技能是 dLazy 托管 API 的轻量封装。调用时：
 
 - 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
-- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`oss.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
-- API 返回的生成结果 URL 由 `oss.dlazy.com` 托管。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`files.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `files.dlazy.com` 托管。
 
 这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。
 
-# Logo & Branding 专业设计系统
+# Logo & Branding Professional Design System
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-用于构建从核心标志到完整品牌视觉系统的专业化流程，确保创意质量、执行一致性与可落地交付。
+A professional pipeline for building everything from a core mark to a complete brand visual system, ensuring creative quality, execution consistency, and shippable delivery.
 
-## 核心原则
+## Core Principles
 
-1. 分步执行策略
-   - 采用渐进式流程，不一次性输出大量内容。
-   - 当单次计划超过 2 张图片时，先提交执行计划并等待确认，再开始生成。
-   - 上游资产必须先确认，再推进下游应用。
-2. 对象一致性
-   - 同一品牌元素在全部应用中保持严格一致。
-   - 基于既有图像做变体时，目标是复制一致性而非重新诠释。
-3. 用户资产优先
-   - 用户提供的参考图、标志、素材优先级最高。
-   - 严格区分视觉风格与文字内容，品牌名称以用户指定为准。
+1. Stepwise execution
+   - Use a progressive flow; never dump large outputs in one shot.
+   - When a single plan exceeds 2 images, submit the execution plan and wait for confirmation before generating.
+   - Upstream assets must be confirmed before downstream applications proceed.
+2. Object consistency
+   - The same brand element stays strictly consistent across all applications.
+   - When deriving variants from an existing image, the goal is to replicate consistency, not to reinterpret.
+3. User assets first
+   - Reference images, logos, and assets provided by the user have the highest priority.
+   - Strictly separate visual style from textual content; the brand name uses what the user specifies.
 
-## 执行框架
+## Execution Framework
 
-### 步骤 0：任务规划（必须）
+### Step 0: Task Planning (Mandatory)
 
-在开始任何输出前，先建立任务计划，至少包含：
+Before any design output, call the `write_todos` tool to set up a task plan that includes at least:
 
-- 收集需求与边界
-- 设计核心 Logo 概念
-- 生成衍生应用与品牌系统
-- 阶段确认与迭代修正
+- Gather requirements and boundaries
+- Design the core logo concept
+- Generate derivatives and the brand system
+- Phase confirmation and iterative correction
 
-执行规则：
+Execution rules:
 
-- 仅保留一个 `in_progress` 任务，其他任务标记为 `pending`。
-- 每完成一个阶段，更新计划状态。
-- 若用户提出返工或新增资产，新增或重排任务并重新进入对应阶段。
+- Keep only one task `in_progress`; the rest are `pending`.
+- Update `write_todos` status as soon as each phase finishes.
+- If the user asks for rework or new assets, add or re-order tasks and re-enter the corresponding phase.
 
-### 步骤 A：收集需求
+### Step A: Gather Requirements
 
-必须确认以下信息：
+You must confirm:
 
-- 品牌名称
-- 行业或产品类别
-- 设计组件范围（仅 Logo 或含衍生应用）
+- Brand name
+- Industry or product category
+- Component scope (logo only, or with derivatives)
 
-设计组件定义：
+Component definitions:
 
-- Logo：核心品牌标识
-- 衍生应用：基于品牌标识的落地场景
+- Logo: the core brand mark
+- Derivatives: real-world applications based on the brand mark
 
-### 步骤 B：建立核心标志
+### Step B: Establish the Core Mark
 
-新标志设计遵循：
+New mark design follows:
 
-- 单一焦点：一个中心元素，避免背景或装饰干扰
-- 符号抽象：提炼为最易识别形式
-- 清晰轮廓：高对比度剪影，边缘明确
-- 默认 1K 分辨率
+- Single focus: one central element, no background or decorative interference
+- Symbolic abstraction: distill to the most recognizable form
+- Clear silhouette: high-contrast outline, well-defined edges
+- Default 1K resolution
 
-概念产出规则：
+Concept rules:
 
-- 对开放性需求默认提供 4 个不同设计方向
-- 每个概念单独呈现，不使用拼图网格
-- 每个概念附 100-200 字设计理念说明
-- 必须等待用户确认后再进入下一步
+- For open-ended requests, default to 4 distinct design directions
+- Present each concept individually, not as a tile grid
+- Each concept comes with a 100–200 word design rationale
+- Wait for user confirmation before proceeding
 
-### 步骤 C：创建衍生应用
+### Step C: Create Derivatives
 
-可交付方向：
+Possible directions:
 
-1. 标志变体
-   - 结构变体：字母标、文字标、图形标、组合标志
-   - 布局或方向变体
-   - 颜色变体
-   - 尺寸与用途变体
-2. 品牌图案与辅助图形
-   - 生成独立可复用的图形资产
-3. 实物应用
-   - 名片与文具
-   - 包装与周边产品
-   - 环境标识与导视系统
-4. 社交媒体资产
-   - 生成可直接发布的最终图像
-5. 品牌识别系统
-   - 品牌核心（故事、支柱、语调）
-   - 标志系统
-   - 色彩系统
-   - 字体系统
-   - 视觉语言
-   - 应用示例
+1. Mark variants
+   - Structural variants: lettermark, wordmark, symbol mark, combination mark
+   - Layout or orientation variants
+   - Color variants
+   - Size and use-case variants
+2. Brand patterns and supporting graphics
+   - Generate independent, reusable graphic assets
+3. Physical applications
+   - Business cards and stationery
+   - Packaging and merchandise
+   - Environmental signage and wayfinding
+4. Social-media assets
+   - Generate ready-to-post final images
+5. Brand identity system
+   - Brand core (story, pillars, voice)
+   - Logo system
+   - Color system
+   - Typography system
+   - Visual language
+   - Application examples
 
-应用设计原则：
+Application design principles:
 
-- 标志精致放置，避免过大居中
-- 解构品牌元素为图案、图标、色块
-- 使用留白团队视觉层级
-- 强调材质与质感体验
+- Place the mark with restraint; avoid oversized, dead-center placements
+- Deconstruct brand elements into patterns, icons, color blocks
+- Use whitespace to organize visual hierarchy
+- Emphasize material and texture experience
 
-## 阶段确认与回滚规则
+## Phase Confirmation and Rollback Rules
 
-- 每一步结束都先进行确认，再继续后续步骤。
-- 当用户对中间结果提出调整，先回到对应上游步骤修正，再同步更新下游资产。
-- 若用户提供新增参考资产，需立即重置一致性基准并统一后续输出。
+- Confirm at the end of every step before continuing.
+- When the user adjusts an intermediate result, return to the corresponding upstream step first, then sync downstream assets.
+- If the user supplies new reference assets, immediately reset the consistency baseline and unify subsequent outputs.
 
-## 输出格式
+## Output Format
 
-- 需求摘要
-- 当前阶段交付物
-- 下一步计划与待确认项
-- 当前 todo 状态（阶段、已完成项、待确认项）
+- Requirements summary
+- Current-phase deliverable
+- Next-step plan and items awaiting confirmation
+- Current todo status (phase, completed, pending)
 
-## 关键价值
+## Key Value
 
-- 渐进式工作流，降低返工成本
-- 多方向概念探索，提升决策质量
-- 全链路一致性控制，强化品牌识别
-- 从 Logo 到品牌系统的一体化交付
+- Progressive workflow that lowers rework cost
+- Multi-direction concept exploration that improves decision quality
+- End-to-end consistency control that strengthens brand recognition
+- Integrated delivery from logo to brand system
 
 
 ## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)

@@ -1,27 +1,28 @@
-import type { z } from "zod";
+import { version as CLI_VERSION } from "../../package.json";
 import { t } from "../messages";
 import { sleep } from "../utils/utils";
+import { debug, heartbeat, log, SdkError } from "./envelope";
+import type { ManifestTool } from "./manifest";
 import {
-	debug,
-	failure,
-	heartbeat,
-	log,
-	type OkKind,
-	success,
-} from "./envelope";
-import { inferOutputKind } from "./schema";
+	isGenerateIdOutput,
+	mergeToolResults,
+	type ToolResult,
+	toToolResult,
+} from "./output";
 
-export type MediaHint = "image" | "video" | "audio" | "text" | "tool" | "auto";
+function readCliWarning(payload: unknown): string | null {
+	if (!payload || typeof payload !== "object") return null;
+	const value = (payload as { cliWarning?: unknown }).cliWarning;
+	return typeof value === "string" && value.length > 0 ? value : null;
+}
 
 export type RunOptions = {
 	apiKey: string;
 	baseUrl: string;
-	modelId: string;
+	tool: ManifestTool;
 	input: Record<string, unknown>;
 	organizationId?: string;
 	projectId?: string;
-	outputSchema?: z.ZodType;
-	mediaType?: MediaHint;
 	wait: boolean;
 	timeoutMs: number;
 	pollIntervalMs?: number;
@@ -37,138 +38,58 @@ type PostResponse = {
 	output?: unknown;
 };
 
+export type EstimateResult = {
+	estimatedCostCredits: number | null;
+	estimatedDurationSeconds: number | null;
+};
+
+export async function apiEstimate(opts: {
+	apiKey: string;
+	baseUrl: string;
+	modelId: string;
+	input: Record<string, unknown>;
+}): Promise<EstimateResult> {
+	const endpoint = `${opts.baseUrl.replace(/\/$/, "")}/api/ai/tool/estimate`;
+	const resp = await fetch(endpoint, {
+		method: "POST",
+		headers: buildHeaders(opts.apiKey),
+		body: JSON.stringify({ model: opts.modelId, input: opts.input }),
+	});
+	if (!resp.ok) {
+		debug("estimate failed", resp.status);
+		return { estimatedCostCredits: null, estimatedDurationSeconds: null };
+	}
+	const data = (await resp.json()) as Partial<EstimateResult>;
+	return {
+		estimatedCostCredits: data.estimatedCostCredits ?? null,
+		estimatedDurationSeconds: data.estimatedDurationSeconds ?? null,
+	};
+}
+
 function buildHeaders(apiKey: string): HeadersInit {
 	return {
 		Authorization: `Bearer ${apiKey}`,
 		"Content-Type": "application/json",
+		"X-CLI-Version": CLI_VERSION,
 	};
 }
 
-function isGenerateIdOutput(
-	output: unknown,
-): output is { generateId: string; status?: string; message?: string } {
-	if (!output || typeof output !== "object") return false;
-	const id = (output as { generateId?: unknown }).generateId;
-	return typeof id === "string" && id.length > 0;
-}
-
-function isUrlsOutput(
-	output: unknown,
-): output is { urls: string[]; data?: unknown } {
-	return (
-		typeof output === "object" &&
-		output !== null &&
-		Array.isArray((output as { urls?: unknown[] }).urls)
-	);
-}
-
-function isShapesOutput(output: unknown): output is { shapes: unknown[] } {
-	return (
-		typeof output === "object" &&
-		output !== null &&
-		Array.isArray((output as { shapes?: unknown[] }).shapes)
-	);
-}
-
-function isTextOutput(output: unknown): output is { text: string } {
-	return (
-		typeof output === "object" &&
-		output !== null &&
-		typeof (output as { text?: unknown }).text === "string"
-	);
-}
-
-function detectMediaFromUrl(
-	url: string,
-): "image" | "video" | "audio" | undefined {
-	const m = url.toLowerCase().match(/\.([a-z0-9]+)(?:[?#]|$)/);
-	if (!m) return undefined;
-	const ext = m[1];
-	if (["jpg", "jpeg", "png", "webp", "gif", "svg", "bmp", "avif"].includes(ext))
-		return "image";
-	if (["mp4", "mov", "webm", "mkv", "m4v"].includes(ext)) return "video";
-	if (["mp3", "wav", "ogg", "m4a", "flac", "aac"].includes(ext)) return "audio";
-	return undefined;
-}
-
-function renderUrlsPlain(urls: string[]): string {
-	return urls.join("\n");
-}
-
-function renderDisplay(
-	kind: OkKind,
-	data: unknown,
-	mediaType?: MediaHint,
-): string | undefined {
-	if (kind === "urls") {
-		const urls = (data as { urls?: unknown }).urls;
-		if (!Array.isArray(urls) || urls.length === 0) return undefined;
-		const strUrls = urls.filter((u): u is string => typeof u === "string");
-		if (strUrls.length === 0) return undefined;
-		return renderUrlsPlain(strUrls);
-	}
-	if (kind === "text") {
-		const text = (data as { text?: unknown }).text;
-		return typeof text === "string" && text.length > 0 ? text : undefined;
-	}
-	if (kind === "shapes") {
-		const shapes = (data as { shapes?: unknown }).shapes;
-		if (!Array.isArray(shapes)) return undefined;
-		return t().api.shapesGenerated(shapes.length);
-	}
-	if (kind === "generateId") {
-		const d = data as { generateId?: string; status?: string };
-		if (!d?.generateId) return undefined;
-		return t().api.taskSubmittedDisplay(d.generateId, d.status ?? "pending");
-	}
-	return undefined;
-}
-
-function emitResult(
-	result: unknown,
-	outputSchema?: z.ZodType,
-	mediaType?: MediaHint,
-): never {
-	log(t().api.generationCompleted);
-	const schemaKind = outputSchema ? inferOutputKind(outputSchema) : "raw";
-	if (outputSchema) {
-		const parsed = outputSchema.safeParse(result);
-		if (parsed.success) {
-			return success(
-				schemaKind,
-				parsed.data,
-				renderDisplay(schemaKind, parsed.data, mediaType),
-			);
-		}
-		debug("outputSchema parse failed", parsed.error.issues);
-	}
-	if (isUrlsOutput(result)) {
-		const data = { urls: result.urls };
-		return success("urls", data, renderDisplay("urls", data, mediaType));
-	}
-	if (isShapesOutput(result)) {
-		const data = { shapes: result.shapes };
-		return success("shapes", data, renderDisplay("shapes", data, mediaType));
-	}
-	if (isTextOutput(result)) {
-		const data = { text: result.text };
-		return success("text", data, renderDisplay("text", data, mediaType));
-	}
-	return success("raw", result);
-}
-
-export async function apiPostRun(opts: RunOptions): Promise<never> {
-	const endpoint = opts.baseUrl.replace(/\/$/, "");
+/**
+ * Submit a tool run and (optionally) wait for completion. Pure: returns a
+ * ToolResult; throws SdkError on failure. CLI and SDK both call this.
+ */
+export async function executeTool(opts: RunOptions): Promise<ToolResult> {
+	const endpoint = `${opts.baseUrl.replace(/\/$/, "")}/api/ai/tool`;
 	const headers = buildHeaders(opts.apiKey);
 
 	const body: Record<string, unknown> = {
-		model: opts.modelId,
+		model: opts.tool.id,
 		input: opts.input,
 	};
 	if (opts.organizationId) body.organizationId = opts.organizationId;
 	if (opts.projectId) body.projectId = opts.projectId;
 
-	log(t().api.invoking(opts.modelId));
+	log(t().api.invoking(opts.tool.id));
 	debug("payload", body);
 
 	let response: Response;
@@ -179,7 +100,7 @@ export async function apiPostRun(opts: RunOptions): Promise<never> {
 			body: JSON.stringify(body),
 		});
 	} catch (err) {
-		return failure("network_error", (err as Error).message);
+		throw new SdkError("network_error", (err as Error).message);
 	}
 
 	if (!response.ok) {
@@ -197,75 +118,122 @@ export async function apiPostRun(opts: RunOptions): Promise<never> {
 			code = "invalid_request";
 			if (text.toLowerCase().includes("balance")) code = "insufficient_balance";
 		}
-		return failure(code, t().api.requestFailed(response.status), details);
+		throw new SdkError(code, t().api.requestFailed(response.status), details);
 	}
 
-	const json = (await response.json()) as PostResponse;
+	const json = (await response.json()) as PostResponse & {
+		cliWarning?: string;
+	};
 	const output = json.output;
+	const initialWarning = readCliWarning(json);
 
 	if (isGenerateIdOutput(output)) {
 		if (!opts.wait) {
-			const data = {
-				generateId: output.generateId,
-				status: output.status ?? "pending",
-			};
-			return success(
-				"generateId",
-				data,
-				renderDisplay("generateId", data, opts.mediaType),
-			);
+			return attachWarning(toToolResult(output, opts.tool), initialWarning);
 		}
 		log(t().api.taskSubmitted(output.generateId));
-		return await pollUntilDone({
+		const polled = await pollUntilDone({
 			generateId: output.generateId,
 			endpoint,
 			headers,
 			timeoutMs: opts.timeoutMs,
 			pollIntervalMs: opts.pollIntervalMs ?? 3000,
-			outputSchema: opts.outputSchema,
-			mediaType: opts.mediaType,
 		});
+		log(t().api.generationCompleted);
+		return attachWarning(
+			toToolResult(polled.output, opts.tool),
+			polled.cliWarning ?? initialWarning,
+		);
 	}
 
-	emitResult(output, opts.outputSchema, opts.mediaType);
+	log(t().api.generationCompleted);
+	return attachWarning(toToolResult(output, opts.tool), initialWarning);
 }
 
-export async function apiStatus(opts: {
+function attachWarning(
+	result: ToolResult,
+	warning: string | null,
+): ToolResult {
+	if (!warning) return result;
+	return { ...result, warning };
+}
+
+/**
+ * Run the same tool N times in parallel and merge their outputs into a single
+ * ToolResult. Used by `--batch` (CLI) and `RunOptions.batch` (SDK).
+ *
+ * Failure semantics: any sub-run rejection rejects the whole batch
+ * (Promise.all). Already-running peers continue executing on the server but
+ * their results are discarded by the caller. There is no "best-effort" mode
+ * — if you need partial success, fan out at the SDK level and handle errors
+ * per-handle.
+ */
+export async function executeToolBatch(
+	opts: RunOptions & { batch: number },
+): Promise<ToolResult> {
+	const n = Math.max(1, Math.floor(opts.batch));
+	if (n === 1) return executeTool(opts);
+	const runs = Array.from({ length: n }, () => executeTool(opts));
+	const results = await Promise.all(runs);
+	return mergeToolResults(results);
+}
+
+export type StatusOptions = {
 	apiKey: string;
 	baseUrl: string;
+	tool?: ManifestTool;
 	generateId: string;
 	wait: boolean;
 	timeoutMs: number;
 	pollIntervalMs?: number;
-	outputSchema?: z.ZodType;
-	mediaType?: MediaHint;
-}): Promise<never> {
-	const endpoint = opts.baseUrl.replace(/\/$/, "");
+};
+
+/** Poll a generateId or fetch it once. Returns ToolResult; throws SdkError. */
+export async function getStatus(opts: StatusOptions): Promise<ToolResult> {
+	const endpoint = `${opts.baseUrl.replace(/\/$/, "")}/api/ai/tool`;
 	const headers = buildHeaders(opts.apiKey);
+	const tool = opts.tool ?? makeFallbackTool();
 
 	if (opts.wait) {
-		return await pollUntilDone({
+		const polled = await pollUntilDone({
 			generateId: opts.generateId,
 			endpoint,
 			headers,
 			timeoutMs: opts.timeoutMs,
 			pollIntervalMs: opts.pollIntervalMs ?? 3000,
-			outputSchema: opts.outputSchema,
-			mediaType: opts.mediaType,
 		});
+		return attachWarning(toToolResult(polled.output, tool), polled.cliWarning);
 	}
 
 	const resp = await fetch(
 		`${endpoint}?generateId=${encodeURIComponent(opts.generateId)}`,
-		{
-			headers,
-		},
+		{ headers },
 	);
 	if (!resp.ok) {
-		return failure("http_error", t().api.statusFetchFailed(resp.status));
+		throw new SdkError("http_error", t().api.statusFetchFailed(resp.status));
 	}
-	const data = (await resp.json()) as PollResponse;
-	return success("raw", data);
+	const data = (await resp.json()) as PollResponse & { cliWarning?: string };
+	return attachWarning(toToolResult(data, tool), readCliWarning(data));
+}
+
+/**
+ * `dlazy status <id>` doesn't always know which tool produced the id; this
+ * fabricates a minimal record so toToolResult can still shape the response.
+ */
+function makeFallbackTool(): ManifestTool {
+	return {
+		id: "unknown",
+		cli_name: "status",
+		type: "tool",
+		description: "",
+		runMode: "task",
+		asynchronous: true,
+		tier: null,
+		hasCosts: false,
+		hasDurationEstimation: false,
+		inputJsonSchema: null,
+		outputJsonSchema: null,
+	};
 }
 
 async function pollUntilDone(opts: {
@@ -274,11 +242,10 @@ async function pollUntilDone(opts: {
 	headers: HeadersInit;
 	timeoutMs: number;
 	pollIntervalMs: number;
-	outputSchema?: z.ZodType;
-	mediaType?: MediaHint;
-}): Promise<never> {
+}): Promise<{ output: unknown; cliWarning: string | null }> {
 	const pollUrl = `${opts.endpoint}?generateId=${encodeURIComponent(opts.generateId)}`;
 	const deadline = Date.now() + opts.timeoutMs;
+	let lastWarning: string | null = null;
 
 	while (Date.now() < deadline) {
 		await sleep(opts.pollIntervalMs);
@@ -286,19 +253,23 @@ async function pollUntilDone(opts: {
 		try {
 			resp = await fetch(pollUrl, { headers: opts.headers });
 		} catch (err) {
-			return failure("network_error", (err as Error).message);
+			throw new SdkError("network_error", (err as Error).message);
 		}
 		if (!resp.ok) {
-			return failure("http_error", t().api.pollFailed(resp.status));
+			throw new SdkError("http_error", t().api.pollFailed(resp.status));
 		}
-		const data = (await resp.json()) as PollResponse;
+		const data = (await resp.json()) as PollResponse & {
+			cliWarning?: string;
+		};
+		const warning = readCliWarning(data);
+		if (warning) lastWarning = warning;
 		const status = data.status;
 
 		if (status === "completed") {
-			emitResult(data.result, opts.outputSchema, opts.mediaType);
+			return { output: data.result, cliWarning: lastWarning };
 		}
 		if (status === "failed") {
-			return failure("task_failed", data.error ?? "task failed", {
+			throw new SdkError("task_failed", data.error ?? "task failed", {
 				generateId: opts.generateId,
 			});
 		}
@@ -306,7 +277,7 @@ async function pollUntilDone(opts: {
 		heartbeat();
 	}
 
-	return failure(
+	throw new SdkError(
 		"timeout",
 		t().api.taskDidNotComplete(Math.round(opts.timeoutMs / 1000)),
 		{ generateId: opts.generateId },

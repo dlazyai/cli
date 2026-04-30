@@ -16,6 +16,7 @@ export type Messages = {
 		description: string;
 		setDescription: string;
 		getDescription: string;
+		getShowOption: string;
 		loginDescription: string;
 		localOption: string;
 		loginSuccess: string;
@@ -25,7 +26,6 @@ export type Messages = {
 		logoutEnvWarning: string;
 		notConfigured: string;
 		noApiKey: string;
-		noApiKeyExit: string;
 	};
 	tools: {
 		namespaceDescription: string;
@@ -36,18 +36,32 @@ export type Messages = {
 		statusWaitOption: string;
 		statusTimeoutOption: string;
 		statusToolOption: string;
-		runInputOption: string;
 		runDryRunOption: string;
 		runNoWaitOption: string;
 		runTimeoutOption: string;
+		runBatchOption: string;
+		runInputOption: string;
 		inputValidationFailed: string;
+		inputFileNotFound: (path: string) => string;
+		inputFileBadJson: (path: string, reason: string) => string;
 		estimatedCost: (credits: number) => string;
 		estimatedDuration: (seconds: number) => string;
+		outputHeader: string;
+		outputEnvelope: string;
+		outputErrorEnvelope: string;
+		outputUrlsKind: (mediaType: string) => string;
+		outputTextKind: string;
+		outputRawKind: string;
+		outputAsyncNote: string;
+		outputSchemaHeader: string;
+		outputSchemaEmpty: string;
+		outputListHeader: string;
+		outputListShape: string;
+		outputDescribeHeader: string;
+		outputDescribeShape: string;
+		outputStatusHeader: string;
 	};
 	input: {
-		inputFileNotFound: (path: string) => string;
-		invalidJson: (error: string) => string;
-		inputMustBeObject: string;
 		fileNotFound: (label: string, path: string) => string;
 		fileTooLarge: (label: string, sizeMb: string, limitMb: number) => string;
 		fileSizeWarn: (label: string, sizeMb: string) => string;
@@ -63,7 +77,6 @@ export type Messages = {
 		playVideo: (label: string) => string;
 		playAudio: (label: string) => string;
 		viewDownload: (label: string) => string;
-		shapesGenerated: (count: number) => string;
 		taskSubmittedDisplay: (generateId: string, status: string) => string;
 		generationCompleted: string;
 		displayBannerStart: string;

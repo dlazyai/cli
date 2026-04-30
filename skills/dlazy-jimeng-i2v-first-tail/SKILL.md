@@ -1,8 +1,8 @@
 ---
 name: dlazy-jimeng-i2v-first-tail
-version: 1.0.2
+version: 1.0.9
 description: Generate coherent transition videos using Jimeng's first and tail frame models.
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy jimeng-i2v-first-tail -h for help."}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy jimeng-i2v-first-tail -h for help."}}
 ---
 
 # dlazy-jimeng-i2v-first-tail
@@ -40,65 +40,70 @@ Each key is scoped to your dLazy organization and can be **rotated or revoked at
 
 - **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **Maintainer**: dlazyai
-- **npm package**: `@dlazy/cli` (pinned to `1.0.8` in this skill's install spec)
+- **npm package**: `@dlazy/cli` (pinned to `1.0.9` in this skill's install spec)
 - **Homepage**: [dlazy.com](https://dlazy.com)
 
 You can install on demand without persisting a global binary by running:
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.8`). Review the GitHub source before installing.
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.9`). Review the GitHub source before installing.
 
 ## How It Works
 
 This skill is a thin client over the dLazy hosted API. When you invoke it:
 
 - Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
-- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
-- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
+- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`files.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
+- Generated output URLs returned by the API are hosted on `files.dlazy.com`.
 
 This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles. See [dlazy.com](https://dlazy.com) for the full service terms.
 
 ## Usage
 
-**CRITICAL INSTRUCTION FOR AGENT**: 
+**CRITICAL INSTRUCTION FOR AGENT**:
 Run the `dlazy jimeng-i2v-first-tail` command to get results.
 
 ```bash
 dlazy jimeng-i2v-first-tail -h
 
 Options:
-  --prompt <prompt>                    Prompt
-  --generation_mode <generation_mode>  Generation Mode [default: frames] (choices: "frames")
-  --firstFrame <firstFrame>            First Frame [image: url or local path]
-  --lastFrame <lastFrame>              Last Frame [image: url or local path]
-  --duration <duration>                Duration (s) [default: 5] (choices: "5", "10")
-  --promptRefs <promptRefs...>         promptRefs [default: ]
-  --input <spec>                       JSON payload: inline string, @file, or - (stdin)
+  --prompt [prompt]                    Prompt
+  --generation_mode [generation_mode]  Generation Mode [default: frames] (choices: "frames")
+  --firstFrame [firstFrame]            First Frame [image: url or local path]
+  --lastFrame [lastFrame]              Last Frame [image: url or local path]
+  --duration [duration]                Duration (s) [default: 5] (choices: "5", "10")
   --dry-run                            Print payload + cost estimate without calling API
   --no-wait                            Return generateId immediately for async tasks
   --timeout <seconds>                  Max seconds to wait for async completion (default: "1800")
   -h, --help                           display help for command
 ```
 
+> Any flag also accepts pipe references — `-` (auto-pick from upstream stdin), `@N` (n-th output), `@N.path` (jsonpath into output), `@*` (all primary values), `@stdin` / `@stdin:path` (whole envelope). See `dlazy --help` for details.
+
 ## Output Format
 
 ```json
 {
   "ok": true,
-  "kind": "urls",
-  "data": {
-    "urls": [
-      "https://oss.dlazy.com/result.mp4"
+  "result": {
+    "tool": "jimeng-i2v-first-tail",
+    "modelId": "jimeng-i2v-first-tail-v30",
+    "outputs": [
+      {
+        "type": "image",
+        "id": "o_xxxxxxxx",
+        "url": "https://files.dlazy.com/result.png",
+        "mimeType": "image/png"
+      }
     ]
   }
 }
 ```
 
-
-
+> Async tasks (when `--no-wait` is passed) return `outputs: []` and a `task: { generateId, status }` field instead. Use `dlazy status <generateId> --wait` to poll.
 
 ## Command Examples
 
@@ -107,7 +112,7 @@ Options:
 dlazy jimeng-i2v-first-tail --prompt 'prompt text' --image '/path/to/image.png'
 
 # complex call:
-dlazy jimeng-i2v-first-tail --prompt 'prompt text' --image 'https://oss.dlazy.com/image.png'
+dlazy jimeng-i2v-first-tail --prompt 'prompt text' --image 'https://files.dlazy.com/image.png'
 ```
 
 ## Error Handling

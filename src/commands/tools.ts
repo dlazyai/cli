@@ -1,47 +1,46 @@
+import * as fs from "node:fs";
 import { type Command, Option } from "commander";
-import type { AIModelConfig } from "../../../../config/modal.config";
-import { createTranslator, getAiModels } from "../../../../config/modal.config";
-import enModelsMessages from "../../../../messages/en-US/Models.json";
-import zhModelsMessages from "../../../../messages/zh-CN/Models.json";
-import { apiPostRun, apiStatus } from "../lib/api";
+import {
+	apiEstimate,
+	executeTool,
+	executeToolBatch,
+	getStatus,
+} from "../lib/api";
 import {
 	debug,
+	emitError,
 	failure,
 	log,
+	SdkError,
 	setVerbose,
 	success,
-	usageError,
 } from "../lib/envelope";
+import { buildInput, resolveMediaFields, resolveRefs } from "../lib/input";
+import { loadManifest, type ManifestTool } from "../lib/manifest";
+import { jsonResult } from "../lib/output";
 import {
-	buildInput,
-	loadJsonInput,
-	resolveMediaFields,
-	validateInput,
-} from "../lib/input";
-import {
+	describeOutputSchema,
 	describeSchema,
 	type FieldDescriptor,
 	inferOutputKind,
-	toJsonSchema,
 } from "../lib/schema";
 import { getLocale, t } from "../messages";
+import { peekFlagValue } from "../utils/argv";
 import { isHeadless, resolveApiKey } from "../utils/config";
 
-const MODELS_MESSAGES_BY_LOCALE = {
-	"en-US": enModelsMessages,
-	"zh-CN": zhModelsMessages,
-} as const;
-
-function getModelsTranslator() {
-	const locale = getLocale();
-	const messages =
-		MODELS_MESSAGES_BY_LOCALE[locale] ?? MODELS_MESSAGES_BY_LOCALE["en-US"];
-	return createTranslator(messages as Record<string, any>);
-}
-
-const SKIPPED_CLI_NAMES = new Set<string>(["qwen3.6-plus"]);
-
 const DEFAULT_TIMEOUT_SECONDS = 30 * 60;
+
+/**
+ * Tool types that produce content via remote inference and therefore make
+ * sense to fan-out via `--batch`. Utility tools (`tool`) are excluded.
+ */
+const BATCHABLE_TOOL_TYPES: ReadonlySet<ManifestTool["type"]> = new Set([
+	"image",
+	"video",
+	"audio",
+	"text",
+	"auto",
+]);
 
 type GlobalOptions = {
 	apiKey?: string;
@@ -51,30 +50,14 @@ type GlobalOptions = {
 	projectId?: string;
 };
 
-function listCliModels(): Array<[string, AIModelConfig]> {
-	const models = getAiModels(getModelsTranslator());
-	const out: Array<[string, AIModelConfig]> = [];
-	for (const [id, cfg] of Object.entries(models)) {
-		if (!cfg.cli_name) continue;
-		if (SKIPPED_CLI_NAMES.has(cfg.cli_name)) continue;
-		out.push([id, cfg]);
-	}
-	return out;
-}
-
-function findByCliName(
-	name: string,
-): { id: string; config: AIModelConfig } | undefined {
-	for (const [id, config] of listCliModels()) {
-		if (config.cli_name === name) return { id, config };
-	}
-	return undefined;
+/** Resolve the API base URL from override → env → default. */
+function resolveBaseUrl(override?: string): string {
+	const url = override || process.env.DLAZY_BASE_URL || "https://dlazy.com";
+	return url.replace(/\/+$/, "");
 }
 
 function getBaseUrl(globals: GlobalOptions): string {
-	const url =
-		globals.baseUrl || process.env.DLAZY_BASE_URL || "https://dlazy.com";
-	return url.replace(/\/+$/, "");
+	return resolveBaseUrl(globals.baseUrl);
 }
 
 async function requireApiKey(globals: GlobalOptions): Promise<string> {
@@ -82,36 +65,89 @@ async function requireApiKey(globals: GlobalOptions): Promise<string> {
 		interactive: !isHeadless(),
 	});
 	if (!key) {
-		return failure("no_api_key", t().auth.noApiKey);
+		throw new SdkError("no_api_key", t().auth.noApiKey);
 	}
 	return key;
 }
 
 function describeCondition(cond: unknown): string | undefined {
 	if (!cond || typeof cond !== "object") return undefined;
-	const c = cond as any;
-	if ("all" in c && Array.isArray(c.all)) {
+	const c = cond as Record<string, unknown>;
+	if (Array.isArray(c.all)) {
 		return c.all.map(describeCondition).filter(Boolean).join(" && ");
 	}
-	if ("any" in c && Array.isArray(c.any)) {
+	if (Array.isArray(c.any)) {
 		return c.any.map(describeCondition).filter(Boolean).join(" || ");
 	}
 	if ("not" in c) {
 		const inner = describeCondition(c.not);
 		return inner ? `!(${inner})` : undefined;
 	}
-	if (c.operator === "equals") return `${c.field}=${JSON.stringify(c.value)}`;
-	if (c.operator === "notEquals")
-		return `${c.field}!=${JSON.stringify(c.value)}`;
-	if (c.operator === "empty") return `${c.field} is empty`;
-	if (c.operator === "notEmpty") return `${c.field} non-empty`;
+	const field = typeof c.field === "string" ? c.field : "";
+	if (c.operator === "equals") return `${field}=${JSON.stringify(c.value)}`;
+	if (c.operator === "notEquals") return `${field}!=${JSON.stringify(c.value)}`;
+	if (c.operator === "empty") return `${field} is empty`;
+	if (c.operator === "notEmpty") return `${field} non-empty`;
 	return undefined;
+}
+
+/**
+ * Parse a --input value into a plain object.
+ *
+ *   - `@path.json` → read file, JSON.parse
+ *   - inline JSON literal → JSON.parse
+ *
+ * Throws SdkError (exit 2) on file-not-found or bad JSON.
+ */
+function parseExplicitInput(raw: string | undefined): Record<string, unknown> {
+	if (!raw) return {};
+	const msgs = t();
+	let text = raw;
+	if (raw.startsWith("@")) {
+		const p = raw.slice(1);
+		if (!fs.existsSync(p)) {
+			throw new SdkError(
+				"input_file_not_found",
+				msgs.tools.inputFileNotFound(p),
+				undefined,
+				2,
+			);
+		}
+		text = fs.readFileSync(p, "utf8");
+		try {
+			const parsed = JSON.parse(text);
+			if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+				throw new Error("expected JSON object");
+			}
+			return parsed as Record<string, unknown>;
+		} catch (err) {
+			throw new SdkError(
+				"input_file_bad_json",
+				msgs.tools.inputFileBadJson(p, (err as Error).message),
+				undefined,
+				2,
+			);
+		}
+	}
+	try {
+		const parsed = JSON.parse(text);
+		if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+			throw new Error("expected JSON object");
+		}
+		return parsed as Record<string, unknown>;
+	} catch (err) {
+		throw new SdkError(
+			"input_file_bad_json",
+			msgs.tools.inputFileBadJson("<inline>", (err as Error).message),
+			undefined,
+			2,
+		);
+	}
 }
 
 function buildFlagDescription(field: FieldDescriptor): string {
 	let desc = field.description;
 	if (field.mediaType) desc += ` [${field.mediaType}: url or local path]`;
-	// Enum choices are rendered by commander's Option.choices() — don't repeat.
 	if (field.maxItems !== undefined) desc += ` (max ${field.maxItems})`;
 	if (field.defaultValue !== undefined && field.defaultValue !== null) {
 		const d = Array.isArray(field.defaultValue)
@@ -135,36 +171,167 @@ function buildFlagDescription(field: FieldDescriptor): string {
 	return desc;
 }
 
-async function safeEstimate(fn: () => Promise<number>): Promise<number | null> {
-	try {
-		return await fn();
-	} catch (err) {
-		debug("estimate failed", (err as Error).message);
-		return null;
+// Canvas-only fields stripped from shape outputs and from the help-text
+// schema outline — terminal consumers don't render to a canvas, so x/y/w/h
+// are noise.
+const SHAPE_HIDDEN_KEYS: ReadonlySet<string> = new Set(["x", "y", "w", "h"]);
+
+function buildRunOutputHelp(tool: ManifestTool): string {
+	const msgs = t();
+	const lines: string[] = [
+		"",
+		msgs.tools.outputHeader,
+		msgs.tools.outputEnvelope,
+	];
+
+	const kind = inferOutputKind(tool.outputJsonSchema);
+	if (kind === "urls") {
+		lines.push(msgs.tools.outputUrlsKind(tool.type));
+	} else if (kind === "text") {
+		lines.push(msgs.tools.outputTextKind);
+	} else {
+		// shapes kind is exposed as plain JSON in the CLI (no canvas concept).
+		lines.push(msgs.tools.outputRawKind);
 	}
+
+	if (tool.asynchronous) {
+		lines.push(msgs.tools.outputAsyncNote);
+	}
+
+	lines.push(msgs.tools.outputErrorEnvelope);
+
+	// Only show the inner schema for non-trivial shapes — i.e. tools whose
+	// output is `shapes` or a custom JSON payload (`raw`). Plain `urls` /
+	// `text` tools have no useful detail beyond the outputs[] line above.
+	if (kind === "shapes" || kind === "raw") {
+		const schemaLines = describeOutputSchema(tool.outputJsonSchema, {
+			excludeKeys: kind === "shapes" ? SHAPE_HIDDEN_KEYS : undefined,
+		});
+		if (schemaLines.length > 0) {
+			lines.push("", msgs.tools.outputSchemaHeader);
+			for (const line of schemaLines) {
+				lines.push(`  ${line}`);
+			}
+		}
+	}
+
+	return lines.join("\n");
 }
 
-function registerRunCommand(
-	program: Command,
-	modelId: string,
-	config: AIModelConfig,
+type RunCommandOptions = GlobalOptions & {
+	dryRun?: boolean;
+	wait?: boolean;
+	timeout?: string;
+	batch?: string;
+	input?: string;
+};
+
+async function runToolAction(
+	tool: ManifestTool,
+	fields: FieldDescriptor[],
+	isBatchable: boolean,
+	opts: Record<string, unknown>,
+	globals: RunCommandOptions,
 ) {
-	const cliName = config.cli_name!;
-	const fields = describeSchema(config.inputSchema);
+	if (globals.verbose) setVerbose(true);
+
+	const explicitInput = parseExplicitInput(globals.input);
+	const rawInput = buildInput({
+		fields,
+		flagValues: opts,
+		explicitInput,
+	});
+	const refsResolved = await resolveRefs(rawInput, fields);
+	const timeoutSeconds = Number(globals.timeout ?? DEFAULT_TIMEOUT_SECONDS);
+	const batch = isBatchable
+		? Math.max(1, Math.floor(Number(opts.batch ?? "1")) || 1)
+		: 1;
+
+	// Dry-run is hermetic: no network, no auth, no uploads. Echoes the raw
+	// resolved input (local paths / data URLs are kept as-is).
+	if (globals.dryRun) {
+		return success(
+			jsonResult(
+				tool.cli_name,
+				{
+					dryRun: true,
+					model: tool.id,
+					input: refsResolved,
+					batch,
+					estimatedCostCredits: null,
+					estimatedDurationSeconds: null,
+				},
+				tool.id,
+			),
+		);
+	}
+
+	const apiKey = await requireApiKey(globals);
+	const baseUrl = getBaseUrl(globals);
+	const resolvedInput = await resolveMediaFields(refsResolved, fields, {
+		apiKey,
+		baseUrl,
+	});
+
+	// Required-field check is enforced only on the live run path.
+	for (const f of fields) {
+		if (f.required && resolvedInput[f.key] === undefined) {
+			throw new SdkError(
+				"missing_field",
+				`--${f.key} is required (no value, stdin reference, or default)`,
+				undefined,
+				2,
+			);
+		}
+	}
+
+	if (tool.hasCosts || tool.hasDurationEstimation) {
+		const est = await apiEstimate({
+			apiKey,
+			baseUrl,
+			modelId: tool.id,
+			input: resolvedInput,
+		});
+		if (est.estimatedCostCredits !== null)
+			log(t().tools.estimatedCost(est.estimatedCostCredits * batch));
+		if (est.estimatedDurationSeconds !== null)
+			log(t().tools.estimatedDuration(est.estimatedDurationSeconds));
+	}
+
+	const runOpts = {
+		apiKey,
+		baseUrl,
+		tool,
+		input: resolvedInput,
+		organizationId: globals.organizationId,
+		projectId: globals.projectId,
+		wait: globals.wait !== false,
+		timeoutMs: timeoutSeconds * 1000,
+	};
+
+	const result =
+		batch > 1
+			? await executeToolBatch({ ...runOpts, batch })
+			: await executeTool(runOpts);
+	success(result);
+}
+
+function registerRunCommand(program: Command, tool: ManifestTool) {
+	const fields = describeSchema(tool.inputJsonSchema);
 
 	const cmd = program
-		.command(cliName)
-		.description(`[${config.type}] ${config.description}`);
+		.command(tool.cli_name)
+		.description(`[${tool.type}] ${tool.description}`);
 
 	for (const field of fields) {
-		const spec = field.isArray ? `<${field.key}...>` : `<${field.key}>`;
+		// All flags are optional at the parser level — values may also flow in
+		// from stdin via `-` / `@N` references. Required-ness is enforced after
+		// reference resolution.
+		const spec = field.isArray ? `[${field.key}...]` : `[${field.key}]`;
 		const option = new Option(
 			`--${field.key} ${spec}`,
 			buildFlagDescription(field),
 		);
-		// For dynamic enums we keep the full grouped listing in the description
-		// (with id→name and per-group validity) and skip commander's flat
-		// (choices: ...) footer which would just repeat the raw ids.
 		if (field.enumChoices && !field.isArray && !field.dynamicEnum) {
 			option.choices(field.enumChoices);
 		}
@@ -172,165 +339,123 @@ function registerRunCommand(
 	}
 
 	cmd
-		.option("--input <spec>", t().tools.runInputOption)
 		.option("--dry-run", t().tools.runDryRunOption)
 		.option("--no-wait", t().tools.runNoWaitOption)
 		.option(
 			"--timeout <seconds>",
 			t().tools.runTimeoutOption,
 			String(DEFAULT_TIMEOUT_SECONDS),
-		);
+		)
+		.option("--input <jsonOrFile>", t().tools.runInputOption);
+
+	const isBatchable = BATCHABLE_TOOL_TYPES.has(tool.type);
+	if (isBatchable) {
+		cmd.option("--batch <n>", t().tools.runBatchOption, "1");
+	}
+
+	cmd.addHelpText("after", buildRunOutputHelp(tool));
 
 	cmd.action(async (opts, cmdInstance) => {
-		const globals = cmdInstance.optsWithGlobals() as GlobalOptions & {
-			input?: string;
-			dryRun?: boolean;
-			wait?: boolean;
-			timeout?: string;
-		};
-
-		if (globals.verbose) setVerbose(true);
-
-		const explicitInput =
-			typeof globals.input === "string"
-				? await loadJsonInput(globals.input)
-				: undefined;
-
-		const rawInput = buildInput({
-			fields,
-			flagValues: opts as Record<string, unknown>,
-			explicitInput,
-		});
-
-		const apiKey = await requireApiKey(globals);
-		const baseUrl = getBaseUrl(globals);
-
-		const resolvedInput = await resolveMediaFields(rawInput, fields, {
-			apiKey,
-			baseUrl,
-		});
-
-		const validation = validateInput(config.inputSchema, resolvedInput);
-		if (!validation.ok) {
-			return usageError(t().tools.inputValidationFailed, validation.issues);
+		try {
+			const globals = cmdInstance.optsWithGlobals() as RunCommandOptions;
+			await runToolAction(
+				tool,
+				fields,
+				isBatchable,
+				opts as Record<string, unknown>,
+				globals,
+			);
+		} catch (err) {
+			emitError(err);
 		}
-
-		if (globals.dryRun) {
-			const cost = config.costs
-				? await safeEstimate(() => config.costs(resolvedInput))
-				: null;
-			const durationEstimate = config.durationEstimation
-				? await safeEstimate(() => config.durationEstimation!(resolvedInput))
-				: null;
-			return success("raw", {
-				dryRun: true,
-				model: modelId,
-				input: resolvedInput,
-				estimatedCostCredits: cost,
-				estimatedDurationSeconds: durationEstimate,
-			});
-		}
-
-		const cost = config.costs
-			? await safeEstimate(() => config.costs(resolvedInput))
-			: null;
-		const durationEstimate = config.durationEstimation
-			? await safeEstimate(() => config.durationEstimation!(resolvedInput))
-			: null;
-
-		if (cost !== null) log(t().tools.estimatedCost(cost));
-		if (durationEstimate !== null)
-			log(t().tools.estimatedDuration(durationEstimate));
-
-		const timeoutSeconds = Number(globals.timeout ?? DEFAULT_TIMEOUT_SECONDS);
-		const shouldWait = globals.wait !== false;
-
-		await apiPostRun({
-			apiKey,
-			baseUrl: `${baseUrl}/api/ai/tool`,
-			modelId,
-			input: resolvedInput,
-			organizationId: globals.organizationId,
-			projectId: globals.projectId,
-			outputSchema: config.outputSchema,
-			mediaType: config.type,
-			wait: shouldWait,
-			timeoutMs: timeoutSeconds * 1000,
-		});
 	});
 }
 
-function registerToolsNamespace(program: Command) {
+function registerToolsNamespace(program: Command, tools: ManifestTool[]) {
 	const msgs = t();
-	const tools = program
+	const ns = program
 		.command("tools")
 		.description(msgs.tools.namespaceDescription);
 
-	tools
-		.command("list")
+	ns.command("list")
 		.description(msgs.tools.listDescription)
+		.addHelpText(
+			"after",
+			["", msgs.tools.outputListHeader, msgs.tools.outputListShape].join("\n"),
+		)
 		.action(() => {
-			const list = listCliModels().map(([id, cfg]) => ({
-				cli_name: cfg.cli_name!,
-				id,
-				type: cfg.type,
-				runMode: cfg.runMode,
-				asynchronous: Boolean(cfg.asynchronous),
-				tier: cfg.tier ?? null,
-				description: cfg.description,
-			}));
-			success("raw", { tools: list });
+			success(
+				jsonResult("tools", {
+					tools: tools.map((cfg) => ({
+						cli_name: cfg.cli_name,
+						id: cfg.id,
+						type: cfg.type,
+						runMode: cfg.runMode,
+						asynchronous: cfg.asynchronous,
+						tier: cfg.tier,
+						description: cfg.description,
+					})),
+				}),
+			);
 		});
 
-	tools
-		.command("describe <name>")
+	ns.command("describe <name>")
 		.description(msgs.tools.describeDescription)
+		.addHelpText(
+			"after",
+			[
+				"",
+				msgs.tools.outputDescribeHeader,
+				msgs.tools.outputDescribeShape,
+			].join("\n"),
+		)
 		.action((name: string) => {
-			const found = findByCliName(name);
+			const found = tools.find((cfg) => cfg.cli_name === name);
 			if (!found) {
 				return failure(
 					"tool_not_found",
 					t().tools.toolNotFound(name),
-					{ availableTools: listCliModels().map(([_, c]) => c.cli_name) },
+					{ availableTools: tools.map((cfg) => cfg.cli_name) },
 					2,
 				);
 			}
-			const { id, config } = found;
-			const fields = describeSchema(config.inputSchema);
-			success("raw", {
-				cli_name: config.cli_name!,
-				id,
-				type: config.type,
-				description: config.description,
-				runMode: config.runMode,
-				asynchronous: Boolean(config.asynchronous),
-				tier: config.tier ?? null,
-				input: {
-					fields: fields.map((f) => ({
-						key: f.key,
-						required: f.required,
-						isArray: f.isArray,
-						mediaType: f.mediaType ?? null,
-						description: f.description,
-						enumChoices: f.enumChoices ?? null,
-						defaultValue: f.defaultValue ?? null,
-						maxItems: f.maxItems ?? null,
-						showWhen: f.showWhen ?? null,
-						dynamicEnum: f.dynamicEnum ?? null,
-					})),
-					jsonSchema: toJsonSchema(config.inputSchema),
-				},
-				output: config.outputSchema
-					? {
-							kind: inferOutputKind(config.outputSchema),
-							jsonSchema: toJsonSchema(config.outputSchema),
-						}
-					: null,
-			});
+			const fields = describeSchema(found.inputJsonSchema);
+			success(
+				jsonResult("tools.describe", {
+					cli_name: found.cli_name,
+					id: found.id,
+					type: found.type,
+					description: found.description,
+					runMode: found.runMode,
+					asynchronous: found.asynchronous,
+					tier: found.tier,
+					input: {
+						fields: fields.map((f) => ({
+							key: f.key,
+							required: f.required,
+							isArray: f.isArray,
+							mediaType: f.mediaType ?? null,
+							description: f.description,
+							enumChoices: f.enumChoices ?? null,
+							defaultValue: f.defaultValue ?? null,
+							maxItems: f.maxItems ?? null,
+							showWhen: f.showWhen ?? null,
+							dynamicEnum: f.dynamicEnum ?? null,
+						})),
+						jsonSchema: found.inputJsonSchema,
+					},
+					output: found.outputJsonSchema
+						? {
+								kind: inferOutputKind(found.outputJsonSchema),
+								jsonSchema: found.outputJsonSchema,
+							}
+						: null,
+				}),
+			);
 		});
 }
 
-function registerStatusCommand(program: Command) {
+function registerStatusCommand(program: Command, tools: ManifestTool[]) {
 	const msgs = t();
 	program
 		.command("status <generateId>")
@@ -342,39 +467,46 @@ function registerStatusCommand(program: Command) {
 			String(DEFAULT_TIMEOUT_SECONDS),
 		)
 		.option("--tool <cli_name>", msgs.tools.statusToolOption)
+		.addHelpText("after", `\n${msgs.tools.outputStatusHeader}`)
 		.action(async (generateId: string, _opts, cmdInstance) => {
-			const globals = cmdInstance.optsWithGlobals() as GlobalOptions & {
-				wait?: boolean;
-				timeout?: string;
-				tool?: string;
-			};
-			if (globals.verbose) setVerbose(true);
-			const apiKey = await requireApiKey(globals);
-			const baseUrl = getBaseUrl(globals);
-			const timeoutSeconds = Number(globals.timeout ?? DEFAULT_TIMEOUT_SECONDS);
-			let outputSchema: AIModelConfig["outputSchema"] | undefined;
-			let mediaType: AIModelConfig["type"] | undefined;
-			if (globals.tool) {
-				const found = findByCliName(globals.tool);
-				outputSchema = found?.config.outputSchema;
-				mediaType = found?.config.type;
+			try {
+				const globals = cmdInstance.optsWithGlobals() as GlobalOptions & {
+					wait?: boolean;
+					timeout?: string;
+					tool?: string;
+				};
+				if (globals.verbose) setVerbose(true);
+				const apiKey = await requireApiKey(globals);
+				const baseUrl = getBaseUrl(globals);
+				const timeoutSeconds = Number(
+					globals.timeout ?? DEFAULT_TIMEOUT_SECONDS,
+				);
+				const found = globals.tool
+					? tools.find((cfg) => cfg.cli_name === globals.tool)
+					: undefined;
+				const result = await getStatus({
+					apiKey,
+					baseUrl,
+					tool: found,
+					generateId,
+					wait: Boolean(globals.wait),
+					timeoutMs: timeoutSeconds * 1000,
+				});
+				success(result);
+			} catch (err) {
+				emitError(err);
 			}
-			await apiStatus({
-				apiKey,
-				baseUrl: `${baseUrl}/api/ai/tool`,
-				generateId,
-				wait: Boolean(globals.wait),
-				timeoutMs: timeoutSeconds * 1000,
-				outputSchema,
-				mediaType,
-			});
 		});
 }
 
-export function registerToolCommands(program: Command) {
-	registerToolsNamespace(program);
-	registerStatusCommand(program);
-	for (const [modelId, config] of listCliModels()) {
-		registerRunCommand(program, modelId, config);
+export async function registerToolCommands(program: Command) {
+	const baseUrl = resolveBaseUrl(peekFlagValue(process.argv, "base-url"));
+	const manifest = await loadManifest(baseUrl, getLocale());
+	debug("manifest loaded", { count: manifest.tools.length });
+
+	registerToolsNamespace(program, manifest.tools);
+	registerStatusCommand(program, manifest.tools);
+	for (const tool of manifest.tools) {
+		registerRunCommand(program, tool);
 	}
 }

@@ -1,8 +1,8 @@
 ---
 name: dlazy-seedance-2.0
-version: 1.0.2
+version: 1.0.9
 description: ByteDance's latest video generation model. Supports multi-modal reference (images, video, audio) to generate videos, as well as first/last frame and text-to-video modes.
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy seedance-2.0 -h for help."}}
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy seedance-2.0 -h for help."}}
 ---
 
 # dlazy-seedance-2.0
@@ -38,77 +38,81 @@ Each key is scoped to your dLazy organization and can be **rotated or revoked at
 
 - **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **Maintainer**: dlazyai
-- **npm package**: `@dlazy/cli` (pinned to `1.0.8` in this skill's install spec)
+- **npm package**: `@dlazy/cli` (pinned to `1.0.9` in this skill's install spec)
 - **Homepage**: [dlazy.com](https://dlazy.com)
 
 You can install on demand without persisting a global binary by running:
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.8`). Review the GitHub source before installing.
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.9`). Review the GitHub source before installing.
 
 ## How It Works
 
 This skill is a thin client over the dLazy hosted API. When you invoke it:
 
 - Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
-- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
-- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
+- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`files.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
+- Generated output URLs returned by the API are hosted on `files.dlazy.com`.
 
 This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles. See [dlazy.com](https://dlazy.com) for the full service terms.
 
 ## Usage
 
-**CRITICAL INSTRUCTION FOR AGENT**: 
+**CRITICAL INSTRUCTION FOR AGENT**:
 Execute `dlazy seedance-2.0` to get the result.
 
 ```bash
 dlazy seedance-2.0 -h
 
 Options:
-  --prompt <prompt>                    Prompt
-  --generation_mode <generation_mode>  Generation Mode [default: components] (choices: "components", "frames")
-  --images <images...>                 Images [image: url or local path] (max 9) [only when !(generation_mode="frames")]
-  --videos <videos...>                 Videos [video: url or local path] (max 3) [only when !(generation_mode="frames")]
-  --audios <audios...>                 Audios [audio: url or local path] (max 3) [only when !(generation_mode="frames")]
-  --firstFrame <firstFrame>            First Frame [image: url or local path] [only when generation_mode="frames"]
-  --lastFrame <lastFrame>              Last Frame [image: url or local path] [only when generation_mode="frames"]
-  --resolution <resolution>            Resolution [default: 720p] (choices: "480p", "720p", "1080p")
-  --ratio <ratio>                      Aspect Ratio [default: 16:9] (choices: "21:9", "16:9", "4:3", "1:1", "3:4", "9:16")
-  --duration <duration>                Duration (s) [default: 5] (choices: "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15")
-  --generate_audio <generate_audio>    Generate Audio [default: true]
-  --promptRefs <promptRefs...>         promptRefs [default: ]
-  --input <spec>                       JSON payload: inline string, @file, or - (stdin)
+  --prompt [prompt]                    Prompt
+  --generation_mode [generation_mode]  Generation Mode [default: components] (choices: "components", "frames")
+  --images [images...]                 Images [image: url or local path] (max 9) [only when !(generation_mode="frames")]
+  --videos [videos...]                 Videos [video: url or local path] (max 3) [only when !(generation_mode="frames")]
+  --audios [audios...]                 Audios [audio: url or local path] (max 3) [only when !(generation_mode="frames")]
+  --firstFrame [firstFrame]            First Frame [image: url or local path] [only when generation_mode="frames"]
+  --lastFrame [lastFrame]              Last Frame [image: url or local path] [only when generation_mode="frames"]
+  --resolution [resolution]            Resolution [default: 720p] (choices: "480p", "720p", "1080p")
+  --ratio [ratio]                      Aspect Ratio [default: 16:9] (choices: "21:9", "16:9", "4:3", "1:1", "3:4", "9:16")
+  --duration [duration]                Duration (s) [default: 5] (choices: "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15")
+  --generate_audio [generate_audio]    Generate Audio [default: true]
   --dry-run                            Print payload + cost estimate without calling API
   --no-wait                            Return generateId immediately for async tasks
   --timeout <seconds>                  Max seconds to wait for async completion (default: "1800")
   -h, --help                           display help for command
 ```
 
+> Any flag also accepts pipe references — `-` (auto-pick from upstream stdin), `@N` (n-th output), `@N.path` (jsonpath into output), `@*` (all primary values), `@stdin` / `@stdin:path` (whole envelope). See `dlazy --help` for details.
+
 ## Output Format
 
 ```json
 {
   "ok": true,
-  "kind": "urls",
-  "data": {
-    "urls": [
-      "https://oss.dlazy.com/result.mp4"
+  "result": {
+    "tool": "seedance-2.0",
+    "modelId": "doubao-seedance-2_0",
+    "outputs": [
+      {
+        "type": "image",
+        "id": "o_xxxxxxxx",
+        "url": "https://files.dlazy.com/result.png",
+        "mimeType": "image/png"
+      }
     ]
   }
 }
 ```
 
-
-
-
+> Async tasks (when `--no-wait` is passed) return `outputs: []` and a `task: { generateId, status }` field instead. Use `dlazy status <generateId> --wait` to poll.
 
 ## Examples
 
 ```bash
-dlazy seedance-2.0 --prompt 'prompt content' 
+dlazy seedance-2.0 --prompt 'prompt content'
 ```
 
 ## Error Handling

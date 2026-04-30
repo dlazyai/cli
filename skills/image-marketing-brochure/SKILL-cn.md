@@ -1,13 +1,10 @@
 ---
 name: image-marketing-brochure
-version: 1.0.0
-description: 这是一个用于营销宣传册设计的完整工作流技能，覆盖从需求确认、平面设计到效果图交付的全流程，并采用“平面先行 + 强制确认门控”机制降低返工风险。
+version: 1.0.9
+description: A complete workflow skill for marketing brochure design, covering everything from requirements gathering, layout design, to mock-up delivery. It uses a 'layout-first + mandatory confirmation
 triggers:
-  - 营销宣传册设计师（平面先行）
-  - 企业品牌宣传册、产品介绍手册
-  - 活动推广单页、服务说明折页
-  - 招商手册、招生简章、项目图册
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
+  - Marketing Brochure Designer (Layout-First)
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当你需要使用此技能时，请严格遵循此技能提供的指南进行规划和执行。你可以通过调用 dlazy CLI 的各类生成模型（如 dlazy seedream-4.5 等）来完成实际的图片渲染。注意：Windows PowerShell 中不允许使用 `&` 或 `&&` 进行命令串联或后台运行，请单独且同步地执行命令。"}}
 ---
 
 ## 身份验证 (Authentication)
@@ -32,210 +29,210 @@ CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/
 
 - **CLI 源代码**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **维护者**: dlazyai
-- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.8` 版本）
+- **npm 包名**: `@dlazy/cli`（本技能 install 字段固定到 `1.0.9` 版本）
 - **官网**: [dlazy.com](https://dlazy.com)
 
 如果你不希望在系统上长期保留一个全局 CLI，可以按需运行：
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.8`。安装前建议先到 GitHub 仓库审阅源码。
+如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
 ## 工作原理 (How It Works)
 
 此技能是 dLazy 托管 API 的轻量封装。调用时：
 
 - 你提供的提示词与参数会发送到 dLazy API（`api.dlazy.com`）进行推理。
-- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`oss.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
-- API 返回的生成结果 URL 由 `oss.dlazy.com` 托管。
+- 传入图像 / 视频 / 音频字段的本地文件路径会被 CLI 上传到 dLazy 媒体存储（`files.dlazy.com`），以便模型读取 —— 与任何云端生成 API 的流程一致。
+- API 返回的生成结果 URL 由 `files.dlazy.com` 托管。
 
 这是标准的 SaaS 调用模式；技能本身不会越权访问网络或文件系统，所有动作都由 dLazy CLI 完成。
 
-# 营销宣传册设计师（平面先行）
+# Marketing Brochure Designer (Layout-First)
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
 
-这是一个用于营销宣传册设计的完整工作流技能，覆盖从需求确认、平面设计到效果图交付的全流程，并采用“平面先行 + 强制确认门控”机制降低返工风险。
+A complete workflow skill for marketing brochure design, covering everything from requirements gathering, layout design, to mock-up delivery. It uses a "layout-first + mandatory confirmation gate" mechanism to reduce rework risk.
 
-## 核心定位
+## Core Positioning
 
-适用场景：
+Applicable scenarios:
 
-- 企业品牌宣传册、产品介绍手册
-- 活动推广单页、服务说明折页
-- 招商手册、招生简章、项目图册
+- Corporate brand brochures, product introduction booklets
+- Event flyers, service description folds
+- Investment brochures, enrollment guides, project portfolios
 
-核心交付物：
+Core deliverables:
 
-- 平面设计稿：完整展开版面（内页视图 + 外页视图）
-- 折叠效果图：模拟实际折叠状态的展示图
-- 场景应用图：手持、环境等真实使用场景图
+- Layout design: full unfolded artwork (interior view + exterior view)
+- Folded mock-up: rendering that simulates the actual folded state
+- Lifestyle mock-up: real-world usage shots (held in hand, environment, etc.)
 
-## 步骤 0：任务规划（必须）
+## Step 0: Task Planning (Mandatory)
 
-在开始任何输出前，先建立任务计划，至少包含：
+Before any output, call `write_todos` to set up a task plan that includes at least:
 
-- 需求对齐与折叠类型确认
-- 平面设计稿生成与迭代
-- 平面确认门控与效果图输出
-- 场景图生成与最终交付
+- Requirements alignment and fold-type confirmation
+- Layout design generation and iteration
+- Layout confirmation gate and mock-up output
+- Lifestyle mock-up generation and final delivery
 
-执行规则：
+Execution rules:
 
-- 同时仅允许一个 `in_progress`，其余为 `pending` 或 `completed`。
-- 每完成一个阶段，更新计划状态。
-- 用户提出返工或新增素材时，新增或重排任务并回到对应阶段。
+- Only one task may be `in_progress` at a time; the rest are `pending` or `completed`.
+- Update `write_todos` status as soon as each phase finishes.
+- When the user asks for rework or new assets, add or re-order tasks and return to the corresponding phase.
 
-## 自适应执行流程
+## Adaptive Execution Flow
 
-根据用户请求类型动态推进：
+Drive the work forward dynamically based on the request type:
 
-| 用户请求类型 | 执行流程 |
+| Request Type | Execution Flow |
 | --- | --- |
-| 完整宣传册 | 确认折叠类型和内容框架 → 生成平面设计 → 用户确认 → 导出效果图 |
-| 单页请求 | 先生成指定页面 → 建议补充缺失页面以形成完整成品 |
-| 模糊请求 | 先明确折叠类型（三折/对折/Z 型等）→ 再推进设计 |
-| 仅要效果图 | 先检查是否已有已确认平面稿；若无则先生成平面并确认，再输出效果图 |
+| Full brochure | Confirm fold type and content framework → produce layout → user confirms → export mock-ups |
+| Single page | Generate the requested page first → suggest filling in the missing pages to form a complete piece |
+| Vague request | Clarify the fold type first (tri-fold / bi-fold / Z-fold, etc.) → then proceed |
+| Mock-up only | Check whether a confirmed layout already exists; if not, produce and confirm the layout first, then output the mock-ups |
 
-关键门控：
+Critical gate:
 
-- 平面设计稿生成后，必须等待用户明确确认满意，才能进入效果图制作阶段。
+- Once the layout is generated, you must wait for the user's explicit approval before moving on to mock-up production.
 
-## 宣传册类型与输出规格
+## Brochure Types and Output Specs
 
-### 三折页（最常见）
+### Tri-Fold (most common)
 
-- 输出物：6 个版面（外 3 + 内 3）
-- 适用：产品介绍、服务概览、企业推广
+- Output: 6 panels (3 exterior + 3 interior)
+- Use cases: product introduction, service overview, corporate promotion
 
-### 对折页
+### Bi-Fold
 
-- 输出物：4 个版面
-- 适用：活动方案、菜单、简要介绍
+- Output: 4 panels
+- Use cases: event programs, menus, brief introductions
 
-### Z 型折页
+### Z-Fold
 
-- 输出物：6 个版面，按顺序展开
-- 适用：分步指南、时间线、流程说明
+- Output: 6 panels unfolded in sequence
+- Use cases: step-by-step guides, timelines, process descriptions
 
-### 门折页
+### Gate-Fold
 
-- 输出物：4+ 版面，中心戏剧性展开
-- 适用：高端发布、奢侈品牌
+- Output: 4+ panels with a dramatic central reveal
+- Use cases: premium launches, luxury brands
 
-### 手风琴折页
+### Accordion Fold
 
-- 输出物：6-8 版面，逐步展开
-- 适用：地图、延展时间线
+- Output: 6–8 panels unfolded progressively
+- Use cases: maps, extended timelines
 
-### 骑马钉册子
+### Saddle-Stitched Booklet
 
-- 输出物：8+ 页，装订成册
-- 适用：产品目录、年度报告
+- Output: 8+ pages bound into a booklet
+- Use cases: product catalogs, annual reports
 
-## 三折页交付标准（默认示例）
+## Tri-Fold Delivery Standard (default example)
 
-平面设计稿必须包含：
+The layout must include:
 
-- 外页视图（折叠状态）：背面板 → 封面 → 内折部分
-- 内页视图（展开状态）：内左页 → 内中页 → 内右页
+- Exterior view (folded state): back panel → cover → inner flap
+- Interior view (unfolded state): inner left → inner middle → inner right
 
-推荐内容分布：
+Recommended content distribution:
 
-| 版面 | 核心内容 |
+| Panel | Core Content |
 | --- | --- |
-| 封面 | Logo、主视觉、标题 |
-| 内折部分 | 简要介绍、悬念钩子 |
-| 内左页 | 公司故事、背景信息 |
-| 内中页 | 核心价值主张、关键优势 |
-| 内右页 | 产品特点、行动号召 |
-| 背面板 | 联系方式、社交链接、版权信息 |
+| Cover | Logo, hero visual, headline |
+| Inner flap | Brief introduction, suspense hook |
+| Inner left | Company story, background info |
+| Inner middle | Core value proposition, key advantages |
+| Inner right | Product features, call to action |
+| Back panel | Contact info, social links, copyright |
 
-## 图像生成规范
+## Image Generation Specs
 
-默认宽高比：4:3
+Default aspect ratio: 4:3
 
-### 第 1 步：平面设计（必须先完成）
+### Step 1: Layout Design (must be completed first)
 
-1. 先搜索与用户需求相关的宣传页面风格图，作为平面稿参考输入。
-2. 生成完整平面展开图（内页 + 外页），作为所有后续效果图的唯一设计基准。
-3. 内页视图提示词必须包含以下结构关键词：
-   - 无背景
-   - 无白边
-   - 平面 2D
-   - 边到边
-   - 无透视阴影或边距
-   - 三个版面在一张图中并填满画布
+1. Search for brochure styling references that match the user's request and feed them in as layout inputs.
+2. Generate the full unfolded layout (interior + exterior) as the single source of truth for every downstream mock-up.
+3. The interior-view prompt must include these structural keywords:
+   - No background
+   - No white border
+   - Flat 2D
+   - Edge-to-edge
+   - No perspective shadow or margin
+   - All three panels in a single image, filling the canvas
 
-### 第 1.5 步：用户确认（强制门控）
+### Step 1.5: User Confirmation (mandatory gate)
 
-- 展示平面设计稿并明确询问：
-  - “这个平面设计稿是否符合您的要求？请确认后我再进行效果图制作。”
-- 若用户要求修改：回到第 1 步迭代，直到用户明确批准。
-- 仅在用户明确批准后，才进入第 2 步。
+- Show the layout and ask explicitly:
+  - "Does this layout meet your requirements? I'll move on to mock-ups once you confirm."
+- If the user requests changes: return to Step 1 and iterate until they approve.
+- Only after explicit approval may you proceed to Step 2.
 
-### 第 2 步：折叠效果图（需第 1 步确认后）
+### Step 2: Folded Mock-Ups (requires Step 1 approval)
 
-基于已确认平面设计稿输出：
+Based on the approved layout, output:
 
-- 站立式：Z 型折叠站立在白色表面，突出封面
-- 平铺式：部分展开，俯视图
-- 堆叠式：2-3 本宣传册以不同角度堆叠
+- Standing: Z-folded standing on a white surface, cover prominent
+- Flat-laid: partially unfolded, top-down view
+- Stacked: 2–3 brochures stacked at varied angles
 
-### 第 3 步：场景应用图（基于第 1 步）
+### Step 3: Lifestyle Mock-Ups (based on Step 1)
 
-基于已确认平面设计稿输出：
+Based on the approved layout, output:
 
-- 手持：第一人称视角，手持打开宣传册
-- 生活方式：第三人称视角，中近景人物阅读
-- 环境：放置在接待台、展位或公共空间
+- Held in hand: first-person POV, brochure open in hand
+- Lifestyle: third-person POV, mid-close shot of someone reading
+- Environment: placed on a reception desk, booth, or public space
 
-一致性要求：
+Consistency requirements:
 
-- 生成第 2、3 步图像时，必须将已确认的平面设计稿作为参考图输入。
-- 折叠类型必须一致（如三折平面设计只能输出三折效果图）。
+- When generating Step 2 and Step 3 images, you must feed the approved layout in as a reference image.
+- The fold type must stay consistent (a tri-fold layout can only produce tri-fold mock-ups).
 
-## 关键设计参数
+## Key Design Parameters
 
-色彩规则：
+Color rules:
 
-- 遵循 60-30-10 色彩法则
-- 封面优先使用品牌主色
-- 行动号召（CTA）使用强调色
+- Follow the 60-30-10 color rule
+- Cover prefers the brand primary color
+- The CTA uses the accent color
 
-必备信息：
+Mandatory information:
 
-- 背面板必须包含版权声明与联系方式
-- 受监管行业需补充合规免责声明
+- The back panel must include the copyright notice and contact info
+- Regulated industries should include compliance disclaimers
 
-## 用户对齐问答模板
+## User Alignment Question Templates
 
-生成设计前，优先完成以下对齐：
+Before generating, prefer to align on:
 
-- “您需要哪种折叠类型？三折页是最常见选择，适合大多数场景。”
-- “宣传册主要用途是什么？（产品推广 / 公司介绍 / 活动宣传）”
-- “您希望突出哪些信息？我可以帮您规划各版面的内容分布。”
-- “您有现成文案吗？还是需要我根据描述生成？”
-- “您有品牌色或参考设计吗？可上传图片帮助我理解风格偏好。”
-- “整体风格偏好：简约商务 / 活力时尚 / 高端奢华？”
-- “我会先生成平面设计稿，确认后再生成折叠效果图，可以吗？”
+- "Which fold type do you need? Tri-fold is the most common choice and fits most scenarios."
+- "What's the brochure's main purpose? (Product promo / company intro / event)"
+- "Which information do you want to highlight? I can plan content distribution per panel."
+- "Do you have ready-made copy, or should I draft from a description?"
+- "Any brand colors or reference designs? You can upload images so I understand your style preference."
+- "Overall style preference: minimal corporate / energetic / premium luxury?"
+- "I'll generate the layout first and only move to mock-ups after your confirmation — does that work?"
 
-## 迭代优化引导
+## Iterative Improvement Guidance
 
-当用户不满意时，优先用以下问题定位修改方向：
+When the user is unsatisfied, lead with these questions to locate the change:
 
-- “您觉得哪个版面需要调整？封面 / 内页 / 背面？”
-- “主要是色彩搭配、版式布局，还是内容表达需要修改？”
-- “您能描述理想效果，或上传参考图片吗？”
+- "Which panel needs adjustment — cover / interior / back?"
+- "Is it mainly the color palette, layout, or content expression?"
+- "Can you describe the desired outcome or upload a reference image?"
 
-## 执行策略总结
+## Execution Strategy Summary
 
-- 先规划后执行：先锁定折叠类型与内容框架。
-- 平面优先原则：所有效果图必须基于已确认平面设计稿。
-- 强制确认门控：未获平面确认前，禁止进入效果图阶段。
-- 参考图一致性：效果图生成必须引用已确认平面稿，确保视觉统一。
+- Plan before execute: lock in fold type and content framework first.
+- Layout-first principle: every mock-up must be based on the approved layout.
+- Mandatory confirmation gate: do not enter the mock-up phase before layout approval.
+- Reference consistency: mock-up generation must reference the approved layout to ensure visual unity.
 
 
 ## 🛠️ 执行与生成指南 (CRITICAL EXECUTION INSTRUCTIONS)

@@ -52,7 +52,10 @@ async function putToSignedUrl(
 	const resp = await fetch(signedUrl, {
 		method: "PUT",
 		headers: { "Content-Type": contentType },
-		body,
+		// Buffer is a Uint8Array subclass and works as BodyInit at runtime; the
+		// cast is just to satisfy TS, which doesn't list Buffer in BodyInit.
+		// Avoids the per-byte copy that `Uint8Array.from(body)` would do.
+		body: body as unknown as BodyInit,
 	});
 	if (!resp.ok) {
 		const text = await resp.text().catch(() => "");

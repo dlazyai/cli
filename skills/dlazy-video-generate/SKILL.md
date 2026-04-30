@@ -1,8 +1,25 @@
 ---
 name: dlazy-video-generate
-version: 1.0.2
+version: 1.0.9
 description: Video generation skill. Automatically selects the best dlazy CLI video model based on the prompt.
-metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.8","installAlternative":"npx @dlazy/cli@1.0.8","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","oss.dlazy.com"]},"openclaw":{"systemPrompt":"When this skill is called, use dlazy <subcommand>."}}
+metadata:
+  {
+    'clawdbot':
+      {
+        'emoji': '🤖',
+        'requires': { 'bins': ['npm', 'npx'] },
+        'install': 'npm install -g @dlazy/cli@1.0.9',
+        'installAlternative': 'npx @dlazy/cli@1.0.9',
+        'homepage': 'https://github.com/dlazyai/cli',
+        'source': 'https://github.com/dlazyai/cli',
+        'author': 'dlazyai',
+        'license': 'see-repo',
+        'npm': 'https://www.npmjs.com/package/@dlazy/cli',
+        'configLocation': '~/.dlazy/config.json',
+        'apiEndpoints': ['api.dlazy.com', 'files.dlazy.com'],
+      },
+    'openclaw': { 'systemPrompt': 'When this skill is called, use dlazy <subcommand>.' },
+  }
 ---
 
 # dlazy-video-generate
@@ -41,24 +58,24 @@ Each key is scoped to your dLazy organization and can be **rotated or revoked at
 
 - **CLI source code**: [github.com/dlazyai/cli](https://github.com/dlazyai/cli)
 - **Maintainer**: dlazyai
-- **npm package**: `@dlazy/cli` (pinned to `1.0.8` in this skill's install spec)
+- **npm package**: `@dlazy/cli` (pinned to `1.0.9` in this skill's install spec)
 - **Homepage**: [dlazy.com](https://dlazy.com)
 
 You can install on demand without persisting a global binary by running:
 
 ```bash
-npx @dlazy/cli@1.0.8 <command>
+npx @dlazy/cli@1.0.9 <command>
 ```
 
-Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.8`). Review the GitHub source before installing.
+Or, if you prefer a global install, the skill's `metadata.clawdbot.install` field declares the exact pinned version (`npm install -g @dlazy/cli@1.0.9`). Review the GitHub source before installing.
 
 ## How It Works
 
 This skill is a thin client over the dLazy hosted API. When you invoke it:
 
 - Prompts and parameters you provide are sent to the dLazy API endpoint (`api.dlazy.com`) for inference.
-- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`oss.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
-- Generated output URLs returned by the API are hosted on `oss.dlazy.com`.
+- Any local file paths you pass to image / video / audio fields are uploaded to dLazy's media storage (`files.dlazy.com`) so the model can read them — the same flow as any cloud-based generation API.
+- Generated output URLs returned by the API are hosted on `files.dlazy.com`.
 
 This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles. See [dlazy.com](https://dlazy.com) for the full service terms.
 
@@ -67,6 +84,7 @@ This is the standard SaaS pattern; the skill itself does not access network or f
 This skill handles all video generation requests by selecting the best `dlazy` video model.
 
 ### Available Video Models
+
 - `dlazy veo-3.1`, `dlazy veo-3.1-fast`: High-quality cinematic sequences.
 - `dlazy sora-2`, `dlazy sora-2-pro`: Narrative clips.
 - `dlazy kling-v3`, `dlazy kling-v3-omni`: General short clips.
@@ -74,24 +92,25 @@ This skill handles all video generation requests by selecting the best `dlazy` v
 - `dlazy wan2.6-r2v`, `dlazy wan2.6-r2v-flash`: General/fast video production.
 - `dlazy viduq2-i2v`, `dlazy jimeng-i2v-first`, `dlazy jimeng-i2v-first-tail`, `dlazy jimeng-dream-actor`, `dlazy jimeng-omnihuman-1.5`: Image-to-video, digital human, action transfer.
 
-**CRITICAL INSTRUCTION FOR AGENT**: 
+**CRITICAL INSTRUCTION FOR AGENT**:
+
 1. Select the most appropriate video model.
 2. Run \`dlazy <model_name> -h\` to check parameters.
 3. Execute the command.
-
 
 ## Error Handling
 
 | Code | Error Type                         | Example Message                                                                                                          |
 | ---- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| 401  | Unauthorized (No API Key)          | `ok: false, code: "unauthorized", message: "API key is missing or invalid"`                                                              |
-| 501  | Missing required parameter         | `error: required option '--prompt <prompt>' not specified`                                                              |
-| 502  | Local file read error              | `Error: Image file/Video file not found: C:\path\to\your\file`                                                          |
-| 503  | API request failed (no balance)    | `ok: false, code: "insufficient_balance"` |
-| 503  | API request failed (server error)  | `HTTP status code error (500 server crash)`                                                                             |
+| 401  | Unauthorized (No API Key)          | `ok: false, code: "unauthorized", message: "API key is missing or invalid"`                                              |
+| 501  | Missing required parameter         | `error: required option '--prompt <prompt>' not specified`                                                               |
+| 502  | Local file read error              | `Error: Image file/Video file not found: C:\path\to\your\file`                                                           |
+| 503  | API request failed (no balance)    | `ok: false, code: "insufficient_balance"`                                                                                |
+| 503  | API request failed (server error)  | `HTTP status code error (500 server crash)`                                                                              |
 | 504  | Asynchronous task execution failed | `=== Generation Failed ===` / `{Specific error reason returned by backend, for example "Prompt violates safety policy"}` |
 
-> **AGENT CRITICAL INSTRUCTION**: 
+> **AGENT CRITICAL INSTRUCTION**:
+>
 > 1. If the execution result returns `code: "insufficient_balance"`, you MUST explicitly inform the user that their credits are insufficient and guide them to recharge: [https://dlazy.com/dashboard/organization/settings?tab=credits](https://dlazy.com/dashboard/organization/settings?tab=credits)
 > 2. If the execution result returns `code: "unauthorized"` or indicates missing API key, you MUST inform the user to get their API key from [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) and save it using `dlazy auth set <key>` and resume the task.
 
