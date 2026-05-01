@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { getMimeType } from "../utils/utils";
+import { cliEndpoint } from "./endpoints";
 import { debug } from "./envelope";
 
 export type UploadContext = {
@@ -10,9 +11,9 @@ export type UploadContext = {
 
 function deriveUploadEndpoint(baseUrl: string): string {
 	try {
-		return `${new URL(baseUrl).origin}/api/cli/upload-url`;
+		return cliEndpoint(new URL(baseUrl).origin, "/upload-url");
 	} catch {
-		return `${baseUrl.replace(/\/+$/, "")}/api/cli/upload-url`;
+		return cliEndpoint(baseUrl, "/upload-url");
 	}
 }
 

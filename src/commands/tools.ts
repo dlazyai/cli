@@ -316,6 +316,25 @@ async function runToolAction(
 	success(result);
 }
 
+/**
+ * For object-typed array items (e.g. `merge.videoOptions`,
+ * `execute.shapes`), commander gives us strings — but the schema expects
+ * structured objects. JSON-parse each value at flag time so users can
+ * pass `--shapes '{"type":"image","props":{...}}'` directly.
+ */
+function isObjectArrayField(jsonSchema: unknown, key: string): boolean {
+	if (!jsonSchema || typeof jsonSchema !== "object") return false;
+	const props = (jsonSchema as { properties?: Record<string, unknown> })
+		.properties;
+	const node = props?.[key] as Record<string, unknown> | undefined;
+	if (!node || node.type !== "array" || !node.items) return false;
+	const items = (Array.isArray(node.items) ? node.items[0] : node.items) as
+		| Record<string, unknown>
+		| undefined;
+	if (!items) return false;
+	return Boolean(items.properties || items.type === "object");
+}
+
 function registerRunCommand(program: Command, tool: ManifestTool) {
 	const fields = describeSchema(tool.inputJsonSchema);
 
@@ -334,6 +353,20 @@ function registerRunCommand(program: Command, tool: ManifestTool) {
 		);
 		if (field.enumChoices && !field.isArray && !field.dynamicEnum) {
 			option.choices(field.enumChoices);
+		}
+		if (isObjectArrayField(tool.inputJsonSchema, field.key)) {
+			option.argParser((raw: string, prev?: unknown[]): unknown[] => {
+				let parsed: unknown;
+				try {
+					parsed = JSON.parse(raw);
+				} catch (err) {
+					throw new SdkError(
+						"invalid_input",
+						t().tools.flagJsonParseFailed(field.key, (err as Error).message),
+					);
+				}
+				return Array.isArray(prev) ? [...prev, parsed] : [parsed];
+			});
 		}
 		cmd.addOption(option);
 	}

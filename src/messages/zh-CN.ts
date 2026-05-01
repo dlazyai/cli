@@ -42,6 +42,8 @@ export const messages: Messages = {
 		inputValidationFailed: "输入参数校验失败",
 		inputFileNotFound: (p) => `--input 文件不存在:${p}`,
 		inputFileBadJson: (p, reason) => `--input ${p}:JSON 解析失败(${reason})`,
+		flagJsonParseFailed: (key, reason) =>
+			`--${key} 每个值必须是 JSON 对象（${reason}）`,
 		estimatedCost: (credits) => `预估费用:${credits} 积分`,
 		estimatedDuration: (seconds) => `预估耗时:${seconds} 秒`,
 		outputHeader: "输出 (stdout JSON 信封):",
@@ -94,6 +96,8 @@ export const messages: Messages = {
 		displayBannerEnd: "----- 用户可见输出 结束 -----",
 		displayHint:
 			"[指令] 请将上方 开始/结束 标记之间的内容,输出到用户的回复里。",
+		versionTooLow: (current, min, upgradeCommand) =>
+			`CLI 版本 ${current} 过低（最低要求 ${min}）。请运行 \`${upgradeCommand}\` 升级后重试。`,
 	},
 	config: {
 		startingAuth: "\n[dLazy CLI] 正在启动登录流程...",

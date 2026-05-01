@@ -1,6 +1,6 @@
 ---
 name: dlazy-seedream-5.0-lite
-version: 1.0.9
+version: 1.1.0
 description: Fast image generation with Doubao Seedream 5.0 Lite. Supports text-to-image and image-to-image.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy seedream-5.0-lite -h for help."}}
 ---
@@ -21,7 +21,17 @@ Fast image generation with Doubao Seedream 5.0 Lite. Supports text-to-image and 
 
 ## Authentication
 
-All requests require a dLazy API key, configured through the CLI:
+All requests require a dLazy API key. The recommended way to authenticate is:
+
+```bash
+dlazy login
+```
+
+This runs a device-code flow (also works in remote shells) and **automatically saves your API key** to the local CLI config — no manual copy/paste required.
+
+### Alternative: Set the Key Manually
+
+If you already have an API key, you can save it directly:
 
 ```bash
 dlazy auth set YOUR_API_KEY
@@ -29,7 +39,7 @@ dlazy auth set YOUR_API_KEY
 
 The CLI saves the key in your user config directory (`~/.dlazy/config.json` on macOS/Linux, `%USERPROFILE%\.dlazy\config.json` on Windows), with file permissions restricted to your OS user account. You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable.
 
-### Getting Your API Key
+### Getting Your API Key Manually
 
 1. Sign in or create an account at [dlazy.com](https://dlazy.com)
 2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
@@ -90,7 +100,7 @@ Options:
   "ok": true,
   "result": {
     "tool": "seedream-5.0-lite",
-    "modelId": "doubao-seedream-5_0-lite",
+    "modelId": "doubao-seedream-5-0-lite",
     "outputs": [
       {
         "type": "image",

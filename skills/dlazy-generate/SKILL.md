@@ -1,6 +1,6 @@
 ---
 name: dlazy-generate
-version: 1.0.9
+version: 1.1.0
 description: A comprehensive generation skill. Can generate images, videos, and audio by automatically selecting the appropriate dlazy CLI model.
 metadata:
   {
@@ -36,7 +36,17 @@ A comprehensive generation skill. Can generate images, videos, and audio by auto
 
 ## Authentication
 
-All requests require a dLazy API key, configured through the CLI:
+All requests require a dLazy API key. The recommended way to authenticate is:
+
+```bash
+dlazy login
+```
+
+This runs a device-code flow (also works in remote shells) and **automatically saves your API key** to the local CLI config — no manual copy/paste required.
+
+### Alternative: Set the Key Manually
+
+If you already have an API key, you can save it directly:
 
 ```bash
 dlazy auth set YOUR_API_KEY
@@ -44,13 +54,14 @@ dlazy auth set YOUR_API_KEY
 
 The CLI saves the key in your user config directory (`~/.dlazy/config.json` on macOS/Linux, `%USERPROFILE%\.dlazy\config.json` on Windows), with file permissions restricted to your OS user account. You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable.
 
-### Getting Your API Key
+### Getting Your API Key Manually
 
 1. Sign in or create an account at [dlazy.com](https://dlazy.com)
 2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
 3. Copy the key shown in the API Key section
 
 Each key is scoped to your dLazy organization and can be **rotated or revoked at any time** from the same dashboard.
+
 
 
 
@@ -79,6 +90,37 @@ This skill is a thin client over the dLazy hosted API. When you invoke it:
 
 This is the standard SaaS pattern; the skill itself does not access network or filesystem resources beyond what the dLazy CLI already handles. See [dlazy.com](https://dlazy.com) for the full service terms.
 
+## Piping Between Commands
+
+Every `dlazy` invocation prints a JSON envelope on stdout. Any flag value can be a **pipe reference** that pulls from the upstream command's envelope, so you can chain steps without copying URLs by hand.
+
+| Reference          | Resolves to                                                     |
+| ------------------ | --------------------------------------------------------------- |
+| `-`                | Upstream's natural value for this field (scalar or array)       |
+| `@N`               | The N-th output's primary value (e.g. `@0` = first output url)  |
+| `@N.<jsonpath>`    | Drill into the N-th output (`@0.url`, `@1.meta.fps`)            |
+| `@*`               | All outputs' primary values as an array                         |
+| `@stdin`           | The whole upstream JSON envelope                                |
+| `@stdin:<jsonpath>` | Jsonpath into the whole envelope (`@stdin:result.outputs[0].url`) |
+
+### Examples
+
+```bash
+# Generate an image and feed its url straight into image-to-video
+dlazy seedream-4.5 --prompt "a red fox in snow" \
+  | dlazy kling-v3 --image - --prompt "fox starts running"
+
+# Generate an image, then add TTS narration over a still
+dlazy seedream-4.5 --prompt "lighthouse at dawn" \
+  | dlazy keling-tts --text "Welcome to the coast." --image @0.url
+
+# Fan-out: pass every upstream output url into a batch step
+dlazy seedream-4.5 --prompt "city skyline" --n 4 \
+  | dlazy superres --images @*
+```
+
+> Required flags can be entirely sourced from the pipe — `--field -` satisfies the requirement when an upstream value exists. If stdin is empty, the CLI fails with `code: "no_stdin"`.
+
 ## Usage
 
 This is a comprehensive skill that routes generation requests to the appropriate `dlazy` model based on the user's intent.
@@ -93,7 +135,7 @@ This is a comprehensive skill that routes generation requests to the appropriate
 - `dlazy grok-4.2`: Minimalist.
 - `dlazy recraft-v3`: Stylized (illustration).
 - `dlazy recraft-v3-svg`: SVG/vector.
-- `dlazy mj.imagine`: Midjourney style.
+- `dlazy mj-imagine`: Midjourney style.
 - `dlazy kling-image-o1`, `dlazy viduq2-t2i`, `dlazy jimeng-t2i`: Other specific high-quality image models.
 
 **Video Generation:**
@@ -108,7 +150,7 @@ This is a comprehensive skill that routes generation requests to the appropriate
 **Audio Generation:**
 
 - `dlazy gemini-2.5-tts`, `dlazy doubao-tts`, `dlazy keling-tts`: Text-to-speech.
-- `dlazy suno.music`: Music generation.
+- `dlazy suno-music`: Music generation.
 - `dlazy keling-sfx`: Sound effects.
 
 **CRITICAL INSTRUCTION FOR AGENT**:

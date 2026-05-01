@@ -3,6 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { version as CLI_VERSION } from "../../package.json";
 import type { Locale } from "../messages";
+import { cliEndpoint } from "./endpoints";
 import { debug } from "./envelope";
 
 export type ManifestTool = {
@@ -58,7 +59,7 @@ async function fetchFresh(
 	baseUrl: string,
 	locale: Locale,
 ): Promise<Manifest | null> {
-	const url = `${baseUrl}/api/ai/tool/manifest?locale=${encodeURIComponent(locale)}`;
+	const url = `${cliEndpoint(baseUrl, "/tool/manifest")}?locale=${encodeURIComponent(locale)}`;
 	const ctrl = new AbortController();
 	const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
 	try {

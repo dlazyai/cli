@@ -3,14 +3,14 @@
  *
  * Two equivalent call styles:
  *
- *   import { sdk, run, configure } from "@dlazy/cli/sdk";
+ *   import { sdk, run, configure } from "@dlazy/cli";
  *   configure({ apiKey: "sk-..." });
  *   const hero = sdk.seedream_4_5({ prompt: "cyberpunk cat" });
  *   const clip = sdk.veo_3_1({ image: hero, prompt: "drone shot" });
  *   const final = await run(clip);
  *
  *   // or with explicit tool name:
- *   import { tool, run } from "@dlazy/cli/sdk";
+ *   import { tool, run } from "@dlazy/cli";
  *   const hero = tool("seedream-4.5", { prompt: "..." });
  *
  * Handles are lazy and thenable, so `await sdk.seedream_4_5({...})` also
@@ -44,6 +44,7 @@ export {
 } from "./client";
 export type { HandleResult } from "./handle";
 export { arrayOf, Handle, isHandle, scalarOf } from "./handle";
+export * from "./named-tools";
 export type { RunOptions } from "./runner";
 export { describeTool, run, runHandle } from "./runner";
 

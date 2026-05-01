@@ -1,6 +1,7 @@
 import { version as CLI_VERSION } from "../../package.json";
 import { t } from "../messages";
 import { sleep } from "../utils/utils";
+import { cliEndpoint } from "./endpoints";
 import { debug, heartbeat, log, SdkError } from "./envelope";
 import type { ManifestTool } from "./manifest";
 import {
@@ -49,13 +50,14 @@ export async function apiEstimate(opts: {
 	modelId: string;
 	input: Record<string, unknown>;
 }): Promise<EstimateResult> {
-	const endpoint = `${opts.baseUrl.replace(/\/$/, "")}/api/ai/tool/estimate`;
+	const endpoint = cliEndpoint(opts.baseUrl, "/tool/estimate");
 	const resp = await fetch(endpoint, {
 		method: "POST",
 		headers: buildHeaders(opts.apiKey),
 		body: JSON.stringify({ model: opts.modelId, input: opts.input }),
 	});
 	if (!resp.ok) {
+		await throwIfVersionGated(resp);
 		debug("estimate failed", resp.status);
 		return { estimatedCostCredits: null, estimatedDurationSeconds: null };
 	}
@@ -74,12 +76,47 @@ function buildHeaders(apiKey: string): HeadersInit {
 	};
 }
 
+type VersionGateDetails = {
+	currentVersion?: string;
+	minVersion?: string;
+	latestVersion?: string;
+	upgradeCommand?: string;
+};
+
+/**
+ * If the response is HTTP 426 (server's version-gate code), throw a
+ * `cli_version_too_low` SdkError with an upgrade hint and return true.
+ * Returns false (without consuming the body) for any other status, so the
+ * caller can fall through to its own error handling.
+ */
+async function throwIfVersionGated(response: Response): Promise<boolean> {
+	if (response.status !== 426) return false;
+	const text = await response.text();
+	let details: unknown = text;
+	try {
+		details = JSON.parse(text);
+	} catch {
+		/* keep as text */
+	}
+	const body = (details as { details?: VersionGateDetails }) ?? {};
+	const d = body.details ?? {};
+	throw new SdkError(
+		"cli_version_too_low",
+		t().api.versionTooLow(
+			d.currentVersion ?? CLI_VERSION,
+			d.minVersion ?? "?",
+			d.upgradeCommand ?? "npm install -g @dlazy/cli@latest",
+		),
+		details,
+	);
+}
+
 /**
  * Submit a tool run and (optionally) wait for completion. Pure: returns a
  * ToolResult; throws SdkError on failure. CLI and SDK both call this.
  */
 export async function executeTool(opts: RunOptions): Promise<ToolResult> {
-	const endpoint = `${opts.baseUrl.replace(/\/$/, "")}/api/ai/tool`;
+	const endpoint = cliEndpoint(opts.baseUrl, "/tool");
 	const headers = buildHeaders(opts.apiKey);
 
 	const body: Record<string, unknown> = {
@@ -104,6 +141,7 @@ export async function executeTool(opts: RunOptions): Promise<ToolResult> {
 	}
 
 	if (!response.ok) {
+		await throwIfVersionGated(response);
 		const text = await response.text();
 		let details: unknown = text;
 		try {
@@ -150,10 +188,7 @@ export async function executeTool(opts: RunOptions): Promise<ToolResult> {
 	return attachWarning(toToolResult(output, opts.tool), initialWarning);
 }
 
-function attachWarning(
-	result: ToolResult,
-	warning: string | null,
-): ToolResult {
+function attachWarning(result: ToolResult, warning: string | null): ToolResult {
 	if (!warning) return result;
 	return { ...result, warning };
 }
@@ -190,7 +225,7 @@ export type StatusOptions = {
 
 /** Poll a generateId or fetch it once. Returns ToolResult; throws SdkError. */
 export async function getStatus(opts: StatusOptions): Promise<ToolResult> {
-	const endpoint = `${opts.baseUrl.replace(/\/$/, "")}/api/ai/tool`;
+	const endpoint = cliEndpoint(opts.baseUrl, "/tool");
 	const headers = buildHeaders(opts.apiKey);
 	const tool = opts.tool ?? makeFallbackTool();
 
@@ -210,6 +245,7 @@ export async function getStatus(opts: StatusOptions): Promise<ToolResult> {
 		{ headers },
 	);
 	if (!resp.ok) {
+		await throwIfVersionGated(resp);
 		throw new SdkError("http_error", t().api.statusFetchFailed(resp.status));
 	}
 	const data = (await resp.json()) as PollResponse & { cliWarning?: string };
@@ -256,6 +292,7 @@ async function pollUntilDone(opts: {
 			throw new SdkError("network_error", (err as Error).message);
 		}
 		if (!resp.ok) {
+			await throwIfVersionGated(resp);
 			throw new SdkError("http_error", t().api.pollFailed(resp.status));
 		}
 		const data = (await resp.json()) as PollResponse & {

@@ -45,6 +45,8 @@ export const messages: Messages = {
 		inputValidationFailed: "input validation failed",
 		inputFileNotFound: (p) => `--input file not found: ${p}`,
 		inputFileBadJson: (p, reason) => `--input ${p}: invalid JSON (${reason})`,
+		flagJsonParseFailed: (key, reason) =>
+			`--${key} expects a JSON object per value (${reason})`,
 		estimatedCost: (credits) => `estimated cost: ${credits} credits`,
 		estimatedDuration: (seconds) => `estimated duration: ${seconds}s`,
 		outputHeader: "Output (stdout, JSON envelope):",
@@ -99,6 +101,8 @@ export const messages: Messages = {
 		displayBannerEnd: "----- END USER-VISIBLE OUTPUT -----",
 		displayHint:
 			"[instruction] Copy the block between the BEGIN/END markers above into your reply to the user.",
+		versionTooLow: (current, min, upgradeCommand) =>
+			`CLI version ${current} is below the minimum required (${min}). Please run \`${upgradeCommand}\` to upgrade and retry.`,
 	},
 	config: {
 		startingAuth: "\n[dLazy CLI] Starting authentication process...",

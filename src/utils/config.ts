@@ -3,6 +3,7 @@ import * as crypto from "node:crypto";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { cliEndpoint } from "../lib/endpoints";
 import { log } from "../lib/envelope";
 import { t } from "../messages";
 // Self-import so intra-module calls go through the module namespace. Allows
@@ -81,7 +82,7 @@ export async function waitForApiKeyAuth(options?: {
 	const token = buildDeviceToken(expiresInMinutes);
 	const baseUrl = resolveBaseUrl(options?.local);
 	const verificationUri = `${baseUrl}/auth/cli?token=${encodeURIComponent(token)}`;
-	const pollUrl = `${baseUrl}/api/cli/verification?token=${encodeURIComponent(token)}`;
+	const pollUrl = `${cliEndpoint(baseUrl, "/verification")}?token=${encodeURIComponent(token)}`;
 
 	log(msgs.startingAuth);
 	log(msgs.visitToAuthorize(verificationUri));

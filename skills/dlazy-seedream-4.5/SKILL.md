@@ -1,6 +1,6 @@
 ---
 name: dlazy-seedream-4.5
-version: 1.0.9
+version: 1.1.0
 description: Generate smooth, high-quality videos with Doubao Seedream 4.5. Supports text-to-video and image-to-video.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy seedream-4.5 -h for help."}}
 ---
@@ -20,7 +20,17 @@ Generate smooth, high-quality videos with Doubao Seedream 4.5. Supports text-to-
 
 ## Authentication
 
-All requests require a dLazy API key, configured through the CLI:
+All requests require a dLazy API key. The recommended way to authenticate is:
+
+```bash
+dlazy login
+```
+
+This runs a device-code flow (also works in remote shells) and **automatically saves your API key** to the local CLI config — no manual copy/paste required.
+
+### Alternative: Set the Key Manually
+
+If you already have an API key, you can save it directly:
 
 ```bash
 dlazy auth set YOUR_API_KEY
@@ -28,7 +38,7 @@ dlazy auth set YOUR_API_KEY
 
 The CLI saves the key in your user config directory (`~/.dlazy/config.json` on macOS/Linux, `%USERPROFILE%\.dlazy\config.json` on Windows), with file permissions restricted to your OS user account. You can also supply the key per-invocation via the `DLAZY_API_KEY` environment variable.
 
-### Getting Your API Key
+### Getting Your API Key Manually
 
 1. Sign in or create an account at [dlazy.com](https://dlazy.com)
 2. Go to [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
@@ -89,7 +99,7 @@ Options:
   "ok": true,
   "result": {
     "tool": "seedream-4.5",
-    "modelId": "doubao-seedream-4_5",
+    "modelId": "doubao-seedream-4-5",
     "outputs": [
       {
         "type": "image",

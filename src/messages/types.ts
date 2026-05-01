@@ -44,6 +44,7 @@ export type Messages = {
 		inputValidationFailed: string;
 		inputFileNotFound: (path: string) => string;
 		inputFileBadJson: (path: string, reason: string) => string;
+		flagJsonParseFailed: (key: string, reason: string) => string;
 		estimatedCost: (credits: number) => string;
 		estimatedDuration: (seconds: number) => string;
 		outputHeader: string;
@@ -82,6 +83,11 @@ export type Messages = {
 		displayBannerStart: string;
 		displayBannerEnd: string;
 		displayHint: string;
+		versionTooLow: (
+			current: string,
+			min: string,
+			upgradeCommand: string,
+		) => string;
 	};
 	config: {
 		startingAuth: string;

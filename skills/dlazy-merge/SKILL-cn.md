@@ -1,6 +1,6 @@
 ---
 name: dlazy-merge
-version: 1.0.9
+version: 1.1.0
 description: Audio/video merging tool for merging multiple video and audio tracks based on clips and timeline config, suitable for final cuts, scoring, and post-production.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy merge -h 查看帮助信息。"}}
 ---
@@ -18,7 +18,17 @@ Audio/video merging tool: merges multiple video and audio tracks based on clips 
 
 ## 身份验证 (Authentication)
 
-所有请求都需要 dLazy API key，通过 CLI 配置：
+所有请求都需要 dLazy API key。**推荐使用** `dlazy login` 完成登录：
+
+```bash
+dlazy login
+```
+
+该命令使用设备码流程（远程终端也可用），登录成功后 **自动把 API key 写入本地 CLI 配置**，无需手动复制粘贴。
+
+### 备选：手动设置 API Key
+
+如果你已有 API key，也可以直接保存：
 
 ```bash
 dlazy auth set YOUR_API_KEY
@@ -26,7 +36,7 @@ dlazy auth set YOUR_API_KEY
 
 CLI 会把 key 保存在你的用户配置目录（macOS/Linux 上为 `~/.dlazy/config.json`，Windows 上为 `%USERPROFILE%\.dlazy\config.json`），文件权限仅限当前操作系统用户访问。你也可以用 `DLAZY_API_KEY` 环境变量按次传入。
 
-### 获取你的 API Key
+### 手动获取 API Key
 
 1. 登录或在 [dlazy.com](https://dlazy.com) 创建账号
 2. 访问 [dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key)
