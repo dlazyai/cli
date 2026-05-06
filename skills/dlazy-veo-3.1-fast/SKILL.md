@@ -1,6 +1,6 @@
 ---
 name: dlazy-veo-3.1-fast
-version: 1.1.0
+version: 1.1.1
 description: Fast response and generation of short videos with Google Veo 3.1 Fast.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy veo-3.1-fast -h for help."}}
 ---
@@ -82,7 +82,7 @@ dlazy veo-3.1-fast -h
 Options:
   --prompt [prompt]                    Prompt
   --images [images...]                 Images [image: url or local path] (max 3) [only when generation_mode="components"]
-  --generation_mode [generation_mode]  Generation Mode [default: frames] (choices: "frames", "components")
+  --generation_mode [generation_mode]  Generation Mode（frames=Frames; components=Components） [default: frames] (choices: "frames", "components")
   --firstFrame [firstFrame]            First Frame [image: url or local path] [only when generation_mode="frames"]
   --lastFrame [lastFrame]              Last Frame [image: url or local path] [only when generation_mode="frames"]
   --size [size]                        Size [default: 16:9] (choices: "16:9", "9:16")

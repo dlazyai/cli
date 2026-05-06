@@ -1,6 +1,6 @@
 {
 	"name": "@dlazy/cli",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "Command-line interface for dLazy AI workflow, allowing direct invocation of various large models in the terminal",
 	"author": "dLazy",
 	"license": "MIT",
@@ -31,9 +31,13 @@
 		"prepublishOnly": "pnpm run build",
 		"dev": "DLAZY_BASE_URL=http://localhost:3000 tsx src/index.ts",
 		"pack": "pnpm run build && pnpm pack",
+		"skills:sync": "DLAZY_BASE_URL=http://localhost:3000 npx tsx scripts/sync-skills.ts && npx tsx scripts/sync-agent-skills.ts && npx tsx scripts/sync-extra-skills.ts",
+		"skills:extra": "DLAZY_BASE_URL=http://localhost:3000 npx tsx scripts/sync-extra-skills.ts",
+		"skills:export": "npx tsx scripts/export-skills.ts",
 		"test": "pnpm -w exec vitest run packages/cli/tests --testTimeout=600000",
 		"publish:skills": "npx tsx publish-skills.ts",
-		"publish": "pnpm publish",
+		"publish:skills:new": "npx tsx publish-skills.ts --new-only",
+		"publish:npm": "pnpm publish --no-git-checks",
 		"test:integration": "DLAZY_INTEGRATION=1 pnpm -w exec vitest run packages/cli/tests/integration.test.ts --testTimeout=600000"
 	},
 	"dependencies": {

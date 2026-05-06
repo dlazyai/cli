@@ -1,6 +1,6 @@
 ---
 name: dlazy-merge
-version: 1.1.0
+version: 1.1.1
 description: Audio/video merging tool for merging multiple video and audio tracks based on clips and timeline config, suitable for final cuts, scoring, and post-production.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy merge -h for help."}}
 ---

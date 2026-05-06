@@ -1,6 +1,6 @@
 ---
 name: dlazy-kling-v3-omni
-version: 1.1.0
+version: 1.1.1
 description: Versatile video generation with Kling v3 Omni. Supports multi-modal inputs to generate stunning dynamic videos.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy kling-v3-omni -h for help."}}
 ---
@@ -81,7 +81,7 @@ dlazy kling-v3-omni -h
 
 Options:
   --prompt [prompt]                    Prompt
-  --generation_mode [generation_mode]  Generation Mode [default: frames] (choices: "frames", "components")
+  --generation_mode [generation_mode]  Generation Mode（frames=Frames; components=Components） [default: frames] (choices: "frames", "components")
   --images [images...]                 Images [image: url or local path] (max 7)
   --subjects [subjects...]             Subjects (max 3) [only when !(generation_mode="frames")]
   --videos [videos...]                 Videos [video: url or local path] (max 1) [only when !(generation_mode="frames")]

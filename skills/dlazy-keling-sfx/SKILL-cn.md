@@ -1,6 +1,6 @@
 ---
 name: dlazy-keling-sfx
-version: 1.1.0
+version: 1.1.1
 description: 使用可灵 (Kling) 音效模型，根据文字描述或视频画面智能生成匹配的场景音效。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy keling-sfx -h 查看帮助信息。"}}
 ---

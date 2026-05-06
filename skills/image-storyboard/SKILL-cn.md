@@ -1,6 +1,6 @@
 ---
 name: image-storyboard
-version: 1.1.0
+version: 1.1.1
 description: A professional storyboard skill for film, advertising, short video, and educational narrative scenarios, built around a strict 'plan first, render later' flow.
 triggers:
   - Storyboard Workflow Director

@@ -1,6 +1,6 @@
 ---
 name: text-spoken-script
-version: 1.1.0
+version: 1.1.1
 description: This skill is used to guide the AI in generating short video spoken scripts with high contrast, strong resonance, a sense of story, and personal IP attributes. All generated scripts must str
 triggers:
   - Short Video Spoken Script Generation (Text Spoken Script)

@@ -107,7 +107,7 @@ export const messages: Messages = {
 	config: {
 		startingAuth: "\n[dLazy CLI] Starting authentication process...",
 		visitToAuthorize: (url) =>
-			`Open this URL in any browser to authorize:\n${url}\n`,
+			`Open the following URL in any browser to complete authorization. Once you have confirmed authorization is complete, you can continue with the next steps:\n${url}\n`,
 		pollingNotice: (minutes) =>
 			`Waiting for authorization (expires in ${minutes} minute${minutes === 1 ? "" : "s"})...`,
 		authExpired: "Authorization request expired or was rejected",

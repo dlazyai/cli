@@ -1,6 +1,6 @@
 ---
 name: dlazy-gpt-image-2
-version: 1.1.0
+version: 1.1.1
 description: 'GPT Image 2 model for text-to-image and image editing. Supports generating images from text as well as editing and synthesizing images with reference inputs. GPT Image 2 图像生成与编辑模型。支持文生图，以及通过提供参考图进行图像编辑和合成。'
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy gpt-image-2 -h for help."}}
 ---

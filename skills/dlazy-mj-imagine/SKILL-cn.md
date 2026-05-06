@@ -1,6 +1,6 @@
 ---
 name: dlazy-mj-imagine
-version: 1.1.0
+version: 1.1.1
 description: Midjourney 风格出图入口，支持画幅、Bot 类型与输出位（grid/U1-U4）。适合艺术化、风格强烈的创意图生成。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy mj-imagine -h 查看帮助信息。"}}
 ---

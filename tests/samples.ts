@@ -1,4 +1,5 @@
-// Hand-curated examples that appear in the public docs (scripts/sync-docs.ts).
+// Hand-curated examples that appear in the public docs
+// (packages/docs/scripts/sync-docs.ts).
 //
 // `samples.test.ts` re-executes each sample's `argv` against a stubbed API
 // and asserts the resulting outcome matches `expected*`. `sync-docs.ts`
@@ -102,6 +103,8 @@ export type DocSample =
 // 2026-04-30). Re-record by running the integration suite and updating.
 const URL_GPT_IMAGE_2 =
 	"https://files.dlazy.com/data/ai/3df21cf6-c9c0-4ff0-aeec-1b4bde6241ae.jpg";
+const URL_HAPPYHORSE_1_0 =
+	"https://files.dlazy.com/data/ai/019ea303-355f-48f3-9004-0ad2a507a0b4.mp4?t=1777560399655";
 
 export const docSamples: DocSample[] = [
 	// =====================================================================
@@ -221,6 +224,15 @@ export const docSamples: DocSample[] = [
 			{ type: "image", url: URL_GPT_IMAGE_2 },
 			{ type: "image", url: URL_GPT_IMAGE_2 },
 		],
+	},
+	{
+		id: "happyhorse-1.0-basic",
+		kind: "tool-call",
+		command: 'dlazy happyhorse-1.0 --prompt "一只小马在海边奔跑"',
+		argv: ["happyhorse-1.0", "--prompt", "一只小马在海边奔跑"],
+		apiOutput: { kind: "media-urls", urls: [URL_HAPPYHORSE_1_0] },
+		expectedExitCode: 0,
+		expectedOutputs: [{ type: "video", url: URL_HAPPYHORSE_1_0 }],
 	},
 
 	// =====================================================================

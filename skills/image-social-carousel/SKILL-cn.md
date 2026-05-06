@@ -1,6 +1,6 @@
 ---
 name: image-social-carousel
-version: 1.1.0
+version: 1.1.1
 description: A structured workflow skill dedicated to social-media carousel design. The core method is 'decide intent first, then execute,' using a 'single-confirmation + cover-first' two-phase flow.
 triggers:
   - Social Carousel Designer (Cover-First)

@@ -1,6 +1,6 @@
 ---
 name: dlazy-image-replicate
-version: 1.1.0
+version: 1.1.1
 description: '图像仿写工具：分析原图的视觉效果、构图、色彩、光影和风格，生成重绘提示词，并交给 Seedream 4.5 生成具有相同风格的新图像。'
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy image-replicate -h 查看帮助信息。"}}
 ---

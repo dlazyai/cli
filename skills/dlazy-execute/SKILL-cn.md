@@ -1,6 +1,6 @@
 ---
 name: dlazy-execute
-version: 1.1.0
+version: 1.1.1
 description: 执行 plan 输出的扁平节点列表。按 `shape://name:<X>` 引用计算依赖顺序，依次通过 /api/ai/tool 调度每个 shape；上游产物的 url 会替换到下游 input 中相应字段，`promptRefs` 引用的文本会被拼接到消费者的 `prompt` 前面。重要：只有 `props.status === "idle"` 的 shape 才会真正执行；其它状态（`completed` / `failed` / `processing`）一律视为已完成，其当前的 `props.url` 被作为产物供下游引用。若上次执行中途失败，可将失败节点（以及任何需要重跑的节点）的 status 改回 `idle`，可选地修改 `props.input`，再次调用 execute 即可从失败位置继续。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy execute -h 查看帮助信息。"}}
 ---

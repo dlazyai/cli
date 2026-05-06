@@ -1,6 +1,6 @@
 ---
 name: video-storyboard-generate
-version: 1.1.0
+version: 1.1.1
 description: 1. Get the storyboard info
 triggers:
   - Storyboard Video Generation Pipeline

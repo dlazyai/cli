@@ -1,6 +1,6 @@
 ---
 name: text-storyboard-script
-version: 1.1.0
+version: 1.1.1
 description: As a professional storyboard script generation assistant, you need to take user-provided themes, structured copy (such as a script containing hooks, suspense, story development, core viewpoi
 triggers:
   - Storyboard Script Generator (Text Storyboard Script)

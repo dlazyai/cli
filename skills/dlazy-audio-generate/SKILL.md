@@ -1,30 +1,14 @@
 ---
 name: dlazy-audio-generate
-version: 1.1.0
+version: 1.1.1
 description: Audio generation skill. Automatically selects the best dlazy CLI audio/TTS model based on the prompt. 音频生成技能。根据提示词自动选择最佳的 dlazy CLI 音频/TTS 模型。
-metadata:
-  {
-    'clawdbot':
-      {
-        'emoji': '🤖',
-        'requires': { 'bins': ['npm', 'npx'] },
-        'install': 'npm install -g @dlazy/cli@1.0.9',
-        'installAlternative': 'npx @dlazy/cli@1.0.9',
-        'homepage': 'https://github.com/dlazyai/cli',
-        'source': 'https://github.com/dlazyai/cli',
-        'author': 'dlazyai',
-        'license': 'see-repo',
-        'npm': 'https://www.npmjs.com/package/@dlazy/cli',
-        'configLocation': '~/.dlazy/config.json',
-        'apiEndpoints': ['api.dlazy.com', 'files.dlazy.com'],
-      },
-    'openclaw': { 'systemPrompt': 'When this skill is called, use dlazy <subcommand>.' },
-  }
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When this skill is called, use dlazy <subcommand>."}}
 ---
 
 # dlazy-audio-generate
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
+
 
 Audio generation skill. Automatically selects the best dlazy CLI audio/TTS model based on the prompt. 音频生成技能。根据提示词自动选择最佳的 dlazy CLI 音频/TTS 模型。
 
@@ -38,9 +22,9 @@ Audio generation skill. Automatically selects the best dlazy CLI audio/TTS model
 
 All requests require a dLazy API key. The recommended way to authenticate is:
 
+
+
 ```bash
-dlazy login
-```
 
 This runs a device-code flow (also works in remote shells) and **automatically saves your API key** to the local CLI config — no manual copy/paste required.
 
@@ -121,36 +105,39 @@ dlazy seedream-4.5 --prompt "city skyline" --n 4 \
 
 > Required flags can be entirely sourced from the pipe — `--field -` satisfies the requirement when an upstream value exists. If stdin is empty, the CLI fails with `code: "no_stdin"`.
 
-## Usage / 使用方法
+## Usage
 
 This skill handles all audio generation requests by selecting the best `dlazy` audio model.
 
 ### Available Audio Models
 
-- `dlazy gemini-2.5-tts`, `dlazy doubao-tts`, `dlazy keling-tts`: Text-to-speech.
-- `dlazy suno-music`: Music generation.
-- `dlazy keling-sfx`: Sound effects.
-- `dlazy vidu-audio-clone`, `dlazy kling-audio-clone`: Voice cloning.
+- `dlazy gemini-2.5-tts`: Gemini-powered high-quality text-to-speech. Supports bilingual (EN/CN) and various emotional voices.
+- `dlazy suno-music`: Suno music generation model. Supports inspiration mode (auto lyrics) and custom mode (manual lyrics), generating music with or without vocals.
+- `dlazy keling-sfx`: Sound effect generation model: supports text-to-SFX and matching SFX/BGM for reference videos. Suitable for foley, ambient sounds, and short video audio completion.
+- `dlazy keling-tts`: Text-to-speech model (TTS), supports language, voice, speed, and output format settings. Suitable for dubbing, audiobooks, and voice broadcasts.
+- `dlazy doubao-tts`: ByteDance Doubao speech synthesis model. Supports multiple languages, voices, and highly natural streaming audio output, suitable for news broadcasts and audiobooks.
+- `dlazy vidu-audio-clone`: Clone a real human voice and use it to read the specified text.
+- `dlazy kling-audio-clone`: Custom voice (Kling), cloned voice used for dubbing or binding to subjects.
 
 **CRITICAL INSTRUCTION FOR AGENT**:
 
 1. Select the most appropriate audio model.
-2. Run \`dlazy <model_name> -h\` to check parameters.
+2. Run `dlazy <model_name> -h` to check parameters.
 3. Execute the command.
+
 
 ## Error Handling
 
 | Code | Error Type                         | Example Message                                                                                                          |
 | ---- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| 401  | Unauthorized (No API Key)          | `ok: false, code: "unauthorized", message: "API key is missing or invalid"`                                              |
-| 501  | Missing required parameter         | `error: required option '--prompt <prompt>' not specified`                                                               |
-| 502  | Local file read error              | `Error: Image file/Video file not found: C:\path\to\your\file`                                                           |
-| 503  | API request failed (no balance)    | `ok: false, code: "insufficient_balance"`                                                                                |
-| 503  | API request failed (server error)  | `HTTP status code error (500 server crash)`                                                                              |
+| 401  | Unauthorized (No API Key)          | `ok: false, code: "unauthorized", message: "API key is missing or invalid"`                                                              |
+| 501  | Missing required parameter         | `error: required option '--prompt <prompt>' not specified`                                                              |
+| 502  | Local file read error              | `Error: Image file/Video file not found: C:\path\to\your\file`                                                          |
+| 503  | API request failed (no balance)    | `ok: false, code: "insufficient_balance"` |
+| 503  | API request failed (server error)  | `HTTP status code error (500 server crash)`                                                                             |
 | 504  | Asynchronous task execution failed | `=== Generation Failed ===` / `{Specific error reason returned by backend, for example "Prompt violates safety policy"}` |
 
-> **AGENT CRITICAL INSTRUCTION**:
->
+> **AGENT CRITICAL INSTRUCTION**: 
 > 1. If the execution result returns `code: "insufficient_balance"`, you MUST explicitly inform the user that their credits are insufficient and guide them to recharge: [https://dlazy.com/dashboard/organization/settings?tab=credits](https://dlazy.com/dashboard/organization/settings?tab=credits)
 > 2. If the execution result returns `code: "unauthorized"` or indicates missing API key, you MUST inform the user to get their API key from [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) and save it using `dlazy auth set <key>` and resume the task.
 

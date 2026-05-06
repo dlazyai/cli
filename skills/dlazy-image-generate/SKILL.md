@@ -1,30 +1,14 @@
 ---
 name: dlazy-image-generate
-version: 1.1.0
+version: 1.1.1
 description: Image generation skill. Automatically selects the best dlazy CLI image model based on the prompt.
-metadata:
-  {
-    'clawdbot':
-      {
-        'emoji': '🤖',
-        'requires': { 'bins': ['npm', 'npx'] },
-        'install': 'npm install -g @dlazy/cli@1.0.9',
-        'installAlternative': 'npx @dlazy/cli@1.0.9',
-        'homepage': 'https://github.com/dlazyai/cli',
-        'source': 'https://github.com/dlazyai/cli',
-        'author': 'dlazyai',
-        'license': 'see-repo',
-        'npm': 'https://www.npmjs.com/package/@dlazy/cli',
-        'configLocation': '~/.dlazy/config.json',
-        'apiEndpoints': ['api.dlazy.com', 'files.dlazy.com'],
-      },
-    'openclaw': { 'systemPrompt': 'When this skill is called, use dlazy <subcommand>.' },
-  }
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When this skill is called, use dlazy <subcommand>."}}
 ---
 
 # dlazy-image-generate
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
+
 
 Image generation skill. Automatically selects the best dlazy CLI image model based on the prompt.
 
@@ -38,9 +22,9 @@ Image generation skill. Automatically selects the best dlazy CLI image model bas
 
 All requests require a dLazy API key. The recommended way to authenticate is:
 
+
+
 ```bash
-dlazy login
-```
 
 This runs a device-code flow (also works in remote shells) and **automatically saves your API key** to the local CLI config — no manual copy/paste required.
 
@@ -127,34 +111,45 @@ This skill handles all image generation requests by selecting the best `dlazy` i
 
 ### Available Image Models
 
-- `dlazy seedream-4.5`: High-quality realism/posters.
-- `dlazy seedream-5.0-lite`: Fast, low-cost sketches.
-- `dlazy banana2`, `dlazy banana-pro`: General text-to-image.
-- `dlazy grok-4.2`: Minimalist.
-- `dlazy recraft-v3`: Stylized (illustration).
-- `dlazy recraft-v3-svg`: SVG/vector.
-- `dlazy mj-imagine`: Midjourney style.
-- `dlazy kling-image-o1`, `dlazy viduq2-t2i`, `dlazy jimeng-t2i`: High-fidelity generation.
+- `dlazy gpt-image-2`: GPT Image 2 model for text-to-image and image editing. Supports generating images from text as well as editing and synthesizing images with reference inputs.
+- `dlazy seedream-4.5`: High-quality text-to-image/image-to-image model, suitable for posters, realism, and creative scenes. Supports prompt + multiple reference images, outputting single high-res images (2K/4K).
+- `dlazy seedream-5.0-lite`: Lightweight high-speed image generation model, suitable for batch generation, sketches, and low-cost iteration. Supports prompt + reference images, outputting 2K/3K images.
+- `dlazy banana2`: General text-to-image model (optional 1 reference image), emphasizes speed and cost-effectiveness. Suitable for quick visual drafts, social media posts, and multi-size generation.
+- `dlazy banana-pro`: High-quality text-to-image model (optional 1 reference image), suitable for key visuals, product shots, and brand style generation with higher detail requirements.
+- `dlazy grok-4.2`: Minimalist text-to-image model, requires only prompt. Suitable for quick creative validation or scenarios with average quality requirements.
+- `dlazy recraft-v3`: Stylized text-to-image model, supports aspect ratio and style control (realism/illustration, etc.). Suitable for brand KV, posters, and consistent visual content.
+- `dlazy recraft-v3-svg`: Text-to-vector model, outputs SVG/vector-style results. Suitable for logos, icons, line art, and scalable design assets.
+- `dlazy recraft-v4`: 1MP raster image generation with refined design judgment. Suitable for everyday creative work and fast iteration.
+- `dlazy recraft-v4-vector`: Text-to-vector model that outputs SVG results. Suitable for logos, icons, and scalable design assets.
+- `dlazy recraft-v4-pro`: 4MP high-resolution raster image generation. Suitable for print-ready assets and large-scale use.
+- `dlazy recraft-v4-pro-vector`: High-fidelity text-to-vector model with 4MP-tier quality. Suitable for production-grade SVG assets and detailed illustrations.
+- `dlazy mj-imagine`: Midjourney style generation, supports aspect ratio, Bot type, and output position (grid/U1-U4). Suitable for artistic and strongly stylized creative generation.
+- `dlazy kling-image-o1`: Kling image model, supports '<image_1>' placeholder in prompt for reference image binding. Suitable for multi-image constraints and high-fidelity generation.
+- `dlazy viduq2-t2i`: Vidu image generation model, supports text + reference image, aspect ratio, and resolution control. Suitable for character art, cover images, and high-res generation.
+- `dlazy jimeng-t2i`: Jimeng high-res text-to-image model, supports multi-ratio ultra-clear output and reference image constraints, suitable for commercial visuals and refined generation.
+- `dlazy imageseg`: Image matting tool: separates foreground from background and returns transparent background URL, suitable for product image processing, character cutout, and composition.
+- `dlazy image-replicate`: Image replicate tool: analyzes the visuals, composition, colors, lighting, and style of the source image, builds a replicate prompt, and hands it off to Seedream 4.5 to generate a new image in the same style.
+- `dlazy superres`: Image super-resolution tool: enhances image clarity and details, returning enhanced URL, suitable for low-res asset restoration and upscaling.
 
 **CRITICAL INSTRUCTION FOR AGENT**:
 
 1. Select the most appropriate image model.
-2. Run \`dlazy <model_name> -h\` to check parameters.
+2. Run `dlazy <model_name> -h` to check parameters.
 3. Execute the command.
+
 
 ## Error Handling
 
 | Code | Error Type                         | Example Message                                                                                                          |
 | ---- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| 401  | Unauthorized (No API Key)          | `ok: false, code: "unauthorized", message: "API key is missing or invalid"`                                              |
-| 501  | Missing required parameter         | `error: required option '--prompt <prompt>' not specified`                                                               |
-| 502  | Local file read error              | `Error: Image file/Video file not found: C:\path\to\your\file`                                                           |
-| 503  | API request failed (no balance)    | `ok: false, code: "insufficient_balance"`                                                                                |
-| 503  | API request failed (server error)  | `HTTP status code error (500 server crash)`                                                                              |
+| 401  | Unauthorized (No API Key)          | `ok: false, code: "unauthorized", message: "API key is missing or invalid"`                                                              |
+| 501  | Missing required parameter         | `error: required option '--prompt <prompt>' not specified`                                                              |
+| 502  | Local file read error              | `Error: Image file/Video file not found: C:\path\to\your\file`                                                          |
+| 503  | API request failed (no balance)    | `ok: false, code: "insufficient_balance"` |
+| 503  | API request failed (server error)  | `HTTP status code error (500 server crash)`                                                                             |
 | 504  | Asynchronous task execution failed | `=== Generation Failed ===` / `{Specific error reason returned by backend, for example "Prompt violates safety policy"}` |
 
-> **AGENT CRITICAL INSTRUCTION**:
->
+> **AGENT CRITICAL INSTRUCTION**: 
 > 1. If the execution result returns `code: "insufficient_balance"`, you MUST explicitly inform the user that their credits are insufficient and guide them to recharge: [https://dlazy.com/dashboard/organization/settings?tab=credits](https://dlazy.com/dashboard/organization/settings?tab=credits)
 > 2. If the execution result returns `code: "unauthorized"` or indicates missing API key, you MUST inform the user to get their API key from [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) and save it using `dlazy auth set <key>` and resume the task.
 

@@ -1,6 +1,6 @@
 ---
 name: logo-branding-system
-version: 1.1.0
+version: 1.1.1
 description: A professional pipeline for building everything from a core mark to a complete brand visual system, ensuring creative quality, execution consistency, and shippable delivery.
 triggers:
   - Logo & Branding Professional Design System

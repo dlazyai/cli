@@ -88,6 +88,7 @@ const RECIPES: Record<string, Recipe> = {
 	"wan2.6-r2v-flash": { args: ["--prompt", "一只可爱的小猫在草地上奔跑"] },
 	"wan2.6-r2v": { args: ["--prompt", "一只可爱的小猫在草地上奔跑"] },
 	"wan2.7": { args: ["--prompt", "一只可爱的小猫在草地上奔跑"] },
+	"happyhorse-1.0": { args: ["--prompt", "一只可爱的小马在海边奔跑"] },
 
 	// Banana
 	"banana-pro": { args: ["--prompt", "a tiny cat in a meadow"] },

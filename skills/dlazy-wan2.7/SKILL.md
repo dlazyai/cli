@@ -1,6 +1,6 @@
 ---
 name: dlazy-wan2.7
-version: 1.1.0
+version: 1.1.1
 description: Tongyi Wanxiang 2.7 video model 鈥?one model covers text-to-video, first/last-frame-to-video, and reference-to-video.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy wan2.7 -h for help."}}
 ---
@@ -80,7 +80,7 @@ dlazy wan2.7 -h
 
 Options:
   --prompt [prompt]                    Prompt
-  --generation_mode [generation_mode]  Generation Mode [default: components] (choices: "components", "frames")
+  --generation_mode [generation_mode]  Generation Mode（components=Components; frames=Frames） [default: components] (choices: "components", "frames")
   --images [images...]                 Images [image: url or local path] (max 5) [only when !(generation_mode="frames")]
   --videos [videos...]                 Videos [video: url or local path] (max 5) [only when !(generation_mode="frames")]
   --firstFrame [firstFrame]            First Frame [image: url or local path] [only when generation_mode="frames"]

@@ -1,6 +1,6 @@
 ---
 name: idea2video
-version: 1.1.0
+version: 1.1.1
 description: Turn a user's idea into the full pipeline: **story → characters → 3-view portraits → scenes → shots → keyframes → shot videos → concat**. First emit a **plan template** for the user to confi
 triggers:
   - Idea → Video Generation Plan

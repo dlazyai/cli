@@ -1,6 +1,6 @@
 ---
 name: dlazy-plan
-version: 1.1.0
+version: 1.1.1
 description: 面向 CLI / 外部智能体的视频规划工具。通过 Agent，返回一份逻辑模板（含 map / when 控制结构）和一份已展开的扁平节点列表，后者可直接通过 drawToCanvas 落到画布。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy plan -h 查看帮助信息。"}}
 ---

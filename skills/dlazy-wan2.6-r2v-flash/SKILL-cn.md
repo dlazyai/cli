@@ -1,6 +1,6 @@
 ---
 name: dlazy-wan2.6-r2v-flash
-version: 1.1.0
+version: 1.1.1
 description: 使用 Wan 2.6 Flash 极速版，通过参考图片快速生成动感短视频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy wan2.6-r2v-flash -h 查看帮助信息。"}}
 ---

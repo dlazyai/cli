@@ -1,6 +1,6 @@
 ---
 name: dlazy-plan
-version: 1.1.0
+version: 1.1.1
 description: Idea-to-video planning tool for CLI / external agents. Drives Agent and returns both a logical plan template (with map / when control flow) and an expanded flat shape list ready to drop onto the canvas via drawToCanvas.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy plan -h for help."}}
 ---

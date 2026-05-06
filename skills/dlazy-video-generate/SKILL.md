@@ -1,30 +1,14 @@
 ---
 name: dlazy-video-generate
-version: 1.1.0
+version: 1.1.1
 description: Video generation skill. Automatically selects the best dlazy CLI video model based on the prompt.
-metadata:
-  {
-    'clawdbot':
-      {
-        'emoji': '🤖',
-        'requires': { 'bins': ['npm', 'npx'] },
-        'install': 'npm install -g @dlazy/cli@1.0.9',
-        'installAlternative': 'npx @dlazy/cli@1.0.9',
-        'homepage': 'https://github.com/dlazyai/cli',
-        'source': 'https://github.com/dlazyai/cli',
-        'author': 'dlazyai',
-        'license': 'see-repo',
-        'npm': 'https://www.npmjs.com/package/@dlazy/cli',
-        'configLocation': '~/.dlazy/config.json',
-        'apiEndpoints': ['api.dlazy.com', 'files.dlazy.com'],
-      },
-    'openclaw': { 'systemPrompt': 'When this skill is called, use dlazy <subcommand>.' },
-  }
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When this skill is called, use dlazy <subcommand>."}}
 ---
 
 # dlazy-video-generate
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
+
 
 Video generation skill. Automatically selects the best dlazy CLI video model based on the prompt.
 
@@ -38,9 +22,9 @@ Video generation skill. Automatically selects the best dlazy CLI video model bas
 
 All requests require a dLazy API key. The recommended way to authenticate is:
 
+
+
 ```bash
-dlazy login
-```
 
 This runs a device-code flow (also works in remote shells) and **automatically saves your API key** to the local CLI config — no manual copy/paste required.
 
@@ -127,32 +111,47 @@ This skill handles all video generation requests by selecting the best `dlazy` v
 
 ### Available Video Models
 
-- `dlazy veo-3.1`, `dlazy veo-3.1-fast`: High-quality cinematic sequences.
-- `dlazy sora-2`, `dlazy sora-2-pro`: Narrative clips.
-- `dlazy kling-v3`, `dlazy kling-v3-omni`: General short clips.
-- `dlazy seedance-1.5-pro`: Narrative shorts with transitions.
-- `dlazy wan2.6-r2v`, `dlazy wan2.6-r2v-flash`: General/fast video production.
-- `dlazy viduq2-i2v`, `dlazy jimeng-i2v-first`, `dlazy jimeng-i2v-first-tail`, `dlazy jimeng-dream-actor`, `dlazy jimeng-omnihuman-1.5`: Image-to-video, digital human, action transfer.
+- `dlazy seedance-2.0`: ByteDance's latest video generation model. Supports multi-modal reference (images, video, audio) to generate videos, as well as first/last frame and text-to-video modes.
+- `dlazy seedance-2.0-fast`: Fast version of ByteDance's Seedance 2.0. Generates videos faster with support for multi-modal references, first/last frame, and text-to-video.
+- `dlazy veo-3.1`: High-quality video generation model, supports text-to-video and single-image-driven video. Suitable for ad shorts and cinematic sequences (slower speed, higher quality).
+- `dlazy happyhorse-1.0`: Happy Horse 1.0 video model — one model covers text-to-video (t2v), first-frame-to-video (i2v), reference-to-video (r2v), and video editing (edit). The selected mode is automatically routed to the matching sub-model.
+- `dlazy veo-3.1-fast`: Fast video generation model, supports text-to-video and single/multi-image/first-last frame driven. Suitable for time-sensitive previews and rapid iterations.
+- `dlazy kling-v3-omni`: Kling Omni video model, supports multiple reference images, duration, mode (std/pro), and optional audio. Suitable for highly controlled video synthesis tasks.
+- `dlazy kling-v3`: Kling V3 general video model, supports text + up to 4 reference images, suitable for stable short video clips and daily creative workflows.
+- `dlazy seedance-1.5-pro`: ByteDance high-quality video generation model, supports text-to-video with optional first/last frame control for transitions, suitable for narrative shorts and continuous action scenes.
+- `dlazy wan2.7`: Tongyi Wanxiang 2.7 video model — one model covers text-to-video, first/last-frame-to-video, and reference-to-video: uses text-to-video when no images are provided, first/last-frame-to-video when frames are provided, and reference-to-video when reference images are supplied.
+- `dlazy wan2.6-r2v`: Tongyi Wanxiang video generation model (Standard), supports text + reference image, resolution, and shot type control, suitable for general short video production.
+- `dlazy wan2.6-r2v-flash`: Tongyi Wanxiang video generation model (Flash), optimized for speed and throughput, supports optional audio output, suitable for batch generation and quick trials.
+- `dlazy pixverse-c1`: PixVerse C1 video model (strong on action, VFX, and high-motion scenes) — one model covers text-to-video, image-to-video, first/last-frame-to-video, and reference-to-video: t2v when no images, i2v with first frame only, kf2v with first+last frames, r2v with reference images.
+- `dlazy viduq2-i2v`: Vidu image-to-video model, supports reference image-driven video, duration/resolution/ratio, and audio settings, suitable for image animation and short clips.
+- `dlazy jimeng-i2v-first`: Jimeng first-frame-to-video model, uses first frame + text to generate video. Suitable for single-shot scenes that naturally animate static images.
+- `dlazy jimeng-i2v-first-tail`: Jimeng first/last-frame video model, supports first and last frame constraints to control shot start/end states, suitable for transitions and clear action conclusions.
+- `dlazy jimeng-dream-actor`: Jimeng character/action-driven video model, supports reference image and video input, suitable for character acting, action transfer, and style-consistent generation.
+- `dlazy jimeng-omnihuman-1.5`: Jimeng digital human model, supports generating high-quality digital human videos from any aspect ratio image containing a character/subject combined with audio.
+- `dlazy video-scenes`: Scene split tool: uses ffmpeg to detect and split a video into scene clips, returning only the clip URLs without video content understanding.
+- `dlazy video-replicate`: Video replicate tool: extracts the first frame and audio from the source video, runs video understanding for a prompt, and returns a Seedance 2.0 replicate bundle (first frame + audio + video).
+- `dlazy merge`: Audio/video merging tool: merges multiple video and audio tracks based on clips and timeline config, suitable for final cuts, scoring, and post-production.
+- `dlazy one-click-generation`: Short-video generation pipeline. Configure subject, script, TTS voiceover, BGM, and subtitle styling.
 
 **CRITICAL INSTRUCTION FOR AGENT**:
 
 1. Select the most appropriate video model.
-2. Run \`dlazy <model_name> -h\` to check parameters.
+2. Run `dlazy <model_name> -h` to check parameters.
 3. Execute the command.
+
 
 ## Error Handling
 
 | Code | Error Type                         | Example Message                                                                                                          |
 | ---- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| 401  | Unauthorized (No API Key)          | `ok: false, code: "unauthorized", message: "API key is missing or invalid"`                                              |
-| 501  | Missing required parameter         | `error: required option '--prompt <prompt>' not specified`                                                               |
-| 502  | Local file read error              | `Error: Image file/Video file not found: C:\path\to\your\file`                                                           |
-| 503  | API request failed (no balance)    | `ok: false, code: "insufficient_balance"`                                                                                |
-| 503  | API request failed (server error)  | `HTTP status code error (500 server crash)`                                                                              |
+| 401  | Unauthorized (No API Key)          | `ok: false, code: "unauthorized", message: "API key is missing or invalid"`                                                              |
+| 501  | Missing required parameter         | `error: required option '--prompt <prompt>' not specified`                                                              |
+| 502  | Local file read error              | `Error: Image file/Video file not found: C:\path\to\your\file`                                                          |
+| 503  | API request failed (no balance)    | `ok: false, code: "insufficient_balance"` |
+| 503  | API request failed (server error)  | `HTTP status code error (500 server crash)`                                                                             |
 | 504  | Asynchronous task execution failed | `=== Generation Failed ===` / `{Specific error reason returned by backend, for example "Prompt violates safety policy"}` |
 
-> **AGENT CRITICAL INSTRUCTION**:
->
+> **AGENT CRITICAL INSTRUCTION**: 
 > 1. If the execution result returns `code: "insufficient_balance"`, you MUST explicitly inform the user that their credits are insufficient and guide them to recharge: [https://dlazy.com/dashboard/organization/settings?tab=credits](https://dlazy.com/dashboard/organization/settings?tab=credits)
 > 2. If the execution result returns `code: "unauthorized"` or indicates missing API key, you MUST inform the user to get their API key from [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) and save it using `dlazy auth set <key>` and resume the task.
 

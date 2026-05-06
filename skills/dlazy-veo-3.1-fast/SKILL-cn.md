@@ -1,6 +1,6 @@
 ---
 name: dlazy-veo-3.1-fast
-version: 1.1.0
+version: 1.1.1
 description: 使用 Google Veo 3.1 Fast 极速版模型，快速响应并生成短时长的文生视频或图生视频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy veo-3.1-fast -h 查看帮助信息。"}}
 ---
@@ -82,7 +82,7 @@ dlazy veo-3.1-fast -h
 Options:
   --prompt [prompt]                    提示词
   --images [images...]                 参考图 [image: url or local path] (max 3) [only when generation_mode="components"]
-  --generation_mode [generation_mode]  生成模式 [default: frames] (choices: "frames", "components")
+  --generation_mode [generation_mode]  生成模式（frames=首尾帧; components=参考图） [default: frames] (choices: "frames", "components")
   --firstFrame [firstFrame]            首帧图 [image: url or local path] [only when generation_mode="frames"]
   --lastFrame [lastFrame]              尾帧图 [image: url or local path] [only when generation_mode="frames"]
   --size [size]                        尺寸 [default: 16:9] (choices: "16:9", "9:16")

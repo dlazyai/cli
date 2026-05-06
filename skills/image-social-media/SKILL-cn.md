@@ -1,6 +1,6 @@
 ---
 name: image-social-media
-version: 1.1.0
+version: 1.1.1
 description: A structured skill for multi-platform social-media content creation, covering Instagram, TikTok, YouTube, LinkedIn, Xiaohongshu, and more. The goal: outputs that satisfy each platform's nati
 triggers:
   - Social Media Designer (Multi-Platform Optimization)

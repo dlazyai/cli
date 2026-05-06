@@ -1,6 +1,6 @@
 ---
 name: image-amazon-product-image-suite
-version: 1.1.0
+version: 1.1.1
 description: A professional product image generation skill purpose-built for the Amazon e-commerce platform. Outputs comply with Amazon's image guidelines while optimizing for click-through and conversio
 triggers:
   - Amazon Product Image Suite

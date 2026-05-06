@@ -1,6 +1,6 @@
 ---
 name: image-marketing-brochure
-version: 1.1.0
+version: 1.1.1
 description: A complete workflow skill for marketing brochure design, covering everything from requirements gathering, layout design, to mock-up delivery. It uses a 'layout-first + mandatory confirmation
 triggers:
   - Marketing Brochure Designer (Layout-First)

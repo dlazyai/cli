@@ -1,6 +1,6 @@
 ---
 name: dlazy-seedance-2.0-fast
-version: 1.1.0
+version: 1.1.1
 description: Fast version of ByteDance's Seedance 2.0. Generates videos faster with support for multi-modal references, first/last frame, and text-to-video.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy seedance-2.0-fast -h 查看帮助信息。"}}
 ---
@@ -79,7 +79,7 @@ dlazy seedance-2.0-fast -h
 
 Options:
   --prompt [prompt]                    提示词
-  --generation_mode [generation_mode]  生成模式 [default: components] (choices: "components", "frames")
+  --generation_mode [generation_mode]  生成模式（components=参考图; frames=首尾帧） [default: components] (choices: "components", "frames")
   --images [images...]                 参考图 [image: url or local path] (max 9) [only when !(generation_mode="frames")]
   --videos [videos...]                 参考视频 [video: url or local path] (max 3) [only when !(generation_mode="frames")]
   --audios [audios...]                 参考音频 [audio: url or local path] (max 3) [only when !(generation_mode="frames")]

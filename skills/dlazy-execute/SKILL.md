@@ -1,6 +1,6 @@
 ---
 name: dlazy-execute
-version: 1.1.0
+version: 1.1.1
 description: Executes a plan's flat shape list end-to-end. Each shape is dispatched through /api/ai/tool in dependency order (resolved from `shape://name:<X>` refs); upstream outputs are substituted into downstream input, and `promptRefs` text is prepended to the consumer's `prompt`. IMPORTANT: only shapes whose `props.status` is `idle` actually run — any other status (`completed` / `failed` / `processing`) is treated as already-done and its existing `props.url` is reused as the producer output. To resume after a failure, set the failed shapes (and any you want re-run) back to `idle`, optionally edit their `props.input`, then call execute again.
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"When invoking this skill, use dlazy execute -h for help."}}
 ---

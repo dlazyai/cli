@@ -1,30 +1,14 @@
 ---
 name: dlazy-video-generate
-version: 1.1.0
+version: 1.1.1
 description: 视频生成技能。根据提示词自动选择最佳的 dlazy CLI 视频生成模型。
-metadata:
-  {
-    'clawdbot':
-      {
-        'emoji': '🤖',
-        'requires': { 'bins': ['npm', 'npx'] },
-        'install': 'npm install -g @dlazy/cli@1.0.9',
-        'installAlternative': 'npx @dlazy/cli@1.0.9',
-        'homepage': 'https://github.com/dlazyai/cli',
-        'source': 'https://github.com/dlazyai/cli',
-        'author': 'dlazyai',
-        'license': 'see-repo',
-        'npm': 'https://www.npmjs.com/package/@dlazy/cli',
-        'configLocation': '~/.dlazy/config.json',
-        'apiEndpoints': ['api.dlazy.com', 'files.dlazy.com'],
-      },
-    'openclaw': { 'systemPrompt': '当调用此技能时，请自动选择对应的 dlazy 子命令执行。' },
-  }
+metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，请自动选择对应的 dlazy 子命令执行。"}}
 ---
 
 # dlazy-video-generate
 
 [English](./SKILL.md) · [中文](./SKILL-cn.md)
+
 
 视频生成技能。根据提示词自动选择最佳的 dlazy CLI 视频生成模型。
 
@@ -80,7 +64,7 @@ npx @dlazy/cli@1.0.9 <command>
 
 如选择全局安装，技能的 `metadata.clawdbot.install` 字段已固定到 `npm install -g @dlazy/cli@1.0.9`。安装前建议先到 GitHub 仓库审阅源码。
 
-## 工作原理 (How It Works)
+## 工作原理
 
 此技能是 dLazy 托管 API 的轻量封装。调用时：
 
@@ -121,38 +105,53 @@ dlazy seedream-4.5 --prompt "城市天际线" --n 4 \
 
 > 必填参数也可以完全由管道提供 —— 当上游存在对应值时，`--field -` 即可满足必填校验。若 stdin 为空，CLI 会以 `code: "no_stdin"` 报错。
 
-## Usage / 使用方法
+## 使用方法
 
 此技能处理所有视频生成请求，通过选择最佳的 `dlazy` 视频模型。
 
 ### 可用的视频模型
 
-- `dlazy veo-3.1`, `dlazy veo-3.1-fast`: 高质量电影级片段。
-- `dlazy sora-2`, `dlazy sora-2-pro`: 叙事片段。
-- `dlazy kling-v3`, `dlazy kling-v3-omni`: 通用短视频。
-- `dlazy seedance-1.5-pro`: 带转场的叙事短片。
-- `dlazy wan2.6-r2v`, `dlazy wan2.6-r2v-flash`: 通用/快速视频制作。
-- `dlazy viduq2-i2v`, `dlazy jimeng-i2v-first`, `dlazy jimeng-i2v-first-tail`, `dlazy jimeng-dream-actor`, `dlazy jimeng-omnihuman-1.5`: 图生视频、数字人、动作迁移。
-
-> **智能体关键指令**:
-
-1. 选择最合适的视频模型。
-2. 运行 \`dlazy <model_name> -h\` 查看参数。
-3. 执行命令。
-
-## 错误处理
-
-| Code | 错误类型                   | 示例信息                                                                                       |
-| ---- | -------------------------- | ---------------------------------------------------------------------------------------------- |
-| 401  | 未授权 (API Key缺失或无效) | `ok: false, code: "unauthorized", message: "API key is missing or invalid"`                    |
-| 501  | 缺少必填参数               | `error: required option '--prompt <prompt>' not specified`                                     |
-| 502  | 本地文件读取失败           | `Error: Image file/Video file not found: C:\path\to\your\file`                                 |
-| 503  | API 请求失败（余额不足）   | `ok: false, code: "insufficient_balance"`                                                      |
-| 503  | API 请求失败（服务端错误） | `HTTP status code error (500 server crash)`                                                    |
-| 504  | 异步任务执行失败           | `=== Generation Failed ===` / `{后端返回的具体失败原因，比如 "Prompt violates safety policy"}` |
+- `dlazy seedance-2.0`: 字节最新视频生成模型，支持多模态参考生视频（图片+视频+音频）、首尾帧及文生视频，适合高质量多样化视频创作。
+- `dlazy seedance-2.0-fast`: 字节最新视频生成模型 Fast 版，生成速度更快，支持多模态参考生视频、首尾帧及文生视频。
+- `dlazy veo-3.1`: 高质量视频生成模型，支持文本生视频与单图驱动视频。适合广告短片、镜头感强的成片生成（速度较慢、质量更高）。
+- `dlazy happyhorse-1.0`: Happy Horse 1.0 视频模型，一站式覆盖文生视频（t2v）、首帧生视频（i2v）、参考图生视频（r2v）与视频编辑（edit）：根据所选模式自动路由到对应子模型。
+- `dlazy veo-3.1-fast`: 快速版视频生成模型，支持文本生视频与单图/多图/首尾帧驱动。适合时间敏感的预览与快速迭代场景。
+- `dlazy kling-v3-omni`: Kling Omni 视频模型，支持多参考图、时长、模式（std/pro）与可选音频。适合高控制度的视频合成任务。
+- `dlazy kling-v3`: Kling V3 通用视频模型，支持文本+最多 4 张参考图，适合稳定产出短视频片段与日常创作流程。
+- `dlazy seedance-1.5-pro`: 字节高质量视频生成模型，支持文本生视频并可选首尾帧控制镜头过渡，适合叙事短片与动作连续性场景。
+- `dlazy wan2.7`: 通义万相 2.7 视频生成模型，一站式覆盖文生视频、首尾帧生视频与参考图生视频：未提供图时走文生视频，提供首/尾帧时走首尾帧生视频，提供参考图时走参考图生视频。
+- `dlazy wan2.6-r2v`: 通义万相视频生成模型（标准版），支持文本+参考图生成、分辨率与镜头类型控制，适合通用短视频制作。
+- `dlazy wan2.6-r2v-flash`: 通义万相视频生成模型（Flash 版），更偏速度与吞吐，支持可选音频输出，适合批量生成与快速试错。
+- `dlazy pixverse-c1`: 爱诗 PixVerse C1 视频生成模型（擅长打斗、法术特效、高速运动等高动态场景），一站式覆盖文生视频、图生视频、首尾帧生视频与参考图生视频：未提供图时走文生视频，仅首帧时走图生视频，首+尾帧时走首尾帧生视频，提供参考图时走参考图生视频。
+- `dlazy viduq2-i2v`: Vidu 图生视频模型，支持参考图驱动视频、时长/分辨率/比例与音频参数配置，适合图片动效化与短片生成。
+- `dlazy jimeng-i2v-first`: 即梦首帧生视频模型，使用首帧图+文本生成视频。适合让静态图片自然动起来的单镜头场景。
+- `dlazy jimeng-i2v-first-tail`: 即梦首尾帧视频模型，支持首帧与尾帧约束以控制镜头起止状态，适合转场与动作收束明确的片段。
+- `dlazy jimeng-dream-actor`: 即梦人物/动作驱动视频模型，支持参考图与参考视频输入，适合人物演绎、动作迁移与风格一致性生成。
+- `dlazy jimeng-omnihuman-1.5`: 即梦同源数字人模型，支持任意画幅包含人物/主体的图片结合音频生成高质量数字人视频。
+- `dlazy video-scenes`: 视频拆分分镜工具：使用 ffmpeg 进行场景检测与切分，仅返回按分镜切分后的视频片段 URL，不做视频内容理解。
+- `dlazy video-replicate`: 视频复刻工具：从源视频中提取首帧与音频，并调用视频理解生成描述提示，输出 Seedance 2.0 复刻方案（首帧 + 音频 + 视频）三件套。
+- `dlazy merge`: 音视频合并工具：按片段与时间轴配置合并多个视频和音频轨道，适合拼接成片、配乐与后期整合。
+- `dlazy one-click-generation`: 短视频自动生成工具。支持自定义视频主题、文案、TTS 朗读、背景音乐与字幕样式。
 
 > **智能体关键指令**:
 >
+> 1. 选择最合适的视频模型。
+> 2. 运行 `dlazy <model_name> -h` 查看参数。
+> 3. 执行命令。
+
+
+## 错误处理
+
+| Code | 错误类型                         | 示例信息                                                                                                                 |
+| ---- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| 401  | 未授权 (API Key缺失或无效)       | `ok: false, code: "unauthorized", message: "API key is missing or invalid"`                                                              |
+| 501  | 缺少必填参数                     | `error: required option '--prompt <prompt>' not specified`                                                               |
+| 502  | 本地文件读取失败                 | `Error: Image file/Video file not found: C:\path\to\your\file`                                                           |
+| 503  | API 请求失败（余额不足）         | `ok: false, code: "insufficient_balance"` |
+| 503  | API 请求失败（服务端错误）       | `HTTP status code error (500 server crash)`                                                                              |
+| 504  | 异步任务执行失败                 | `=== Generation Failed ===` / `{后端返回的具体失败原因，比如 "Prompt violates safety policy"}`                             |
+
+> **智能体关键指令**: 
 > 1. 如果执行结果返回 `code: "insufficient_balance"` 且提示余额不足（Insufficient balance），您必须明确告知用户当前积分不足，并引导用户点击以下链接前往充值：[https://dlazy.com/dashboard/organization/settings?tab=credits](https://dlazy.com/dashboard/organization/settings?tab=credits)
 > 2. 如果执行结果返回 `code: "unauthorized"` 或提示缺少 API Key，您必须明确告知用户前往 [https://dlazy.com/dashboard/organization/api-key](https://dlazy.com/dashboard/organization/api-key) 获取 API Key 并使用 `dlazy auth set <key>` 保存，然后继续执行任务。
 

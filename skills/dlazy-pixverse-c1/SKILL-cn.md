@@ -1,6 +1,6 @@
 ---
 name: dlazy-pixverse-c1
-version: 1.1.0
+version: 1.1.1
 description: PixVerse C1 视频模型 (擅长动作、特效和高速运动场景) —— 单一模型覆盖文生视频、图生视频、首尾帧视频及参考图生成视频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy pixverse-c1 -h 查看帮助信息。"}}
 ---
@@ -80,7 +80,7 @@ dlazy pixverse-c1 -h
 
 Options:
   --prompt [prompt]                    提示词
-  --generation_mode [generation_mode]  生成模式 [default: components] (choices: "components", "frames")
+  --generation_mode [generation_mode]  生成模式（components=参考图; frames=首尾帧） [default: components] (choices: "components", "frames")
   --images [images...]                 参考图 [image: url or local path] (max 7) [only when !(generation_mode="frames")]
   --firstFrame [firstFrame]            首帧图 [image: url or local path] [only when generation_mode="frames"]
   --lastFrame [lastFrame]              尾帧图 [image: url or local path] [only when generation_mode="frames"]

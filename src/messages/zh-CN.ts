@@ -102,7 +102,7 @@ export const messages: Messages = {
 	config: {
 		startingAuth: "\n[dLazy CLI] 正在启动登录流程...",
 		visitToAuthorize: (url) =>
-			`请在任意浏览器中打开以下链接完成授权:\n${url}\n`,
+			`请在任意浏览器中打开以下链接完成授权。如果您已确认完成授权，您可以继续后续操作：\n${url}\n`,
 		pollingNotice: (minutes) => `等待授权完成（${minutes} 分钟内有效）...`,
 		authExpired: "授权请求已过期或被拒绝",
 		authTimeout: (minutes) => `${minutes} 分钟内未完成授权`,

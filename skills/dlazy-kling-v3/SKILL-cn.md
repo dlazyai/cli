@@ -1,6 +1,6 @@
 ---
 name: dlazy-kling-v3
-version: 1.1.0
+version: 1.1.1
 description: 使用可灵 (Kling) v3 强大的视频生成模型，支持高质量的文生视频与图生视频。
 metadata: {"clawdbot":{"emoji":"🤖","requires":{"bins":["npm","npx"]},"install":"npm install -g @dlazy/cli@1.0.9","installAlternative":"npx @dlazy/cli@1.0.9","homepage":"https://github.com/dlazyai/cli","source":"https://github.com/dlazyai/cli","author":"dlazyai","license":"see-repo","npm":"https://www.npmjs.com/package/@dlazy/cli","configLocation":"~/.dlazy/config.json","apiEndpoints":["api.dlazy.com","files.dlazy.com"]},"openclaw":{"systemPrompt":"当调用此技能时，可以使用 dlazy kling-v3 -h 查看帮助信息。"}}
 ---
@@ -81,7 +81,7 @@ dlazy kling-v3 -h
 
 Options:
   --prompt [prompt]                    提示词
-  --generation_mode [generation_mode]  生成模式 [default: frames] (choices: "frames", "components")
+  --generation_mode [generation_mode]  生成模式（frames=首尾帧; components=参考图） [default: frames] (choices: "frames", "components")
   --images [images...]                 参考图 [image: url or local path] (max 4)
   --subjects [subjects...]             主体 (max 3) [only when !(generation_mode="frames")]
   --aspect_ratio [aspect_ratio]        画幅比例 [default: 16:9] (choices: "16:9", "9:16", "1:1")
